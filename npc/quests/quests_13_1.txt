@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 1.9
+//= 2.0
 //===== Compatible With: ===================================== 
 //= 15-3athena SVN
 //===== Description: ========================================= 
@@ -33,6 +33,7 @@
 //= 1.8 Added 13.2 Additions to Report from the New World NPCs
 //=     Upped success rates for Report from the New World drops.
 //= 1.9 Updated to latest rAthena version (3.5) [15peaces]
+//= 2.0 Updated to support ep16.1. [15peaces]
 //============================================================ 
 
 // Onward to the New World :: ep13_gogo
@@ -102,7 +103,7 @@ prontera,163,53,3	script	Promotional Staff#prt	100,{
 	end;
 }
 
-prt_castle,121,51,3	script	Alliance Manager#prt	752,{
+-	script	Alliance Manager#prt_	-1,{
 	if (ep13_ryu == 13) {
 		mes "[Alliance Manager]";
 		mes "If we'd had the initiative over Schwartzvald, we could take advantage over them! But we lost the opportunity.";
@@ -188,7 +189,11 @@ prt_castle,121,51,3	script	Alliance Manager#prt	752,{
 	close;
 }
 
-prt_castle,117,51,5	script	Member of Alliance#prt	754,{
+// Moved on EP 16.1
+prt_castle,121,51,3	duplicate(Alliance Manager#prt_)	Alliance Manager#prt	1,0,152,752
+prt_cas,19,98,7	duplicate(Alliance Manager#prt_)	Alliance Manager#prt	1,161,-1,752
+
+-	script	Member of Alliance#prt_	-1,{
 	if ((ep13_ryu == 12) || (ep13_ryu == 13)) {
 		mes "[Member of Alliance]";
 		mes "If we have absolute power, we wouldn't have to get along with Schwartzvald and Arunafeltz.";
@@ -210,7 +215,11 @@ prt_castle,117,51,5	script	Member of Alliance#prt	754,{
 	close;
 }
 
-prt_castle,83,67,5	script	Recruiter for the Brave	109,{
+// Moved on EP 16.1
+prt_castle,117,51,5	duplicate(Member of Alliance#prt_)	Member of Alliance#prt	1,0,152,754
+prt_cas,23,104,5	duplicate(Member of Alliance#prt_)	Member of Alliance#prt	1,161,-1,754
+
+-	script	Recruiter for the Brave_	-1,{
 	if (ep13_ryu == 12) {
 		mes "[Recruiter]";
 		mes "Why have you come again?";
@@ -364,6 +373,10 @@ prt_castle,83,67,5	script	Recruiter for the Brave	109,{
 		close;
 	}
 }
+
+// Moved on EP 16.1
+prt_castle,83,67,5	duplicate(Recruiter for the Brave_)	Recruiter for the Brave	1,0,152,109
+prt_cas,207,165,5	duplicate(Recruiter for the Brave_)	Recruiter for the Brave	1,161,-1,109
 
 aldebaran,127,138,3	script	Promotional Staff#alde	100,{
 	if (ep13_ryu > 3) {
@@ -10133,7 +10146,7 @@ man_fild03,202,251,3	duplicate(Expedition Scout#1)	Expedition Scout#2	707
 spl_fild02,295,368,3	duplicate(Expedition Scout#1)	Expedition Scout#3	707
 spl_fild03,172,71,3	duplicate(Expedition Scout#1)	Expedition Scout#4	707
 
-prt_castle,88,165,3	script	Laur	57,{
+-	script	Laur_	-1,{
 	mes "[Laur]";
 	if (ep13_1_edq == 9 || ep13_1_edq == 111 || ep13_1_edq == 121 || ep13_1_edq == 113 || ep13_1_edq == 123) {
 		mes "I'm Laur, the aide of the Home Minister of the Rune-Midgarts Kingdom. Do you have any business with me?";
@@ -10189,6 +10202,10 @@ prt_castle,88,165,3	script	Laur	57,{
 		close;
 	}
 }
+
+// Moved on EP 16.1
+prt_castle,88,165,3	duplicate(Laur_)	Laur	1,0,152,57
+prt_cas,108,265,5	duplicate(Laur_)	Laur	1,161,-1,57
 
 ra_temple,122,174,3	script	Nuria	918,{
 	mes "[Nuria]";

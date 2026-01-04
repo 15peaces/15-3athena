@@ -7357,7 +7357,7 @@ static const struct _battle_data {
 	{ "monster_eye_range_bonus",            &battle_config.mob_eye_range_bonus,             0,      0,      10,				},
 	{ "tarotcard_equal_chance",             &battle_config.tarotcard_equal_chance,          0,      0,      1,				},
 	//Episode System [15peaces]
-	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
+	{ "feature.episode",					&battle_config.feature_episode,		           161,    10,      161,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
 };
 

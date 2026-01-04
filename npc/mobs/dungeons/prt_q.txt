@@ -1,0 +1,14 @@
+//===== rAthena Script =======================================
+//= Episode 16.1 Monsters Spawn Script
+//===== Description: =========================================
+//= Spawns monsters in prt_q.
+//===== Additional Comments: =================================
+//= 1.0 First version. [Capuche]
+//============================================================
+
+// Prontera Invasion
+prt_q,0,0,0,0,1,161,-1	monster	Zombie Guard	3452,60,0,0,0
+prt_q,0,0,0,0,1,161,-1	monster	Ghoul	1036,10,0,0,0
+prt_q,0,0,0,0,1,161,-1	monster	Immortal Corps	3451,30,0,0,0
+prt_q,0,0,0,0,1,161,-1	monster	Hunter Fly	1035,15,0,0,0
+prt_q,0,0,0,0,1,161,-1	monster	Immortal Commander	3490,1,0,0,0

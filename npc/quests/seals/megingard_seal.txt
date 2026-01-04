@@ -22,7 +22,7 @@
 //= 2.0 Updated to hercules script v. 2.2.[15peaces]
 //============================================================
 
-prt_castle,44,151,0	script	Rebarev Doug	56,{
+-	script	Rebarev Doug_	-1,{
 	if (checkweight(1301,3) == 0) {
 		mes "- You are carrying too many items! -";
 		close;
@@ -536,7 +536,11 @@ prt_castle,44,151,0	script	Rebarev Doug	56,{
 	end;
 }
 
-prt_castle,48,164,0	script	Crusader#God	734,{
+// Moved on EP 16.1
+prt_castle,44,151,0	duplicate(Rebarev Doug_)	Rebarev Doug	1,0,152,56
+prt_cas,180,269,6	duplicate(Rebarev Doug_)	Rebarev Doug	1,161,-1,56
+
+-	script	Crusader#God_	-1,{
 	if($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes > 22 && god_eremes < 25) {
 			mes "[Max Von Shedough]";
@@ -614,6 +618,10 @@ prt_castle,48,164,0	script	Crusader#God	734,{
 		close;
 	}
 }
+
+// Moved on EP 16.1
+prt_castle,48,164,0	duplicate(Crusader#God_)	Crusader#God	1,0,152,734
+prt_cas,241,100,1	duplicate(Crusader#God_)	Crusader#God	1,161,-1,734
 
 prt_in,172,109,0	script	A File#megin1	111,{
 	if(god_eremes == 12) {

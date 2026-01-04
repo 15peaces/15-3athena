@@ -427,7 +427,7 @@
 5461,499,100	// Adv_Whisper_Mask
 5462,457,100	// Spiked Scarf
 5463,457,100	// Rainbow Scarf
-5464,507,100	// Zaha_Doll_Hat
+5464,1,100	// Zaha_Doll_Hat
 5489,73,100		// Love_Daddy
 5491,73,100		// Hat_Of_Outlaw
 5500,73,100		// Icecream_Hat

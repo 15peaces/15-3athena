@@ -210,10 +210,21 @@ ex: if your NPC is named 'Hunter#hunter1', it will be displayed as 'Hunter'
 ** Define a warp point
 
 <from map name>,<fromX>,<fromY>,<facing>%TAB%warp%TAB%<warp name>%TAB%<spanx>,<spany>,<to map name>,<toX>,<toY>
+<from map name>,<fromX>,<fromY>,<facing>,<episode_flag>,<min_episode>,<max_episode>%TAB%warp%TAB%<warp name>%TAB%<spanx>,<spany>,<to map name>,<toX>,<toY>
 <from map name>,<fromX>,<fromY>,<facing>%TAB%warp2%TAB%<warp name>%TAB%<spanx>,<spany>,<to map name>,<toX>,<toY>
 
 This will define a warp NPC that will warp a player between maps, and while most 
 arguments of that are obvious, some deserve special mention.
+
+The 3 episode flags are optional. All warp objects will work the same way as before
+the episode system update. So you won't need to update any npcs. These flags
+are:
+	episode_flag:	If set to 1, the server will treat the warp as episode system
+					compatible. Now the other episode flags will be read.
+	min_episode:	Set this to the minimum episode this warp should load.
+					(set this to 0 to disable min_episode)
+	max_episode:	Set this to the maximum episode this warp should load.
+					(set this to -1 to disable max_episode)
 
 SpanX and SpanY will make the warp sensitive to a character who didn't step 
 directly on it, but walked into a zone which is centered on the warp from 

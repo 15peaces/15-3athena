@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= kobra_k88
 //===== Current Version: ===================================== 
-//= 3.1
+//= 3.2
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -47,6 +47,7 @@
 //= 3.1 Updated to hercules v.3.2. [15peaces]
 //=     -Updated to match the latest official scripts. [Euphy]
 //=     -Added GM management NPC and variable $@re_moc_time$. [Euphy]
+//= 3.2 Updated to support ep16.1. [15peaces]
 //============================================================ 
 
 // Stop Post Quest
@@ -4324,7 +4325,7 @@ cave,105,32,7	script	Cave Settler#f_cave7	979,{
 
 // Succession of the Prince
 // ============================================================
-prontera,153,353,4	script	Messenger#prince1	105,{
+prontera,153,353,4	script	Messenger#prince1	1,0,152,105,{
 	if (nk_prince == 0) {
 		if (rebirth_moc_edq > 1) {
 			mes "[Messenger]";
@@ -4447,7 +4448,7 @@ prontera,153,353,4	script	Messenger#prince1	105,{
 	}
 }
 
-prt_castle,117,163,5	script	Inspector#prince	755,{
+prt_castle,117,163,5	script	Inspector#prince	1,0,152,755,{
 	if (checkquest(10004) == 0 || checkquest(10004) == 1) {
 		mes "[Inspector]";
 		mes "Judge!";
@@ -5334,7 +5335,7 @@ prt_castle,117,163,5	script	Inspector#prince	755,{
 	}
 }
 
-prt_castle,272,375,4	script	Prince	881,{
+prt_castle,272,375,4	script	Prince	1,0,152,881,{
 	if (nk_prince > 6) {
 		mes "-Obssessed with making";
 		mes "lock and key.-";
@@ -5401,7 +5402,7 @@ prt_castle,272,375,4	script	Prince	881,{
 	}
 }
 
-prt_castle,274,372,4	script	Servant#hans	48,{
+prt_castle,274,372,4	script	Servant#hans	1,0,152,48,{
 	if (checkquest(10020) == 2) {
 		mes "[Hans]";
 		mes "Ahh... mmm... I...";
@@ -5485,7 +5486,7 @@ prt_castle,274,372,4	script	Servant#hans	48,{
 	}
 }
 
-prt_castle,339,202,3	script	Prince#urgen	989,{
+prt_castle,339,202,3	script	Prince#urgen	1,0,152,989,{
 	if (nk_prince > 6) {
 		mes "[Urugen]";
 		mes "...It is not beautiful.";
@@ -5588,7 +5589,7 @@ prt_castle,339,202,3	script	Prince#urgen	989,{
 	}
 }
 
-prt_castle,289,201,3	script	Prince#helmut	991,{
+prt_castle,289,201,3	script	Prince#helmut	1,0,152,991,{
 	if (nk_prince > 6) {
 		mes "[Helmut]";
 		mes "Such an idiot. I should have killed him earlier. Now I feel relieved.";
@@ -5769,7 +5770,7 @@ prt_castle,289,201,3	script	Prince#helmut	991,{
 	}
 }
 
-prt_castle,288,208,4	script	Calbern	962,{
+prt_castle,288,208,4	script	Calbern	1,0,152,962,{
 	mes "[Calbern]";
 	mes "How are you doing, sir?";
 	mes "I am the servant of Prince Helmut...";
@@ -5785,7 +5786,7 @@ prt_castle,288,208,4	script	Calbern	962,{
 	close;
 }
 
-prt_castle,391,205,3	script	Prince#poe	993,{
+prt_castle,391,205,3	script	Prince#poe	1,0,152,993,{
 	if (nk_prince > 6) {
 		mes "[Poe]";
 		mes "Whatever the condition is, he is just a loser in the match of life.";
@@ -6009,7 +6010,7 @@ prt_castle,391,205,3	script	Prince#poe	993,{
 	}
 }
 
-prt_castle,364,375,4	script	Prince#peter	987,{
+prt_castle,364,375,4	script	Prince#peter	1,0,152,987,{
 	if (nk_prince > 6) {
 		mes "[Peter]";
 		mes "Appraiser.";
@@ -6192,7 +6193,7 @@ prt_castle,364,375,4	script	Prince#peter	987,{
 	}
 }
 
-aldebaran,132,184,3	script	Girl#prince	96,{
+aldebaran,132,184,3	script	Girl#prince	1,0,152,96,{
 	if (checkquest(10013) == 0 || checkquest(10013) == 1) {
 		if (countitem(744) > 0) {
 			mes "[Girl]";
@@ -6228,7 +6229,7 @@ aldebaran,132,184,3	script	Girl#prince	96,{
 	}
 }
 
-prt_castle,314,373,4	script	Prince#eisen	983,{
+prt_castle,314,373,4	script	Prince#eisen	1,0,152,983,{
 	if (nkprince_eisen > 2) {
 		if (nkprince_eisen == 3) {
 			mes "[Ahrum]";
@@ -6682,7 +6683,7 @@ prt_castle,314,373,4	script	Prince#eisen	983,{
 	}
 }
 
-prt_castle,368,312,4	script	Prince#ern	985,{
+prt_castle,368,312,4	script	Prince#ern	1,0,152,985,{
 	if (checkquest(10024) == 2) {
 		mes "[Ernst]";
 		mes "...brother, if you want...";
@@ -6875,7 +6876,7 @@ prt_castle,368,312,4	script	Prince#ern	985,{
 	}
 }
 
-prt_castle,163,319,0	script	#twonoble	-1,3,3,{
+prt_castle,163,319,0	script	#twonoble	1,0,152,-1,3,3,{
 //OnTouch2:
 OnTouch:
 	if (nkprince_eisen == 7) {
@@ -6950,7 +6951,7 @@ OnTouch:
 	}
 }
 
-prt_castle,156,325,4	script	Young Noble#valter	86,{
+prt_castle,156,325,4	script	Young Noble#valter	1,0,152,86,{
 	mes "[Young Noble Walter]";
 	mes "Step aside.";
 	mes "How dare you talk to him.";
@@ -6969,7 +6970,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,157,323,3	script	Aged Noble#rihart	880,{
+prt_castle,157,323,3	script	Aged Noble#rihart	1,0,152,880,{
 	mes "[Aged Noble Richard]";
 	mes "Hmm-hmm.";
 	mes "What an indecorous person!";
@@ -6988,7 +6989,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,314,371,0	script	Prince#another_ern	985,{
+prt_castle,314,371,0	script	Prince#another_ern	1,0,152,985,{
 	if (nkprince_eisen == 13) {
 		mes "[Ahrum]";
 		mes "I told you that I don't want to be king, and I don't have any intention to change my mind!";
@@ -7137,7 +7138,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,314,372,0	script	Prince#another_ern1	985,{
+prt_castle,314,372,0	script	Prince#another_ern1	1,0,152,985,{
 	if (nkprince_eisen == 14) {
 		mes "[Ernst]";
 		mes "Bbb... Brother?... You... told me you would kill me... You just wanted to be killed by me??... Bbb...brother?...";
@@ -7242,7 +7243,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,272,372,1	script	Prince#eisen1	983,{
+prt_castle,272,372,1	script	Prince#eisen1	1,0,152,983,{
 	mes "[Ahrum]";
 	mes "Moron. You'll never be a king. All throughout your life... Don't you know it? Such a junk addict!!";
 	next;
@@ -7300,7 +7301,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,336,202,7	script	Prince#eisen2	983,{
+prt_castle,336,202,7	script	Prince#eisen2	1,0,152,983,{
 	mes "[Urugen]";
 	mes "What did you say? Ahrum?";
 	mes "Hey! What did you just say to me? Ahrum?!";
@@ -7358,7 +7359,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,286,201,7	script	Prince#eisen3	983,{
+prt_castle,286,201,7	script	Prince#eisen3	1,0,152,983,{
 	mes "[Ahrum]";
 	mes "Military maniac! Jerk! Do you think power can solve everything? In all situations, do you think people can live peacefully?!";
 	next;
@@ -7413,7 +7414,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,388,205,6	script	Prince#eisen4	983,{
+prt_castle,388,205,6	script	Prince#eisen4	1,0,152,983,{
 	mes "[Ahrum]";
 	mes "You always care about gambling. But, why don't you care about your surrondings first, eh? Young master of Richard?";
 	next;
@@ -7477,7 +7478,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,364,372,1	script	Prince#eisen5	983,{
+prt_castle,364,372,1	script	Prince#eisen5	1,0,152,983,{
 	mes "[Ahrum]";
 	mes "Peter, what will you do if your work doesn't mean anything?";
 	next;
@@ -7541,7 +7542,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,368,310,1	script	Prince#eisen6	983,{
+prt_castle,368,310,1	script	Prince#eisen6	1,0,152,983,{
 	mes "[Ernst]";
 	mes "Bro, tell me again. You just said something?";
 	next;
@@ -7628,7 +7629,7 @@ OnDisable:
 	end;
 }
 
-prt_castle,318,276,0	script	#eisen	45,1,1,{
+prt_castle,318,276,0	script	#eisen	1,0,152,45,1,1,{
 OnTouch_:
 	if ((nkprince_eisen == 4) || (nkprince_eisen == 5)) {
 		donpcevent "Prince#another_ern::OnEnable";
@@ -7720,7 +7721,7 @@ OnTouch_:
 	end;
 }
 
-prt_castle,336,276,0	script	#ern	45,1,1,{
+prt_castle,336,276,0	script	#ern	1,0,152,45,1,1,{
 OnTouch_:
 	if (checkquest(10023) == 0 || checkquest(10023) == 1) {
 		donpcevent "Prince#eisen6::OnEnable";
@@ -7729,7 +7730,7 @@ OnTouch_:
 	end;
 }
 
-prt_castle,300,276,0	script	#erich	45,1,1,{
+prt_castle,300,276,0	script	#erich	1,0,152,45,1,1,{
 OnTouch_:
 	if (checkquest(10020) == 0 || checkquest(10020) == 1) {
 		donpcevent "Prince#eisen1::OnEnable";
@@ -7738,7 +7739,7 @@ OnTouch_:
 	end;
 }
 
-prt_castle,330,271,0	script	#helmut	45,1,1,{
+prt_castle,330,271,0	script	#helmut	1,0,152,45,1,1,{
 OnTouch_:
 	if (checkquest(10022) == 0 || checkquest(10022) == 1) {
 		donpcevent "Prince#eisen3::OnEnable";
@@ -7747,7 +7748,7 @@ OnTouch_:
 	end;
 }
 
-prt_castle,348,271,0	script	#poe	45,1,1,{
+prt_castle,348,271,0	script	#poe	1,0,152,45,1,1,{
 OnTouch_:
 	if (checkquest(10018) == 0 || checkquest(10018) == 1) {
 		donpcevent "Prince#eisen4::OnEnable";
@@ -7756,7 +7757,7 @@ OnTouch_:
 	end;
 }
 
-prt_castle,354,276,0	script	#peter	45,1,1,{
+prt_castle,354,276,0	script	#peter	1,0,152,45,1,1,{
 OnTouch_:
 	if (checkquest(10019) == 0 || checkquest(10019) == 1) {
 		donpcevent "Prince#eisen5::OnEnable";
@@ -7765,7 +7766,7 @@ OnTouch_:
 	end;
 }
 
-prt_castle,310,271,0	script	#urgen	45,1,1,{
+prt_castle,310,271,0	script	#urgen	1,0,152,45,1,1,{
 OnTouch_:
 	if (checkquest(10021) == 0 || checkquest(10021) == 1) {
 		donpcevent "Prince#eisen2::OnEnable";
@@ -7774,23 +7775,23 @@ OnTouch_:
 	end;
 }
 
-prt_castle,317,364,0	warp	#eisen2	1,1,prt_castle,318,273
-prt_castle,317,304,0	warp	eisen22	1,1,prt_castle,318,273
-prt_castle,367,304,0	warp	#ern2	1,1,prt_castle,336,273
-prt_castle,273,364,0	warp	#erich2	1,1,prt_castle,300,273
-prt_castle,289,213,0	warp	#helmut2	1,1,prt_castle,330,274
-prt_castle,389,213,0	warp	#poe2	1,1,prt_castle,348,274
-prt_castle,365,364,0	warp	#peter2	1,1,prt_castle,354,273
-prt_castle,340,213,0	warp	#urgen2	1,1,prt_castle,310,274
-prt_castle,163,312,0	warp	#class2	1,1,prt_castle,221,343
-prt_castle,221,347,0	warp	#class	1,1,prt_castle,163,316
-prt_castle,225,338,0	warp	#room11	1,1,prt_castle,275,283
-prt_castle,273,284,0	warp	#room21	1,1,prt_castle,221,338
-prt_castle,225,318,0	warp	#room12	1,1,prt_castle,276,263
-prt_castle,273,264,0	warp	#room22	1,1,prt_castle,221,318
-prt_castle,221,308,0	warp	#princeout	1,1,prt_castle,176,167
+prt_castle,317,364,0,1,0,152	warp	#eisen2	1,1,prt_castle,318,273
+prt_castle,317,304,0,1,0,152	warp	eisen22	1,1,prt_castle,318,273
+prt_castle,367,304,0,1,0,152	warp	#ern2	1,1,prt_castle,336,273
+prt_castle,273,364,0,1,0,152	warp	#erich2	1,1,prt_castle,300,273
+prt_castle,289,213,0,1,0,152	warp	#helmut2	1,1,prt_castle,330,274
+prt_castle,389,213,0,1,0,152	warp	#poe2	1,1,prt_castle,348,274
+prt_castle,365,364,0,1,0,152	warp	#peter2	1,1,prt_castle,354,273
+prt_castle,340,213,0,1,0,152	warp	#urgen2	1,1,prt_castle,310,274
+prt_castle,163,312,0,1,0,152	warp	#class2	1,1,prt_castle,221,343
+prt_castle,221,347,0,1,0,152	warp	#class	1,1,prt_castle,163,316
+prt_castle,225,338,0,1,0,152	warp	#room11	1,1,prt_castle,275,283
+prt_castle,273,284,0,1,0,152	warp	#room21	1,1,prt_castle,221,338
+prt_castle,225,318,0,1,0,152	warp	#room12	1,1,prt_castle,276,263
+prt_castle,273,264,0,1,0,152	warp	#room22	1,1,prt_castle,221,318
+prt_castle,221,308,0,1,0,152	warp	#princeout	1,1,prt_castle,176,167
 
-prt_castle,176,170,5	script	Guard#princein	105,{
+prt_castle,176,170,5	script	Guard#princein	1,0,152,105,{
 	if (nk_prince > 4) {
 		mes "[Guard of a strange place]";
 		mes "You can go to the room where princes gather, through the hidden door. For security reasons, it is totally guarded and hidden.";
@@ -7808,7 +7809,7 @@ prt_castle,176,170,5	script	Guard#princein	105,{
 	}
 }
 
-prt_castle,121,168,0	script	#arm	111,4,4,{
+prt_castle,121,168,0	script	#arm	1,0,152,111,4,4,{
 //OnTouch2:
 OnTouch:
 	if (nk_prince == 8) {
@@ -7829,7 +7830,7 @@ OnTouch:
 	}
 }
 
-prt_castle,316,313,0	script	#arm1	111,3,3,{
+prt_castle,316,313,0	script	#arm1	1,0,152,111,3,3,{
 //OnTouch2:
 OnTouch:
 	if (nkprince_eisen > 14) {

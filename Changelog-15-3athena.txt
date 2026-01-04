@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/04/2026
+	r555 [15peaces]
+		*Implemented Pyramids Nightmare Mode spawns and database entries.
+		*Added support for setting the episode to warp scripts.
+			-Variables are optional and can be defined the same way as on monster spawns:
+			-<from map name>,<fromX>,<fromY>,<facing>,<episode_flag>,<min_episode>,<max_episode>%TAB%warp%TAB%<warp name>%TAB%<spanx>,<spany>,<to map name>,<toX>,<toY>
+		*Added support for Episode 16.1
+			-Setting the server to this config will change the prontera castle map to prt_cas.
+			-This also removes the Succession of the Prince quest.
+		*Banquet for Heroes ep16.1 - part 1
+			-Added main quests of ep16.1 (currently disabled)
+			-Added quests entries
+			-Added monsters spawn and entries on prt_prison, prt_cas and prt_q maps
+			-Added new warps.
+			-Prontera castle map changed in this ep
+			-Moved NPCs from prt_castle to prt_cas
+
 01/01/2026
 	r553 [15peaces]
 		*Some item updates

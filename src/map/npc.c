@@ -2392,6 +2392,7 @@ struct npc_data* npc_add_warp(char* name, short from_mapid, short from_x, short 
 /**
  * Parses a warp npc.
  * Line definition <from mapname>,<fromX>,<fromY>,<facing>%TAB%warp%TAB%<warp name>%TAB%<spanx>,<spany>,<to mapname>,<toX>,<toY>
+ *                 <from mapname>,<fromX>,<fromY>,<facing>{,<episode_flag>,<min_episode>,<max_episode>}%TAB%warp%TAB%<warp name>%TAB%<spanx>,<spany>,<to mapname>,<toX>,<toY>,
  * @param w1 : word 1 before tab (<from map name>,<fromX>,<fromY>,<facing>)
  * @param w2 : word 2 before tab (warp), keyword that sent us in this parsing
  * @param w3 : word 3 before tab (<warp name>)
@@ -2403,15 +2404,22 @@ struct npc_data* npc_add_warp(char* name, short from_mapid, short from_x, short 
  */
 static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
-	int x, y, xs, ys, to_x, to_y, m;
+	int x, y, xs, ys, to_x, to_y, m, facing, episode_ident, min_episode, max_episode;
 	unsigned short i;
 	char mapname[32], to_mapname[32];
 	struct npc_data *nd;
 
-	// w1=<from map name>,<fromX>,<fromY>,<facing>
+	// w1=<from map name>,<fromX>,<fromY>,<facing>{,<episode_flag>,<min_episode>,<max_episode>}
+	if (sscanf(w1, "%31[^,],%d,%d,%d,%d,%d,%d", mapname, &x, &y, &facing, &episode_ident, &min_episode, &max_episode) == 7);
+	else if (sscanf(w1, "%31[^,],%d,%d", mapname, &x, &y) == 3);
+	else 
+	{
+		ShowError("npc_parse_warp: Invalid warp definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
+		return strchr(start, '\n');// skip and continue
+	}
+
 	// w4=<spanx>,<spany>,<to map name>,<toX>,<toY>
-	if( sscanf(w1, "%31[^,],%d,%d", mapname, &x, &y) != 3
-	||	sscanf(w4, "%d,%d,%31[^,],%d,%d", &xs, &ys, to_mapname, &to_x, &to_y) != 5 )
+	if (sscanf(w4, "%d,%d,%31[^,],%d,%d", &xs, &ys, to_mapname, &to_x, &to_y) != 5)
 	{
 		ShowError("npc_parse_warp: Invalid warp definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 		return strchr(start,'\n');// skip and continue
@@ -2424,6 +2432,13 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
 		ShowError("npc_parse_warp: Unknown destination map in file '%s', line '%d' : %s\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), to_mapname, w1, w2, w3, w4);
 		return strchr(start,'\n');// skip and continue
 	}
+
+	//Check Episode [15peaces]
+	if (min_episode <= 0 && max_episode <= 0);
+	else if (battle_config.feature_episode >= min_episode && max_episode == -1);
+	else if (battle_config.feature_episode >= min_episode && battle_config.feature_episode <= max_episode);
+	else
+		return strchr(start, '\n'); // skip and continue
 
 	nd = npc_create_npc(m, x, y);
 	map_addnpc(m, nd);

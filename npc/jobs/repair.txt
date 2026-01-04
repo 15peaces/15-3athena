@@ -1,21 +1,23 @@
-//===== rAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Job Repairs
 //===== By: ==================================================
 //= Euphy
 //===== Current Version: ===================================== 
-//= 1.0
+//= 1.2
 //===== Compatible With: ===================================== 
-//= rAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Official Conversion]
 //= Removes potentially conflicting job data.
 //===== Additional Comments: ================================= 
 //= 1.0 First version.
+//= 1.1 Added GM management function. [Euphy]
+//= 1.2 Updated to support ep16.1. [15peaces]
 //============================================================ 
 
 /*
-rAthena -> official job variable conversion
--------------------------------------------
+15-3athena -> official job variable conversion
+----------------------------------------------
 
 Knight: KNIGHT_Q -> job_knight_q
 Priest: PRIEST_Q -> job_priest_q
@@ -251,7 +253,7 @@ L_Third:
 
 -	script	Valerie#sign	-1,{
 	mes "^ff00ffI couldn't pay the office rent so I am temporarily relocating to the building across from the Prontera Refinery.^000000";
-	
+	mes " ";
 	mes "^ff00ffValerie^000000";
 	close;
 }
@@ -262,7 +264,7 @@ prt_in,88,108,4	duplicate(Valerie#sign)	Valerie#knt	837
 prt_church,19,36,4	duplicate(Valerie#sign)	Valerie#prst	837
 gef_tower,110,30,4	duplicate(Valerie#sign)	Valerie#wiz	837
 comodo,215,155,4	duplicate(Valerie#sign)	Valerie#danc	837
-prt_castle,45,167,4	duplicate(Valerie#sign)	Valerie#cru	837
+prt_castle,45,167,4,1,-1,152	duplicate(Valerie#sign)	Valerie#cru	837
 prt_monk,59,253,4	duplicate(Valerie#sign)	Valerie#mnk	837
 moc_ruins,90,104,4	duplicate(Valerie#sign)	Valerie#rg	837
 yuno_in02,43,62,4	duplicate(Valerie#sign)	Valerie#sag	837
@@ -278,12 +280,12 @@ in_rogue,376,104,4	duplicate(Valerie#sign)	Valerie#sc	837
 ve_in,244,122,4	duplicate(Valerie#sign)	Valerie#shu	837
 xmas,166,209,4	duplicate(Valerie#sign)	Valerie#wan	837
 
-/*
+
 sec_in02,12,40,5	script	Job Repair	57,1,1,{
+	callfunc "F_GM_NPC";
 	mes "Please input your password.";
 	next;
-	input .@inputstr$;
-	if (.@inputstr$ == "1854") {
+	if (callfunc("F_GM_NPC","1854",1) == 1) {
 		set job_arch,100;
 		set job_3rd_gc,100;
 		set job__mechanic,100;
@@ -314,4 +316,3 @@ sec_in02,12,40,5	script	Job Repair	57,1,1,{
 	}
 	close;
 }
-*/

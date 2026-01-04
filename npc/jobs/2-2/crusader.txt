@@ -4,7 +4,7 @@
 //= Made by: Black Dragon
 //= Converted by: Shin
 //===== Current Version: ===================================== 
-//= 3.3
+//= 4.0
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -32,12 +32,13 @@
 //= 3.1 Adding Hermemton's changes. [L0ne_W0lf]
 //= 3.2 Added Quest Log commands. [Kisuka]
 //= 3.3 Removed the need for use of 'goto.' [L0ne_W0lf]
+//= 4.0 Updated to support ep16.1. [15peaces]
 //============================================================
 
 
 // Senior Crusader: 1st Collect Items Test
 //============================================================
-prt_castle,45,169,5	script	Senior Crusader	752,{
+-	script	Senior Crusader_	-1,{
 	mes "[Michael Halig]";
 	if (Upper == 1) { //the baby classes were totally blocked... due to missing == 1
 		mes "Go and train yourself in preparation for the holy war that is coming. Victory will be in the hands of those who are most ready to receive it.";
@@ -315,8 +316,12 @@ prt_castle,45,169,5	script	Senior Crusader	752,{
 	close;
 }
 
+// Moved on EP 16.1
+prt_castle,45,169,5	duplicate(Senior Crusader_)	Senior Crusader	1,0,152,752
+prt_cas,251,75,1	duplicate(Senior Crusader_)	Senior Crusader	1,161,-1,752
+
 //===================== Suffering Man: 2nd Endurance Test ===============================================
-prt_castle,164,32,1	script	Man in Anguish	733,{
+-	script	Man in Anguish_	-1,{
 	mes "[Murnak Mijoul]";
 	if(BaseJob != Job_Swordman) {
 		if (BaseJob == Job_Crusader) {
@@ -447,6 +452,10 @@ prt_castle,164,32,1	script	Man in Anguish	733,{
 	mes "You still have tests to complete if you want to become a Crusader, don't you?";
 	close;
 }
+
+// Moved on EP 16.1
+prt_castle,164,32,1	duplicate(Man in Anguish_)	Man in Anguish	1,0,152,733
+prt_cas,238,94,5	duplicate(Man in Anguish_)	Man in Anguish	1,161,-1,733
 
 //===================== Gabriel Valentine: 3rd Knowledge Test =================================
 prt_church,95,127,3	script	Crusader	745,{
@@ -797,7 +806,7 @@ prt_church,95,127,3	script	Crusader	745,{
 }
 
 //===================== Crusader: 4th Purification Test =====================================================
-prt_castle,35,151,5	script	Patron Knight	751,{
+-	script	Patron Knight_	-1,{
 	mes "[Bliant Piyord]";
 	mes "Welcome.";
 	if(BaseJob != Job_Swordman) {
@@ -969,6 +978,9 @@ prt_castle,35,151,5	script	Patron Knight	751,{
 	close;
 }
 
+// Moved on EP 16.1
+prt_castle,35,151,5	duplicate(Patron Knight_)	Patron Knight	1,0,152,751
+prt_cas,238,94,5	duplicate(Patron Knight_)	Patron Knight	1,161,-1,751
 
 
 //=== Actual tests ========================================
@@ -1202,7 +1214,10 @@ job_cru,98,105,4	script	 Summoner#cr5	45,3,3,{
 OnTouch_:
 	set CRUS_Q,6;
 	changequest 3010,3011;
-	warp "prt_castle",164,28;
+	if(getepisode()<161)
+		warp "prt_castle",164,28;
+	else
+		warp "prt_cas",238,94;	// inaccurate location
 	end;
 }
 
@@ -1408,7 +1423,10 @@ OnInit:
 	end;
 
 OnTouch_:
-	warp "prt_castle",35,147;
+	if(getepisode()<161)
+		warp "prt_castle",35,147;
+	else
+		warp "prt_cas",238,94;	// inaccurate location
 	donpcevent "Monster Summon#cr0::OnReset";
 	donpcevent "Monster Summon#cr4::OnReset";
 	donpcevent "Monster Summon#cr0::OnEnd";

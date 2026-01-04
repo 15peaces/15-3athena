@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= SinSloth(Most of the NPCs), MasterOfMuppets(Some of the NPCs + bug fixes) & Kargha(The quiz NPCs)
 //===== Current Version: ===================================== 
-//= 3.6
+//= 3.7
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -25,6 +25,7 @@
 //= 3.4b Corrected an invalid map name. Thanks to Joseph. [15peaces]
 //= 3.5 Corrected the Level Requirements for 'Standby Room'. Thanks to tr0n. [15peaces]
 //= 3.6 Updated to rAthena v. 3.9. [15peaces]
+//= 3.7 Updated to support ep16.1. [15peaces]
 //============================================================ 
 
 //============================================================ 
@@ -5938,7 +5939,7 @@ alberta_in,154,171,5	script	Maid#s10	1,30,-1,758,{
 	}
 }
 
-prt_castle,107,58,5	script	Soldier#s11	1,30,-1,105,{
+-	script	Soldier#s11_	1,30,-1,-1,{
 	callfunc "F_UpdateSignVars";
 	mes "[Maruin]";
 	if (sign_q < 49) {
@@ -6069,6 +6070,10 @@ prt_castle,107,58,5	script	Soldier#s11	1,30,-1,105,{
 		close;
 	}
 }
+
+// Moved on EP 16.1
+prt_castle,107,58,5	duplicate(Soldier#s11_)	Soldier#s11	1,30,152,105
+prt_cas,87,214,8	duplicate(Soldier#s11_)	Soldier#s11	1,161,-1,105
 
 alde_alche,169,162,7	script	Alchemist#sign	1,30,-1,749,{
 	callfunc "F_UpdateSignVars";

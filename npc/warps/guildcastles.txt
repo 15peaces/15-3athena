@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Athena (1.0) ; 15peaces (> 2.6)
 //===== Current Version: =====================================
-//= 2.7
+//= 2.9
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -26,11 +26,13 @@
 //= 2.6a Added WoE:TE warps. [15peaces]
 //= 2.7 Updated WoE:FE warps. Thanks to Masao. [15peaces]
 //= 2.8 Added Hall of Abyss warps. [15peaces]
+//= 2.9 Updated to support ep16.1. [15peaces]
 //============================================================
 
 //Prontera Castle Map
 prt_gld,159,298,0	warp	prtg01_NorthField	1,1,prt_fild01,199,30
-prt_gld,159,25,0	warp	prtg02_Castle	1,1,prt_castle,102,178
+prt_gld,159,25,0,1,-1,152	warp	prtg02_Castle	1,1,prt_castle,102,178
+prt_gld,159,24,0,1,161,-1	warp	prt_cas_D#prt_cas_C	1,1,prt_cas,82,171
 prt_gld,129,65,0	warp	prtg-1_prtg-1-01	1,1,prtg_cas01,99,32
 prt_gld,240,124,0	warp	prtg-2_prtg-2	1,1,prtg_cas02,43,229
 prt_gld,153,141,0	warp	prtg-3_prtg-3	1,1,prtg_cas03,168,12
