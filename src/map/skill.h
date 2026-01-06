@@ -481,6 +481,8 @@ void skill_reveal_trap_inarea(struct block_list *src, int range, int x, int y);
 
 void skill_reload(void);
 
+#define SKILL_CHK_HOMUN(skill_id) ( (skill_id) >= HM_SKILLBASE && (skill_id) < HM_SKILLBASE+MAX_HOMUNSKILL )
+
 //RequiredState
 enum {
 	ST_NONE,

@@ -3547,7 +3547,7 @@ prt_cas,111,234,3	script	Magi Steen#ep16_1	612,{
 		mes "[Magi]";
 		mes "It... It was great!";
 		mes "Whoa...";
-		emotion ET_COOL;
+		emotion e_awsm;
 		cutin "bu_maggi2",2;
 		erasequest 11415;// Why Should I Prepare for the Banquets?
 		setquest 11416;// Why Should I Prepare for the Banquets?
@@ -8129,7 +8129,7 @@ prontera,271,70,3	script	Kiddo#ep16lug01	975,{
 		mes "[Allen]";
 		mes "Today, the wind is cold and smells rotten. I feel that something has happened.";
 		next;
-		emotion ET_SHY, getnpcid(0, "Kiddo#ep16lug02");
+		emotion e_shy, getnpcid(0, "Kiddo#ep16lug02");
 		mes "[Jin]";
 		mes "Ah, sorry, I couldn't clean myself for a few days.";
 		next;
@@ -8782,7 +8782,7 @@ prt_cas_q,93,74,4	script	Po Richard#EP161GAM	993,{
 		mes "[Po Richard]";
 		mes "When I was reported of the contributions you made, a question came to my mind. What if a free roaming adventure take part in the strict training system? What would happen? I got curious.";
 		next;
-		emotion ET_COMEON;
+		emotion e_com;
 		mes "[Po Richard]";
 		mes "I would like to make a handsome payment if a renowned adventurer like you helps us.";
 		next;
@@ -8790,7 +8790,7 @@ prt_cas_q,93,74,4	script	Po Richard#EP161GAM	993,{
 		mes "I feel that it is an attractive offer. Would you challenge the warrior training system of the Richard family?";
 		next;
 		if (select( "I'll try.", "I decline." ) == 2) {
-			emotion ET_OTL;
+			emotion e_otl;
 			mes "[Po Richard]";
 			mes "I guess the offer hasn't been attractive to you. I am sorry, but come back later when you change your mind.";
 			close;
@@ -8851,7 +8851,7 @@ OnTouch:
 		next;
 		mes "[Bodyguard Martin]";
 		mes "Now the Imperial Ordinance would just be...";
-		emotion ET_THINK, getnpcid(0, "Bodyguard#ep16_1_m");
+		emotion e_dots, getnpcid(0, "Bodyguard#ep16_1_m");
 		next;
 		mes "[Queen]";
 		mes "It is noisy out here.";
@@ -12806,7 +12806,7 @@ prt_cas,93,248,5	script	Court Musician#3	485,{
 	mes "Dwit! Look at the nobility over there. Aren't they beautiful?";
 	next;
 	emotion e_ok, getnpcid(0, "Court Musician#4");
-	emotion ET_SHY;
+	emotion e_shy;
 	mes "[Court Musician Dwit]";
 	mes "Hum, yes they are. I think you would fit in there perfectly though.";
 	mes "One day, I'll play the guitar next to you dancing and singing in a blue dress.";
@@ -12842,7 +12842,7 @@ prt_cas,95,248,5	script	Court Musician#occi	485,{
 	mes "[Court Musician Occi]";
 	mes "It has been our dream to ensemble in a place like this. Am I right, Orint?";
 	next;
-	emotion ET_THINK, getnpcid(0, "Court Musician#orint");
+	emotion e_dots, getnpcid(0, "Court Musician#orint");
 	mes "[Court Musician Orint]";
 	mes "Chatting is forbidden while working.";
 	next;
@@ -12970,7 +12970,7 @@ prt_cas,107,225,5	script	Isaac Wigner#ep16wig01	10126,{
 	close;
 }
 
-prt_cas,108,223,3	script	Bryan#ep16wig	4_M_CASMAN1,{
+prt_cas,108,223,3	script	Bryan#ep16wig	995,{
 	mes "[Bryan]";
 	mes "Don't leave me alone today. I feel nervous if you are not next to me.";
 	next;
@@ -13004,7 +13004,7 @@ prt_cas,107,222,1	script	Sophia#ep16wig	71,{
 	close;
 }
 
-prt_cas,99,247,3	script	Banquet Hall Aristocrat	4_M_MAYOR,{
+prt_cas,99,247,3	script	Banquet Hall Aristocrat	573,{
 	mes "[Banquet Hall Aristocrat]";
 	mes "This band is pretty good.";
 	mes "I'd like to invite them to the royal villa for my party.";
@@ -13179,7 +13179,7 @@ prt_cas,343,67,4	script	Uptight Librarian#ep16l	71,{
 	close;
 }
 
-prt_cas,321,25,1	script	Erich Nerius#ep16_erihi	4_M_SITDOWN,{
+prt_cas,321,25,1	script	Erich Nerius#ep16_erihi	881,{
 	if (banquet_main_quest < 2) {
 		mes "[Erich]";
 		mes "There are so many guests attending the banquet.";
@@ -13202,7 +13202,7 @@ prt_cas,321,25,1	script	Erich Nerius#ep16_erihi	4_M_SITDOWN,{
 	mes "I can do whatever I want to do.";
 	close;
 }
-prt_cas,373,57,8	script	Oliver#ep16_1	4_M_OLIVER,{
+prt_cas,373,57,8	script	Oliver#ep16_1	626,{
 	mes "[Oliver]";
 	mes "Oh! This! That! This!";
 	mes "And there it is!";
@@ -13216,7 +13216,7 @@ prt_cas,373,57,8	script	Oliver#ep16_1	4_M_OLIVER,{
 	mes "How great to be in the palace! There is everything!";
 	callfunc("close3");
 }
-prt_cas,341,79,2	script	Alf Ocat#ep16_1	4_M_BLACKMAN,{
+prt_cas,341,79,2	script	Alf Ocat#ep16_1	615,{
 	mes "[Alf]";
 	mes "Oh! This book must be the one from the legend...";
 	cutin "bu_alp4",2;
@@ -13233,7 +13233,7 @@ prt_cas,364,69,3	script	Nervous Man#ep16lug01	748,{
 	mes "It is not here, either. How can I find it. There are so many books here.";
 	close;
 }
-prt_cas,365,68,3	script	Taunting Man#ep16lug01	4_M_HUMAN_01,{ end; }
+prt_cas,365,68,3	script	Taunting Man#ep16lug01	898,{ end; }
 
 
 
@@ -13254,7 +13254,7 @@ prt_cas,218,182,3	script	Royal Guardian Knight#0	751,{
 	end;
 }
 
-prt_cas,97,248,5	script	Court Musician#orint	2_M_BARD_ORIENT,{
+prt_cas,97,248,5	script	Court Musician#orint	741,{
 	mes "[Court Musician Orint]";
 	mes "Chatting is forbidden while working.";
 	next;
@@ -13299,12 +13299,12 @@ prt_cas,97,248,5	script	Court Musician#orint	2_M_BARD_ORIENT,{
 }
 
 // Dinner Room
-prt_cas,375,124,7	script	Woman with Glasses#nir	4_F_MADAME,{
+prt_cas,375,124,7	script	Woman with Glasses#nir	915,{
 	mes "- Unlike her gaze glaring at the table while being cautious about the surroundings, the speed of her eating the food on the table is so remarkable that it is almost artistic. -";
 	close;
 }
 
-prt_cas,379,124,3	script	Glamorous Girl#pop	4_F_ARUNA_POP,{
+prt_cas,379,124,3	script	Glamorous Girl#pop	936,{
 	cutin "ra_bishop",2;
 	mes "[Glamorous Girl]";
 	mes "......";
@@ -13383,7 +13383,7 @@ prt_cas,379,124,3	script	Glamorous Girl#pop	4_F_ARUNA_POP,{
 	close;
 }
 
-prt_cas,368,125,3	script	Dumk#ep16_etc03	4_M_SHADOWCHASER,{
+prt_cas,368,125,3	script	Dumk#ep16_etc03	481,{
 	mes "";
 	npctalk "Where is he?", "Dumk#ep16_etc03", bc_self;
 	sleep2 3000;
@@ -13403,7 +13403,7 @@ prt_cas,368,125,3	script	Dumk#ep16_etc03	4_M_SHADOWCHASER,{
 	emotion e_no, playerattached();
 	end;
 }
-prt_cas,367,123,7	duplicate(Dumk#ep16_etc03)	Kid#ep16_etc04	4_M_ACROSS
+prt_cas,367,123,7	duplicate(Dumk#ep16_etc03)	Kid#ep16_etc04	884
 
 // Corridor left
 prt_cas,161,168,5	script	Royal Guardian Knight#0_left	751,{
@@ -13790,7 +13790,7 @@ OnTouchNPC:
 	end;
 }
 prt_q,146,326,2	script	Soldier#EP162PS06	105,1,1,{
-	emotion ET_OTL;
+	emotion e_otl;
 	mes "[Soldier]";
 	mes "The endless battle against the enemies...";
 	close;
@@ -13907,7 +13907,7 @@ OnTouchNPC:
 	end;
 }
 
-prt_q,156,324,6	script	Chief Guard#EP161PG	4_EP16_SPIEGEL,{
+prt_q,156,324,6	script	Chief Guard#EP161PG	10134,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -14066,7 +14066,7 @@ prt_q,156,324,6	script	Chief Guard#EP161PG	4_EP16_SPIEGEL,{
 	mes "[Chief Guard Spiegel]";
 	mes "Don't stand there in the middle of our line! Watch out!";
 	next;
-	emotion ET_COMEON;
+	emotion e_com;
 	mes "[Chief Guard Spiegel]";
 	mes "If you are hurt step back to get yourself cured. If you are recovered, get back in the line.";
 	next;
@@ -14605,7 +14605,7 @@ prt_q,38,261,6	script	Eryus#EP161BU01	139,6,6,{
 		mes "[Eryus]";
 		mes "I went down there with my wife Ellie.";
 		next;
-		emotion ET_OTL;
+		emotion e_otl;
 		mes "[Eryus]";
 		mes "When the people gathered, and night fell, the undead which had been buried under the ground of Prontera started waking up.";
 		next;
@@ -14653,7 +14653,7 @@ prt_q,231,310,4	script	Eryus#EP161BU02	139,{
 		mes "[Eryus]";
 		mes "I lost hold of her hand near the Prontera employment agency.";
 		next;
-		emotion ET_THINK;
+		emotion e_dots;
 		mes "[Eryus]";
 		mes "I am not sure if she is still there...";
 		next;
@@ -14819,7 +14819,7 @@ OnTouch:
 	end;
 }
 
-prt_q,146,252,6	script	Dead Villager#EP161DIE01	4_M_LIEMAN,2,2,{
+prt_q,146,252,6	script	Dead Villager#EP161DIE01	887,2,2,{
 	mes "He seems to be dead.";
 	close;
 OnTouch_:
@@ -14902,27 +14902,27 @@ OnTimer180000:
 	hideoffnpc strnpcinfo(0);
 	end;
 }
-prt_q,108,318,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE02	4_M_LIEMAN,2,2
-prt_q,265,300,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE03	4_M_DSTMANDEAD,2,2
-prt_q,213,90,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE04	4_M_DSTMANDEAD,2,2
-prt_q,109,94,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE05	4_M_DSTMANDEAD,2,2
-prt_q,214,85,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE06	4_M_LIEMAN,2,2
-prt_q,222,87,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE07	4_M_DIEMAN,2,2
-prt_q,238,129,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE08	4_M_DIEMAN,2,2
-prt_q,200,139,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE09	4_M_DIEMAN,2,2
-prt_q,220,350,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE10	4_M_DIEMAN,2,2
-prt_q,156,275,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE11	4_M_DSTMANDEAD,2,2
-prt_q,104,114,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE12	4_M_DIEMAN,2,2
-prt_q,149,188,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE13	4_M_LIEMAN,2,2
-prt_q,188,207,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE14	4_M_DIEMAN,2,2
-prt_q,88,279,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE15	4_M_LIEMAN,2,2
-prt_q,89,207,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE16	4_M_DIEMAN,2,2
-prt_q,88,350,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE17	4_M_LIEMAN,2,2
-prt_q,227,219,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE18	4_M_DSTMANDEAD,2,2
-prt_q,74,227,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE19	4_M_DSTMANDEAD,2,2
-prt_q,45,146,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE20	4_M_DIEMAN,2,2
+prt_q,108,318,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE02	887,2,2
+prt_q,265,300,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE03	457,2,2
+prt_q,213,90,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE04	457,2,2
+prt_q,109,94,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE05	457,2,2
+prt_q,214,85,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE06	887,2,2
+prt_q,222,87,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE07	849,2,2
+prt_q,238,129,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE08	849,2,2
+prt_q,200,139,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE09	849,2,2
+prt_q,220,350,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE10	849,2,2
+prt_q,156,275,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE11	457,2,2
+prt_q,104,114,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE12	849,2,2
+prt_q,149,188,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE13	887,2,2
+prt_q,188,207,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE14	849,2,2
+prt_q,88,279,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE15	887,2,2
+prt_q,89,207,6	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE16	849,2,2
+prt_q,88,350,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE17	887,2,2
+prt_q,227,219,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE18	457,2,2
+prt_q,74,227,2	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE19	457,2,2
+prt_q,45,146,8	duplicate(Dead Villager#EP161DIE01)	Dead Villager#EP161DIE20	849,2,2
 
-prt_q,148,49,0	script	Sign#EP161ETC12	2_BULLETIN_BOARD,{
+prt_q,148,49,0	script	Sign#EP161ETC12	837,{
 	mes "[Prontera, the Capital of Rune Midgartz Kingdom]";
 	mes "Welcome to Prontera";
 	mes "in the heart of Rune Midgarts!";
@@ -14954,15 +14954,15 @@ prt_q,148,49,0	script	Sign#EP161ETC12	2_BULLETIN_BOARD,{
 	close;
 }
 
-prt_q,155,190,4	script	Krimhilt	GUILD_FLAG,{ end; }
-prt_q,146,194,3	duplicate(Krimhilt)	Svanhilt	GUILD_FLAG
-prt_q,143,203,2	duplicate(Krimhilt)	Razriggs	GUILD_FLAG
-prt_q,167,203,6	duplicate(Krimhilt)	Skoegul	GUILD_FLAG
-prt_q,165,194,5	duplicate(Krimhilt)	Guindle	GUILD_FLAG
+prt_q,155,190,4	script	Krimhilt	722,{ end; }
+prt_q,146,194,3	duplicate(Krimhilt)	Svanhilt	722
+prt_q,143,203,2	duplicate(Krimhilt)	Razriggs	722
+prt_q,167,203,6	duplicate(Krimhilt)	Skoegul	722
+prt_q,165,194,5	duplicate(Krimhilt)	Guindle	722
 
 // Prison quests
 
-prt_pri00,46,130,7	script	Corrupt Warder#pa0829	4_M_KY_SOLD,{
+prt_pri00,46,130,7	script	Corrupt Warder#pa0829	417,{
 	if ((MaxWeight - Weight) < 1000) {
 		mes "It seems difficult to proceed any further since the items in your possession are too heavy. Reduce the weight and try again.";
 		close;
@@ -14997,7 +14997,7 @@ prt_pri00,46,130,7	script	Corrupt Warder#pa0829	4_M_KY_SOLD,{
 	close;
 }
 
-prt_pri00,61,136,3	script	Dylan#pa0829	4_CAT_SAILOR5,{
+prt_pri00,61,136,3	script	Dylan#pa0829	561,{
 	disable_items;
 	if ((MaxWeight - Weight) < 1000) {
 		mes "It seems difficult to proceed any further since the items in your possession are too heavy. Reduce the weight and try again.";
@@ -15415,7 +15415,7 @@ prt_pri00,51,116,8	script	Ellond Lawrence#EP161ER	751,1,1,{
 		mes "[Ellond Lawrence]";
 		mes "Have you been invited, adventurer?";
 		next;
-		emotion ET_COOL;
+		emotion e_awsm;
 		mes "[Ellond Lawrence]";
 		mes "Whoa, this is unbelievable!";
 		mes "I heard so much about you. I'm a huge fan!";
@@ -15454,7 +15454,7 @@ prt_pri00,51,116,8	script	Ellond Lawrence#EP161ER	751,1,1,{
 		mes "[Ellond Lawrence]";
 		mes "No one will question your reputation and abilities. So I would love to cut to the chase and spill the beans, but...";
 		next;
-		emotion ET_SHY;
+		emotion e_shy;
 		mes "[Ellond Lawrence]";
 		mes "I think I'll have to take a deep breath and drink a cup of water to calm myself down before I do.";
 		setquest 5415;// Restricted Sector
@@ -15567,7 +15567,7 @@ prt_pri00,51,116,8	script	Ellond Lawrence#EP161ER	751,1,1,{
 			close;
 		case 5420:
 			select("I've been to the Sector E.");
-			emotion ET_SHY;
+			emotion e_shy;
 			completequest 5420;// Restricted Sector E
 			mes "[Ellond Lawrence]";
 			mes "I know a few things about the Sector E, actually.";
@@ -15744,7 +15744,7 @@ OnTouch:
 	end;
 }
 
-prt_pri00,58,128,4	script	Overwatcher Terketh#ep1	4_M_JOB_HUNTER,{
+prt_pri00,58,128,4	script	Overwatcher Terketh#ep1	732,{
 	if (banquet_main_quest < 13) {
 		npctalk "...Such a disturbance to my training.", "", bc_self;
 		end;
@@ -15784,7 +15784,7 @@ prt_pri00,58,128,4	script	Overwatcher Terketh#ep1	4_M_JOB_HUNTER,{
 
 
 // Sector A
-prt_prison,243,265,6	script	Prisoner 243AD265#EP161	4_M_DRAKE,{
+prt_prison,243,265,6	script	Prisoner 243AD265#EP161	969,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -15902,7 +15902,7 @@ prt_prison,243,265,6	script	Prisoner 243AD265#EP161	4_M_DRAKE,{
 				mes "Can you locate an old fellow of mine, again, and deliver his story to me?";
 				next;
 				if (select( "You can count on me.", "I've got my hands full today." ) == 2) {
-					emotion ET_OTL;
+					emotion e_otl;
 					mes "[Prisoner 243AD265]";
 					mes "Is that so? That's a shame. Be sure to come back again if you have the time...";
 					close;
@@ -15981,7 +15981,7 @@ prt_prison,243,265,6	script	Prisoner 243AD265#EP161	4_M_DRAKE,{
 	}
 }
 
-prt_prison,205,139,4	script	Dark Shape#EP161A01	4_GHOST_STAND,{
+prt_prison,205,139,4	script	Dark Shape#EP161A01	10029,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -16043,13 +16043,13 @@ OnInit:
 		disablenpc strnpcinfo(0);// disable 4/5 npcs
 	end;
 }
-prt_prison,153,175,4	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A02	4_GHOST_STAND
-prt_prison,160,224,6	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A03	4_GHOST_STAND
-prt_prison,169,81,6	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A04	4_GHOST_STAND
-prt_prison,203,215,4	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A05	4_GHOST_STAND
+prt_prison,153,175,4	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A02	10029
+prt_prison,160,224,6	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A03	10029
+prt_prison,169,81,6	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A04	10029
+prt_prison,203,215,4	duplicate(Dark Shape#EP161A01)	Dark Shape#EP161A05	10029
 
 // Sector B
-prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
+prt_prison,267,184,8	script	Prisoner 267BD184#EP161	10137,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -16061,7 +16061,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
 	}
 	switch( isbegin_quest(5428) ) {
 	case 0:
-		emotion ET_COOL;
+		emotion e_awsm;
 		mes "[Prisoner 267BD184]";
 		mes "Hey! Yes, you outside of the steel bars. You have such pretty eyes. My cup of tea.";
 		next;
@@ -16100,7 +16100,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
 		mes "[Prisoner 267BD184]";
 		mes "Marriage scam? Ridiculous! Do I look like someone who would dupe anyone into marrying me?";
 		next;
-		emotion ET_THINK, playerattached();
+		emotion e_dots, playerattached();
 		mes "[" + strcharinfo(0) + "]";
 		mes "Well, uh...";
 		next;
@@ -16110,7 +16110,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
 		mes "[Prisoner 267BD184]";
 		mes "Pretty eyes don't do any good, I guess! You should open your mind to match those pretty little eyes!";
 		next;
-		emotion ET_COOL;
+		emotion e_awsm;
 		mes "[Prisoner 267BD184]";
 		mes "I was merely attracted to the woman with pretty eyes. It was pure love. People don't get me.";
 		next;
@@ -16147,7 +16147,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
 			mes "[Prisoner 267BD184]";
 			mes "It started off with a little chat, but ended up as a request. Haha!";
 			next;
-			emotion ET_SHY;
+			emotion e_shy;
 			mes "[Prisoner 267BD184]";
 			mes "I believe someone with pretty eyes like you should forgive me. So...";
 			next;
@@ -16182,7 +16182,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
 				mes "[Prisoner 267BD184]";
 				mes "This time, again, I took a close look at it.";
 				next;
-				emotion ET_OTL;
+				emotion e_otl;
 				mes "[Prisoner 267BD184]";
 				mes "But I couldn't find what turned the blue eyes into the red ones.";
 				next;
@@ -16205,7 +16205,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
 				mes "Oh~~ I wish I would get the pretty blue eyes this time~~";
 				close;
 			}
-			emotion ET_COOL;
+			emotion e_awsm;
 			mes "[Prisoner 267BD184]";
 			mes "Oh, you indeed brought them! I'll take a close look. Let me.";
 			next;
@@ -16238,7 +16238,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	4_DRACULA,{
 }
 
 // Sector C
-prt_prison,265,154,4	script	Prisoner 265CM154#EP161	4_MOONLIGHT,{
+prt_prison,265,154,4	script	Prisoner 265CM154#EP161	10135,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -16257,7 +16257,7 @@ prt_prison,265,154,4	script	Prisoner 265CM154#EP161	4_MOONLIGHT,{
 		mes "[Prisoner 265CM154]";
 		mes "Hehe-";
 		next;
-		emotion ET_GOODBOY, playerattached();
+		emotion e_pat, playerattached();
 		mes "~Stroking~";
 		next;
 		emotion e_no1;
@@ -16387,7 +16387,7 @@ prt_prison,265,154,4	script	Prisoner 265CM154#EP161	4_MOONLIGHT,{
 }
 
 // Rubbish heap
-prt_prison,118,247,4	script	Rubbish heap#EP161C01	4_ENERGY_BLACK,{
+prt_prison,118,247,4	script	Rubbish heap#EP161C01	10045,{
 	if (isbegin_quest(5432) > 0 || isbegin_quest(5435) > 0)
 		end;
 	if (isbegin_quest(5431) == 1 || (isbegin_quest(5431) == 2 && isbegin_quest(5434) == 1)) {
@@ -16415,45 +16415,45 @@ OnTimer30000:
 	enablenpc strnpcinfo(0);
 	end;
 }
-prt_prison,171,247,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C02	4_ENERGY_BLACK
-prt_prison,181,230,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C03	4_ENERGY_BLACK
-prt_prison,238,165,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C04	4_ENERGY_BLACK
+prt_prison,171,247,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C02	10045
+prt_prison,181,230,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C03	10045
+prt_prison,238,165,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C04	10045
 //
-prt_prison,232,137,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C06	4_ENERGY_BLACK
-prt_prison,200,133,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C07	4_ENERGY_BLACK
-prt_prison,212,107,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C08	4_ENERGY_BLACK
-prt_prison,235,107,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C09	4_ENERGY_BLACK
-prt_prison,198,87,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C10	4_ENERGY_BLACK
-prt_prison,218,75,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C11	4_ENERGY_BLACK
-prt_prison,232,83,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C12	4_ENERGY_BLACK
-prt_prison,207,50,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C13	4_ENERGY_BLACK
-prt_prison,231,55,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C14	4_ENERGY_BLACK
-prt_prison,220,19,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C15	4_ENERGY_BLACK
-prt_prison,168,31,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C16	4_ENERGY_BLACK
-prt_prison,160,70,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C17	4_ENERGY_BLACK
-prt_prison,156,87,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C18	4_ENERGY_BLACK
-prt_prison,140,93,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C19	4_ENERGY_BLACK
-prt_prison,113,98,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C20	4_ENERGY_BLACK
+prt_prison,232,137,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C06	10045
+prt_prison,200,133,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C07	10045
+prt_prison,212,107,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C08	10045
+prt_prison,235,107,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C09	10045
+prt_prison,198,87,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C10	10045
+prt_prison,218,75,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C11	10045
+prt_prison,232,83,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C12	10045
+prt_prison,207,50,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C13	10045
+prt_prison,231,55,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C14	10045
+prt_prison,220,19,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C15	10045
+prt_prison,168,31,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C16	10045
+prt_prison,160,70,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C17	10045
+prt_prison,156,87,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C18	10045
+prt_prison,140,93,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C19	10045
+prt_prison,113,98,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C20	10045
 //
-prt_prison,112,79,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C22	4_ENERGY_BLACK
-prt_prison,122,42,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C23	4_ENERGY_BLACK
-prt_prison,135,127,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C24	4_ENERGY_BLACK
-prt_prison,67,149,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C25	4_ENERGY_BLACK
-prt_prison,251,259,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C26	4_ENERGY_BLACK
-prt_prison,220,255,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C27	4_ENERGY_BLACK
-prt_prison,243,239,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C28	4_ENERGY_BLACK
-prt_prison,276,195,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C29	4_ENERGY_BLACK
-prt_prison,188,186,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C30	4_ENERGY_BLACK
+prt_prison,112,79,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C22	10045
+prt_prison,122,42,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C23	10045
+prt_prison,135,127,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C24	10045
+prt_prison,67,149,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C25	10045
+prt_prison,251,259,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C26	10045
+prt_prison,220,255,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C27	10045
+prt_prison,243,239,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C28	10045
+prt_prison,276,195,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C29	10045
+prt_prison,188,186,4	duplicate(Rubbish heap#EP161C01)	Rubbish heap#EP161C30	10045
 
 // Sector D
-prt_prison,243,17,4	script	Prisoner 243DV17#EP161D	4_PORING,{
+prt_prison,243,17,4	script	Prisoner 243DV17#EP161D	909,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
 	}
 	if (isbegin_quest(5415) < 2) {// Restricted Sector
-		emotion ET_THINK, playerattached();
-		emotion ET_THINK;
+		emotion e_dots, playerattached();
+		emotion e_dots;
 		mes "... ... ... ...";
 		close;
 	}
@@ -16548,7 +16548,7 @@ prt_prison,243,17,4	script	Prisoner 243DV17#EP161D	4_PORING,{
 }
 
 // Sector E
-prt_prison,95,72,6	script	Prisoner 95EB72#EP161E	4_BAPHOMET,{
+prt_prison,95,72,6	script	Prisoner 95EB72#EP161E	736,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -16736,7 +16736,7 @@ prt_prison,237,139,4	duplicate(Torch#EP161EB01)	Torch#EP161EB18	844
 prt_prison,246,140,4	duplicate(Torch#EP161EB01)	Torch#EP161EB19	844
 
 // Sector F
-prt_prison,117,188,4	script	Prisoner 117FM188#EP161	4_MISTRESS,{
+prt_prison,117,188,4	script	Prisoner 117FM188#EP161	10136,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -16843,7 +16843,7 @@ prt_prison,117,188,4	script	Prisoner 117FM188#EP161	4_MISTRESS,{
 				mes "Noyel, the humidifier you brought for me doesn't seem to work. Will you bring another new one?";
 				next;
 				if (select( "Will do right away.", "Ah...I've got other business to go about now." ) == 2) {
-					emotion ET_OTL;
+					emotion e_otl;
 					mes "[Prisoner 117FM188]";
 					mes "Noyel! Where do you think you're going? Noel.";
 					close;
@@ -16895,7 +16895,7 @@ prt_prison,117,188,4	script	Prisoner 117FM188#EP161	4_MISTRESS,{
 }
 
 // Sector G
-prt_prison,103,214,4	script	Prisoner 103GD214#EP161	4_DARKLORD,{
+prt_prison,103,214,4	script	Prisoner 103GD214#EP161	737,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -17102,7 +17102,7 @@ prt_prison,103,214,4	script	Prisoner 103GD214#EP161	4_DARKLORD,{
 }
 
 // Sector H
-prt_prison,55,115,2	script	Prisoner 55HK115#EP161H	4_STORMKNIGHT,{
+prt_prison,55,115,2	script	Prisoner 55HK115#EP161H	10138,{
 	if (checkweight(501,1) == 0) {
 		mes "- You cannot proceed with the quest since you have too many items. -";
 		close;
@@ -17140,7 +17140,7 @@ prt_prison,55,115,2	script	Prisoner 55HK115#EP161H	4_STORMKNIGHT,{
 		mes "[Prisoner 55HK115]";
 		mes "I see Taffy, the inferior species, walking around. I think their skin should make a good alternative to the Sandpaper to trim down this thingies at the end of my horn.";
 		next;
-		emotion ET_SHY;
+		emotion e_shy;
 		mes "[Prisoner 55HK115]";
 		mes "Look at this. This protruded area at the end of my horn. If it gets trimmed down, I would definitely get a peace of mind.";
 		next;

@@ -2019,7 +2019,7 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 	if( sd == NULL ) sd = map_charid2sd(dlist->third_charid);
 
 	// Check unlooting list.
-	if (sd->state.unlooting) {
+	if (sd && sd->state.unlooting) {
 		ARR_FIND(0, AUTOLOOTITEM_SIZE, i, sd->state.unlootid[i] == ditem->item_data.nameid);
 
 		if (i != AUTOLOOTITEM_SIZE)

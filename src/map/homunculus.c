@@ -234,14 +234,37 @@ int hom_calc_skilltree(struct homun_data *hd, int flag_evolve)
 	return 0;
 }
 
+/**
+* Check if the skill is a valid homunculus skill based skill range or availablity in skill db
+* @param skill_id
+* @return -1 if invalid skill or skill index for homunculus skill in s_homunculus::hskill
+*/
+int16 hom_skill_get_index(uint16 skill_id) {
+	if (!SKILL_CHK_HOMUN(skill_id))
+		return -1;
+	skill_id -= HM_SKILLBASE;
+	if (skill_id >= MAX_HOMUNSKILL)
+		return -1;
+	return skill_id;
+}
+
+/**
+* Check skill from homunculus
+* @param hd
+* @param skill_id
+* @return Skill Level or 0 if invalid or unlearned skill
+*/
 int hom_checkskill(struct homun_data *hd,int skill_id)
 {
-	int i = skill_id - HM_SKILLBASE;
-	if(!hd || !&hd->homunculus)
+	int16 idx = hom_skill_get_index(skill_id);
+	if (idx < 0) // Invalid skill
 		return 0;
 
-	if(hd->homunculus.hskill[i].id == skill_id)
-		return (hd->homunculus.hskill[i].lv);
+	if (!hd || !hd->homunculus.hskill[idx].id)
+		return 0;
+
+	if (hd->homunculus.hskill[idx].id == skill_id)
+		return (hd->homunculus.hskill[idx].lv);
 
 	return 0;
 }

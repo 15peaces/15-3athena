@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/06/2026
+	r556 [15peaces]
+		*Banquet for Heroes ep16.1 - part 2
+			-Enabled main quests of ep16.1 (instance still missing!)
+		*Rewrite hom_checkskill.
+			-fixed a map crash.
+		*Fixed some issues in lasagna_npcs.txt
+			-The quests for low level player were not deleted by the Chef npc.
+			-The sensitive-minded ela forgot to remove the coins.
+
 01/04/2026
 	r555 [15peaces]
 		*Implemented Pyramids Nightmare Mode spawns and database entries.
