@@ -38,6 +38,7 @@ Oninit:
 		setmapflag "arug_que01" ,mf_noteleport;
 		setmapflag "man_in01"   ,mf_noteleport;
 		setmapflag "spl_in01"   ,mf_noteleport;
+		setmapflag "spl_in02"   ,mf_noteleport;
 		setmapflag "s_atelier"	,mf_noteleport;
 		setmapflag "bra_in01"	,mf_noteleport;
 		setmapflag "dic_in01"	,mf_noteleport;

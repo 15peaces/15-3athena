@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/11/2026
+	r557 [15peaces]
+		*LG_SHIELDSPELL
+			-Fixed status changes to activate only one spell at any time.
+		*Added a missing 'noteleport' mapflag for spl_in02.
+		*Updated some more monster spawns.
+
 01/06/2026
 	r556 [15peaces]
 		*Banquet for Heroes ep16.1 - part 2

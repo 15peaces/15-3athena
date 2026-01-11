@@ -10140,16 +10140,22 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			tick_time = 5000;
 			break;
 		case SC_SHIELDSPELL_HP:
+			status_change_end(src, SC_SHIELDSPELL_SP, INVALID_TIMER);
+			status_change_end(src, SC_SHIELDSPELL_ATK, INVALID_TIMER);
 			val2 = 3; // 3% HP every 3 seconds
 			tick_time = status_get_sc_interval(type);
 			val4 = tick - tick_time; // Remaining time
 			break;
 		case SC_SHIELDSPELL_SP:
+			status_change_end(src, SC_SHIELDSPELL_HP, INVALID_TIMER);
+			status_change_end(src, SC_SHIELDSPELL_ATK, INVALID_TIMER);
 			val2 = 3; // 3% SP every 5 seconds
 			tick_time = status_get_sc_interval(type);
 			val4 = tick - tick_time; // Remaining time
 			break;
 		case SC_SHIELDSPELL_ATK:
+			status_change_end(src, SC_SHIELDSPELL_HP, INVALID_TIMER);
+			status_change_end(src, SC_SHIELDSPELL_SP, INVALID_TIMER);
 			val2 = 150; // WATK/MATK bonus
 			break;
 		case SC_MAGNETICFIELD:
