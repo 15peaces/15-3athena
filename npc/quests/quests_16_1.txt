@@ -2818,7 +2818,7 @@ prt_cas,309,200,5	script	Royal Head Chef#ep16_1	10122,{
 		mes "[Head Chef]";
 		mes "You! The new assistant!";
 		mes "Go get the sauce from Oriental Oyster the sauce master!";
-		emotion ET_HELP;
+		emotion e_hlp;
 		next;
 		mes "[Head Chef]";
 		mes "Now! Quick!";
@@ -2832,7 +2832,7 @@ prt_cas,309,200,5	script	Royal Head Chef#ep16_1	10122,{
 		mes "[Head Chef]";
 		mes "Isn't the sauce ready?";
 		mes "Go get the sauce from Oriental Oyster the sauce master!";
-		emotion ET_HELP;
+		emotion e_hlp;
 		cutin "ep16cook_king_1",2;
 		next;
 		mes "[Head Chef]";
@@ -3233,7 +3233,7 @@ function	script	check_sauce	{
 	mes "[Oriental Oyster]";
 	mes "Yes! That's it!";
 	mes "Bring it to me!";
-	emotion e_gasp, getnpcid(0, "Royal Sauce Master#ep16");
+	emotion e_gasp, 0, "Royal Sauce Master#ep16";
 	completequest .@quest_id;
 	close;
 }
@@ -4844,7 +4844,7 @@ prt_pri00,57,119,1	script	Bigfoot#ep16wal	54,{
 		mes "[Bigfoot]";
 		mes "Well, it is not important. You are here to ask me something, right? You know nothing in this world is free.";
 		next;
-		emotion e_swt, playerattached();
+		emotion e_swt, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "...What do you want?";
 		next;
@@ -5001,7 +5001,7 @@ prt_pri00,57,119,1	script	Bigfoot#ep16wal	54,{
 		mes "You don't have to believe me, but you can trust my professional skill.";
 		mes "Well, you must have hidden your money inside the belt and your shoes. Nice work. Those are tough spots to steal from.";
 		next;
-		emotion e_omg, playerattached();
+		emotion e_omg, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "OK, I guess I can trust your skill.";
 		next;
@@ -7237,9 +7237,9 @@ prt_cas_q,96,186,3	script	Wolf Roegenburg#ep16lug	10128,{
 		mes "[Myer]";
 		mes "Well, as much as needed?";
 		next;
-		emotion e_omg, getnpcid(0, "Maximilian Roegenburg#e");
+		emotion e_omg, 0, "Maximilian Roegenburg#e";
 		emotion e_omg;
-		emotion e_omg, getnpcid(0, "Agnes Roegenburg#ep16lu");
+		emotion e_omg, 0, "Agnes Roegenburg#ep16lu";
 		cutin "16hel",0;
 		mes "[Helmut]";
 		mes "Myer, did you really do that?";
@@ -7706,7 +7706,7 @@ function	script	F_kids_roegenburg_quest	{
 	switch( banquet_roegenburg_quest ) {
 	case 4:
 		next;
-		emotion e_an, getnpcid(0, "Kiddo#ep16lug03");
+		emotion e_an, 0, "Kiddo#ep16lug03";
 		mes "[Harriet]";
 		mes "Stop! both of you. I feel dizzy when I am listening to what you are talking.";
 		next;
@@ -7759,7 +7759,7 @@ function	script	F_kids_roegenburg_quest	{
 		mes "[Jin]";
 		mes "I want compensation. If you give me adequate compensation, I can tell you anything. So show me your offer first.";
 		next;
-		emotion e_swt, playerattached();
+		emotion e_swt, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "I didn't mean to cheat you. But you speak frankly of what you want. First I looked down on you as you are children.";
 		mes "OK, I'll give you compensation. And what credentials? Do I need credentials to hear a rumor?";
@@ -7776,15 +7776,15 @@ function	script	F_kids_roegenburg_quest	{
 		mes "[" + strcharinfo(0) + "]";
 		mes "Then, what should I do? Tell me. What do you want?";
 		next;
-		emotion e_heh, getnpcid(0, "Kiddo#ep16lug02");
+		emotion e_heh, 0, "Kiddo#ep16lug02";
 		mes "[Jin]";
 		mes "At last, it is business time! Great! I like it!";
 		next;
-		emotion e_heh, getnpcid(0, "Kiddo#ep16lug03");
+		emotion e_heh, 0, "Kiddo#ep16lug03";
 		mes "[Harriet]";
 		mes "I like anything pretty!";
 		next;
-		emotion e_gasp, getnpcid(0, "Kiddo#ep16lug01");
+		emotion e_gasp, 0, "Kiddo#ep16lug01";
 		mes "[Allen]";
 		mes "Verification of credentials! That's all!";
 		next;
@@ -7798,8 +7798,8 @@ function	script	F_kids_roegenburg_quest	{
 		mes "[" + strcharinfo(0) + "]";
 		mes "I see. Is that enough? I'll be back soon.";
 		next;
-		emotion e_omg, getnpcid(0, "Kiddo#ep16lug02");
-		emotion e_omg, getnpcid(0, "Kiddo#ep16lug03");
+		emotion e_omg, 0, "Kiddo#ep16lug02";
+		emotion e_omg, 0, "Kiddo#ep16lug03";
 		mes "[Jin]";
 		mes "Wait a minute. Don't you listen to us? You said you would give compensation.";
 		next;
@@ -7855,21 +7855,21 @@ function	script	F_kids_roegenburg_quest	{
 		mes "[" + strcharinfo(0) + "]";
 		mes "Hi, I am back. Are these what you want?";
 		next;
-		emotion e_lv2, getnpcid(0, "Kiddo#ep16lug03");
+		emotion e_lv2, 0, "Kiddo#ep16lug03";
 		mes "[Harriet]";
 		mes "Let me see it. Yes! they are. They are so pretty. So soft! May I really have these?";
 		next;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Of course, I have brought them because you wanted them. Then is what you said before just empty words?";
 		next;
-		emotion ET_CHUPCHUP, getnpcid(0, "Kiddo#ep16lug03");
+		emotion e_kis2, 0, "Kiddo#ep16lug03";
 		mes "[Harriet]";
 		mes "No! No! I really have wanted them! Thank you!";
 		next;
 		mes "[" + strcharinfo(0) + "]";
 		mes "And this your book. It is really heavy and large. I borrowed only one volume. The other volumes had already been borrowed.";
 		next;
-		emotion e_heh, getnpcid(0, "Kiddo#ep16lug02");
+		emotion e_heh, 0, "Kiddo#ep16lug02";
 		mes "[Jin]";
 		mes "Thank you. At last I can read it.";
 		next;
@@ -7931,15 +7931,15 @@ function	script	F_kids_roegenburg_quest	{
 		mes "My parents are worried. They are afraid that Helmut will becomes a king and start a war.";
 		mes "In fact, everybody is anxious. They don't like wars.";
 		next;
-		emotion e_gasp, getnpcid(0, "Kiddo#ep16lug01");
+		emotion e_gasp, 0, "Kiddo#ep16lug01";
 		mes "[Allen]";
 		mes "The blood on the battle field calls me!";
 		next;
-		emotion e_sigh, getnpcid(0, "Kiddo#ep16lug02");
+		emotion e_sigh, 0, "Kiddo#ep16lug02";
 		mes "[Jin]";
 		mes "Except him.";
 		next;
-		emotion e_sob, getnpcid(0, "Kiddo#ep16lug03");
+		emotion e_sob, 0, "Kiddo#ep16lug03";
 		mes "[Harriet]";
 		mes "I hate wars too.";
 		next;
@@ -8019,15 +8019,15 @@ function	script	F_kids_roegenburg_quest	{
 		mes "[" + strcharinfo(0) + "]";
 		mes "Yes. your family asked me to send a message to you.";
 		next;
-		emotion e_what, getnpcid(0, "Kiddo#ep16lug01");
+		emotion e_what, 0, "Kiddo#ep16lug01";
 		mes "[Allen]";
 		mes "Myer?";
 		next;
-		emotion e_what, getnpcid(0, "Kiddo#ep16lug02");
+		emotion e_what, 0, "Kiddo#ep16lug02";
 		mes "[Jin]";
 		mes "Myer?";
 		next;
-		emotion e_what, getnpcid(0, "Kiddo#ep16lug03");
+		emotion e_what, 0, "Kiddo#ep16lug03";
 		mes "[Harriet]";
 		mes "Who is Myer? ^0000cdIs you name Myer^000000? Jonathan Myer? Myer Jonathan? You told me to call you just Jonathan.";
 		next;
@@ -8129,7 +8129,7 @@ prontera,271,70,3	script	Kiddo#ep16lug01	975,{
 		mes "[Allen]";
 		mes "Today, the wind is cold and smells rotten. I feel that something has happened.";
 		next;
-		emotion e_shy, getnpcid(0, "Kiddo#ep16lug02");
+		emotion e_shy, 0, "Kiddo#ep16lug02";
 		mes "[Jin]";
 		mes "Ah, sorry, I couldn't clean myself for a few days.";
 		next;
@@ -8275,7 +8275,7 @@ prontera,269,69,5	script	Kiddo#ep16lug03	703,{
 		mes "Hello, singing birds and pretty flowers.";
 		mes "Are you having a beautiful day today too?";
 		next;
-		emotion e_sigh, getnpcid(0, "Kiddo#ep16lug02");
+		emotion e_sigh, 0, "Kiddo#ep16lug02";
 		mes "[Jin]";
 		mes "He started again.";
 		mes "Why don't I have normal person around me?";
@@ -8825,7 +8825,7 @@ OnTouch:
 		mes "There! Stop there!";
 		mes "Please go through the inspection for a security check.";
 		npctalk "There! Stop there!", "Bodyguard#ep16_1_g", bc_self;
-		emotion e_gasp, getnpcid(0, "Bodyguard#ep16_1_m");
+		emotion e_gasp, 0, "Bodyguard#ep16_1_m";
 		emotion e_gasp;
 		next;
 		mes "[Bodyguard Martin]";
@@ -8851,7 +8851,7 @@ OnTouch:
 		next;
 		mes "[Bodyguard Martin]";
 		mes "Now the Imperial Ordinance would just be...";
-		emotion e_dots, getnpcid(0, "Bodyguard#ep16_1_m");
+		emotion e_dots, 0, "Bodyguard#ep16_1_m";
 		next;
 		mes "[Queen]";
 		mes "It is noisy out here.";
@@ -10712,7 +10712,7 @@ prt_cas_q,95,9,5	script	Jurgen Wigner#ep16wig	989,{
 			mes "[Maid]";
 			mes "Excuse me.";
 			next;
-			emotion e_omg, getnpcid(0, "Maid#ep16wig01");
+			emotion e_omg, 0, "Maid#ep16wig01";
 			mes "[Maid]";
 			mes "I am sorry. I thought no one was here. I just wanted to clean the room, I am really sorry. I'll come back later.";
 			next;
@@ -10770,7 +10770,7 @@ prt_cas_q,95,9,5	script	Jurgen Wigner#ep16wig	989,{
 			mes "What?";
 			next;
 			cutin "16jur_sim",0;
-			emotion ET_THROB;
+			emotion e_lv;
 			mes "[Jurgen]";
 			mes "Well, I think ^0000cdI have fallen in love^000000 .";
 			next;
@@ -10778,12 +10778,12 @@ prt_cas_q,95,9,5	script	Jurgen Wigner#ep16wig	989,{
 			mes "[" + strcharinfo(0) + "]";
 			mes "Oh, you have.";
 			next;
-			emotion e_omg, playerattached();
+			emotion e_omg, 1;
 			mes "[" + strcharinfo(0) + "]";
 			mes "What?";
 			next;
 			cutin "16jur_nor",0;
-			emotion ET_THROB;
+			emotion e_lv;
 			mes "[Jurgen]";
 			mes "I have never met anyone who looks directly into my eyes like that.";
 			next;
@@ -10983,7 +10983,7 @@ prt_cas_q,95,9,5	script	Jurgen Wigner#ep16wig	989,{
 			mes "Dear adventurer! You are back!";
 			mes "I couldn't stop thinking about her even while you were gone.";
 			next;
-			emotion ET_THROB;
+			emotion e_lv;
 			mes "[Jurgen]";
 			mes "Even when I eat, drink a tea, look into the mirror and talking to other people! I though about her all day. It was painful but I was in a flutter.";
 			next;
@@ -11028,7 +11028,7 @@ prt_cas_q,95,9,5	script	Jurgen Wigner#ep16wig	989,{
 			mes "[Jurgen]";
 			mes "It seems like a good sign. Paddle as the wave approaches. That's one of the many mottos of our family.";
 			next;
-			emotion ET_THROB;
+			emotion e_lv;
 			mes "[Jurgen]";
 			mes "I want to let her know of my blazing heart every day.";
 			next;
@@ -11577,7 +11577,7 @@ OnEvent2:
 		sleep 600000;	// 10 mins
 		enablenpc "Womenfolk#ep16wig01";
 		npctalk "Oh my! Jurgen! My prince! I love you! Please look this way!", "Womenfolk#ep16wig01";
-		emotion e_kis, getnpcid(0, "Womenfolk#ep16wig01");
+		emotion e_kis, 0, "Womenfolk#ep16wig01";
 		sleep 2000;
 		npctalk "Are you... I have seen you before... Well... Are you here to see me?", "Jurgen Wigner#ep16wig";
 		sleep 1500;
@@ -11939,7 +11939,7 @@ prt_cas,322,216,5	script	Maid#ep16wig02	69,{
 		mes "[" + strcharinfo(0) + "]";
 		mes "Oh, you are...";
 		next;
-		emotion e_omg, playerattached();
+		emotion e_omg, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Wha... What? A brother?";
 		next;
@@ -12805,19 +12805,19 @@ prt_cas,93,248,5	script	Court Musician#3	485,{
 	mes "[Court Musician Ellie]";
 	mes "Dwit! Look at the nobility over there. Aren't they beautiful?";
 	next;
-	emotion e_ok, getnpcid(0, "Court Musician#4");
+	emotion e_ok, 0, "Court Musician#4";
 	emotion e_shy;
 	mes "[Court Musician Dwit]";
 	mes "Hum, yes they are. I think you would fit in there perfectly though.";
 	mes "One day, I'll play the guitar next to you dancing and singing in a blue dress.";
 	next;
-	emotion e_ho, getnpcid(0, "Court Musician#occi");
+	emotion e_ho, 0, "Court Musician#occi";
 	mes "[Court Musician Occi]";
 	mes "Haha, that woman in the blue dress, it could be me!";
 	next;
 	mes "[Court Musician Dwit]";
 	mes "You are mistaken if you think I cannot distinguish you twin sisters, Occi. I can tell your differences from the steps you take and the sound of your breath.";
-	emotion e_pif, getnpcid(0, "Court Musician#4");
+	emotion e_pif, 0, "Court Musician#4";
 	close;
 }
 
@@ -12842,7 +12842,7 @@ prt_cas,95,248,5	script	Court Musician#occi	485,{
 	mes "[Court Musician Occi]";
 	mes "It has been our dream to ensemble in a place like this. Am I right, Orint?";
 	next;
-	emotion e_dots, getnpcid(0, "Court Musician#orint");
+	emotion e_dots, 0, "Court Musician#orint";
 	mes "[Court Musician Orint]";
 	mes "Chatting is forbidden while working.";
 	next;
@@ -13038,21 +13038,21 @@ prt_cas,343,67,4	script	Uptight Librarian#ep16l	71,{
 		mes "[Uptight Librarian]";
 		mes "May I see your library card, please?";
 		next;
-		emotion e_omg, playerattached();
+		emotion e_omg, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Library card? I don't have such a thing.";
 		next;
 		mes "[Uptight Librarian]";
 		mes "Then, I cannot borrow a book to you.";
 		next;
-		emotion e_swt, playerattached();
+		emotion e_swt, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "How can I have a library card?";
 		next;
 		mes "[Uptight Librarian]";
 		mes "If you present your identification card, we will make you one instantly.";
 		next;
-		emotion e_swt, playerattached();
+		emotion e_swt, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Huh... I don't have it. I left all my things to attend the banquet.";
 		next;
@@ -13336,7 +13336,7 @@ prt_cas,379,124,3	script	Glamorous Girl#pop	936,{
 	mes "Is it something dangerous? Is it about the international affairs or the international situation...";
 	next;
 	cutin "ra_bishop",2;
-	emotion e_omg, playerattached();
+	emotion e_omg, 1;
 	mes "[Glamorous Girl]";
 	mes ".....";
 	mes "In secret.";
@@ -13400,7 +13400,7 @@ prt_cas,368,125,3	script	Dumk#ep16_etc03	481,{
 	npctalk "Watch whom you are talking to!!! Do you want to pick a trouble with me!", "Dumk#ep16_etc03", bc_self;
 	sleep2 1000;
 	unittalk getcharid(3), "" + strcharinfo(0) + " : (Shaking the head from side to side)", bc_self;
-	emotion e_no, playerattached();
+	emotion e_no, 1;
 	end;
 }
 prt_cas,367,123,7	duplicate(Dumk#ep16_etc03)	Kid#ep16_etc04	884
@@ -13768,7 +13768,7 @@ OnTouchNPC:
 	end;
 }
 prt_q,167,320,6	script	Soldier#EP162PS04	105,1,1,{
-	emotion ET_CONFUSE;
+	emotion e_spin;
 	mes "[Soldier]";
 	mes "What was it that had dropped from the sky? How could it bring the undead to the capital?";
 	close;
@@ -13842,7 +13842,7 @@ OnTouchNPC:
 	end;
 }
 prt_q,149,316,4	script	Soldier#EP162PS11	105,1,1,{
-	emotion ET_ROCK;
+	emotion e_rock;
 	mes "[Soldier]";
 	mes "We will defend the palace of Prontera.";
 	close;
@@ -13864,7 +13864,7 @@ OnTouchNPC:
 	end;
 }
 prt_q,153,316,4	script	Soldier#EP162PS13	105,1,1,{
-	emotion ET_HUM;
+	emotion e_dum;
 	mes "[Soldier]";
 	mes "Thank god... The undead are not coming this way much. What a relief.";
 	close;
@@ -14248,7 +14248,7 @@ prt_q,74,101,7	duplicate(Giant Beast Manager#EP1)	Magical Gear Mechanic#E	105
 prt_q,276,242,4	script	Girl#EP161GU01	139,6,6,{
 	if (isbegin_quest(5449) == 1) {
 		select("Hey dear, are you OK?");
-		emotion e_what, playerattached();
+		emotion e_what, 1;
 		emotion e_sob;
 		mes "[Lowen]";
 		mes "I was running to the church with my sister, Rosa... And I lost her... Awww...";
@@ -14332,7 +14332,7 @@ prt_q,229,317,6	script	Girl#EP161GU03	139,{
 		mes "[Lowen]";
 		mes "Oh, Uncle Peco, did you see my sister here?";
 		next;
-		emotion e_omg, getnpcid(0, "PecoPeco Mechanic#EP161_2");
+		emotion e_omg, 0, "PecoPeco Mechanic#EP161_2";
 		mes "[PecoPeco Mechanic]";
 		mes "Cough... Uncle...";
 		next;
@@ -14348,7 +14348,7 @@ prt_q,229,317,6	script	Girl#EP161GU03	139,{
 		mes "[PecoPeco Mechanic]";
 		mes "She could have gone to the Knights' building. Weren't you sisters supposed to go to the shelter there?";
 		next;
-		emotion e_omg, getnpcid(0, "PecoPeco Mechanic#EP161_2");
+		emotion e_omg, 0, "PecoPeco Mechanic#EP161_2";
 		mes "[Lowen]";
 		mes "Eh? It must have not been the cathedral then... Huh? What should I do?";
 		next;
@@ -14362,7 +14362,7 @@ prt_q,229,317,6	script	Girl#EP161GU03	139,{
 		select("Since I am here already, let me keep helping her.");
 		erasequest 5457;// Find My Sister(1)
 		setquest 5458;// Find My Sister(2)
-		emotion e_thx, getnpcid(0, "PecoPeco Mechanic#EP161_2");
+		emotion e_thx, 0, "PecoPeco Mechanic#EP161_2";
 		mes "[PecoPeco Mechanic]";
 		mes "Thank you. Please take care of her.";
 		close2;
@@ -14425,15 +14425,15 @@ prt_q,41,337,5	script	Mercenary Guild Admin#E	105,{
 
 prt_q,55,347,6	script	Rosa Erinin#EP161GU07	139,{
 	if (isbegin_quest(5458) == 1) {
-		emotion e_bzz, getnpcid(0, "Rosa Erinin#EP161GU07");
+		emotion e_bzz, 0, "Rosa Erinin#EP161GU07";
 		mes "[Rosa Erinin]";
 		mes "Lowen, where did you go this time?";
 		next;
-		emotion e_thx, getnpcid(0, "Girl#EP161GU06");
+		emotion e_thx, 0, "Girl#EP161GU06";
 		mes "[Lowen]";
 		mes "Hehe... Thank you, dear adventurer.";
 		next;
-		emotion e_thx, getnpcid(0, "Rosa Erinin#EP161GU07");
+		emotion e_thx, 0, "Rosa Erinin#EP161GU07";
 		mes "[Rosa Erinin]";
 		mes "Oh! Dear adventurer, thank you. She is so handful, you know.";
 		next;
@@ -14445,7 +14445,7 @@ prt_q,55,347,6	script	Rosa Erinin#EP161GU07	139,{
 		next;
 		erasequest 5458;// Find My Sister(2)
 		setquest 5459;// Find My Sister(3)
-		emotion e_paper, getnpcid(0, "Girl#EP161GU06");
+		emotion e_paper, 0, "Girl#EP161GU06";
 		mes "[Lowen]";
 		mes "Thank you. Goodbye!";
 		close2;
@@ -14463,7 +14463,7 @@ prt_q,140,304,6	script	Soldier#EP161HU01	139,7,7,{
 		mes "[Soldier]";
 		mes "Argh! The undead! Bring it on!";
 		next;
-		emotion e_hmm, playerattached();
+		emotion e_hmm, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Hey, what would be the use of telling them to bring it on when you are hiding in there...";
 		next;
@@ -14543,7 +14543,7 @@ prt_q,79,102,8	script	Soldier#EP161HU03	139,{
 		mes "[Soldier]";
 		mes "I should go help them now.";
 		next;
-		emotion e_what, playerattached();
+		emotion e_what, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "It is such a secluded place, and there are 3 soldiers here.";
 		next;
@@ -14676,7 +14676,7 @@ prt_q,231,310,4	script	Eryus#EP161BU02	139,{
 		mes "[Eryus]";
 		mes "Oh! Thank god! Dear adventurer...";
 		next;
-		emotion e_swt2, getnpcid(0, "Female#EP161BU04");
+		emotion e_swt2, 0, "Female#EP161BU04";
 		mes "[Ellie]";
 		mes "Oh, Eryus... Cough... Cough...";
 		next;
@@ -14684,14 +14684,14 @@ prt_q,231,310,4	script	Eryus#EP161BU02	139,{
 		mes "[Eryus]";
 		mes "Ellie, what is going on? Are you ill again? Where is your medicine?";
 		next;
-		emotion e_swt2, getnpcid(0, "Female#EP161BU04");
+		emotion e_swt2, 0, "Female#EP161BU04";
 		mes "[Ellie]";
 		mes "Cough... Cough... I must have dropped it while running...";
 		next;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Where did you drop the medicine?";
 		next;
-		emotion e_swt2, getnpcid(0, "Female#EP161BU04");
+		emotion e_swt2, 0, "Female#EP161BU04";
 		mes "[Ellie]";
 		mes "Cough... Cough... I don't know. Cough, it could be there... Cough... Cough...";
 		next;
@@ -14765,7 +14765,7 @@ OnTouch:
 
 prt_q,229,310,6	script	Female#EP161BU04	139,{
 	if (isbegin_quest(5465) == 1) {
-		emotion e_thx, getnpcid(0, "Eryus#EP161BU02");
+		emotion e_thx, 0, "Eryus#EP161BU02";
 		mes "[Eryus]";
 		mes "Oh! Thank god! Dear adventurer...";
 		next;
@@ -14773,7 +14773,7 @@ prt_q,229,310,6	script	Female#EP161BU04	139,{
 		mes "[Ellie]";
 		mes "Oh, Eryus... Cough... Cough...";
 		next;
-		emotion e_omg, getnpcid(0, "Eryus#EP161BU02");
+		emotion e_omg, 0, "Eryus#EP161BU02";
 		mes "[Eryus]";
 		mes "Ellie, what is going on? Are you ill again? Where is your medicine?";
 		next;
@@ -16068,7 +16068,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	10137,{
 		mes "[Prisoner 267BD184]";
 		mes "Please be nice and give me either of your eyes. I'll cherish them.";
 		next;
-		emotion e_swt2, playerattached();
+		emotion e_swt2, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Whoa, you're being too forward.";
 		next;
@@ -16100,7 +16100,7 @@ prt_prison,267,184,8	script	Prisoner 267BD184#EP161	10137,{
 		mes "[Prisoner 267BD184]";
 		mes "Marriage scam? Ridiculous! Do I look like someone who would dupe anyone into marrying me?";
 		next;
-		emotion e_dots, playerattached();
+		emotion e_dots, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Well, uh...";
 		next;
@@ -16452,7 +16452,7 @@ prt_prison,243,17,4	script	Prisoner 243DV17#EP161D	909,{
 		close;
 	}
 	if (isbegin_quest(5415) < 2) {// Restricted Sector
-		emotion e_dots, playerattached();
+		emotion e_dots, 1;
 		emotion e_dots;
 		mes "... ... ... ...";
 		close;
@@ -16496,7 +16496,7 @@ prt_prison,243,17,4	script	Prisoner 243DV17#EP161D	909,{
 		mes "~Giggles~ I suddenly feel better now. Alright, what the heck. I'll send you to the sector you want for 1 Jellopy.";
 		next;
 		if (countitem(909) < 1) {
-			emotion ET_HUM;
+			emotion e_dum;
 			mes "[Prisoner 243DV17]";
 			mes "What? You don't even have Jellopy with you? How useless are you?";
 			close;
@@ -16786,7 +16786,7 @@ prt_prison,117,188,4	script	Prisoner 117FM188#EP161	10136,{
 		mes "[Prisoner 117FM188]";
 		mes "Noyel, go ahead and bring that prisoner keeper. I have a bone to pick with him.";
 		next;
-		emotion e_hmm, playerattached();
+		emotion e_hmm, 1;
 		mes "[" + strcharinfo(0) + "]";
 		mes "I don't think that's going to happen.";
 		next;

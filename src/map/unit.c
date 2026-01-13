@@ -99,7 +99,8 @@ int unit_walktoxy_sub(struct block_list *bl)
 
 	memcpy(&ud->walkpath,&wpd,sizeof(wpd));
 	
-	if (ud->target_to && ud->chaserange>1) {
+	// Monsters always target an adjacent tile even if ranged, no need to shorten the path
+	if (ud->target_to && ud->chaserange>1 && bl->type != BL_MOB) {
 		//Generally speaking, the walk path is already to an adjacent tile
 		//so we only need to shorten the path if the range is greater than 1.
 		int dir;
@@ -124,6 +125,7 @@ int unit_walktoxy_sub(struct block_list *bl)
 		((TBL_PC *)bl)->head_dir = 0;
 		clif_walkok((TBL_PC*)bl);
 	}
+
 	clif_move(ud);
 
 	if(ud->walkpath.path_pos>=ud->walkpath.path_len)
@@ -617,6 +619,8 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 	
 	if( ud == NULL) return 0;
 
+	if ((flag & 8) && !map_closest_freecell(bl->m, &x, &y, BL_CHAR | BL_NPC, 1)) //This might change x and y
+		return 0;
 
 	if (!path_search(&wpd, bl->m, bl->x, bl->y, x, y, flag & 1, CELL_CHKNOPASS)) // Count walk path cells
 		return 0;
@@ -633,9 +637,6 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 
 	if (bl->type == BL_PC)
 		sd = BL_CAST(BL_PC, bl);
-
-	if ((flag & 8) && !map_closest_freecell(bl->m, &x, &y, BL_CHAR | BL_NPC, 1)) //This might change x and y
-		return 0;
 
 	if (flag & 4) {
 		unit_unattackable(bl);

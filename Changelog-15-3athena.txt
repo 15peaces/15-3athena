@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/13/2026
+	r558 [15peaces]
+		*Fixed emotion command usage in quests_16_1.txt
+		*Another small fix on mob_randomwalk.
+
 01/11/2026
 	r557 [15peaces]
 		*LG_SHIELDSPELL

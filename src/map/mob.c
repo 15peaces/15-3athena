@@ -1003,7 +1003,7 @@ int mob_spawn (struct mob_data *md)
 	md->state.aggressive = md->status.mode&MD_ANGRY?1:0;
 	md->state.skillstate = MSS_IDLE;
 	md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME;
-	md->last_linktime = tick;
+	md->last_linktime = 0;
 	md->last_pcneartime = 0;
 
 	for (i = 0, c = tick-MOB_MAX_DELAY; i < MAX_MOBSKILL; i++)
@@ -1383,9 +1383,10 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 	}
 	if (md->target_id) {
 		md->target_id=0;
-		md->ud.target_to = 0;
 		unit_set_target(&md->ud, 0);
 	}
+	md->ud.state.attack_continue = 0;
+	md->ud.target_to = 0;
 
 	if (battle_config.official_cell_stack_limit > 0
 		&& map_count_oncell(md->bl.m, md->bl.x, md->bl.y, BL_CHAR | BL_NPC, 1) > battle_config.official_cell_stack_limit) {
@@ -1425,7 +1426,7 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 	dx = r % (d * 2 + 1) - d;
 	dy = r / (d * 2 + 1) % (d * 2 + 1) - d;
 	max = (d * 2 + 1) * (d * 2 + 1);
-	for (i = 0; i < d*d; i++) {	// Search of a movable place
+	for (i = 0; i < max; i++) {	// Search of a movable place
 		int x = dx + md->bl.x;
 		int y = dy + md->bl.y;
 		if (((x != md->bl.x) || (y != md->bl.y)) && map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 0)) {
