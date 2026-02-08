@@ -3083,6 +3083,11 @@
 13167,0,2086,30,0,0,0,0,0,0,0,0,0,0,0,0,0,"Rake horn Scaraba Story"
 13168,3600,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Rake horn Scaraba Story - Wait"
 
+// Nightmarish Jitterbug
+13181,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Nightmarish Jitterbug"
+13182,82800,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Nightmarish Jitterbug: Waiting"
+13183,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Nightmarish Jitterbug: Completed"
+
 // Episode 15.2 Krotzel's Request
 13195,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Monthly Brigan"
 13196,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Monthly Brigan"

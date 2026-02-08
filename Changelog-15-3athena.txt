@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/08/2026
+	r559 [15peaces]
+		*SC_FATALMENACE
+			-Updated to oct 2022 version:
+				--Skill Levels increased from 5 to 10.
+				--The teleportation effect is removed.
+				--From Skill Levels 7 increases Hit rate.
+				--From Skill Levels 6 increases area of effect to 5x5.
+				--New damage formular: (120 × Skill_Level + 2 × AGI)%
+				--Number of hits changed; depends on weapon used:
+				--Dagger: 2 hits
+				--Any weapon beside Dagger: 1 hit
+		*Fixed some more trading restrictions.
+		*Added Nightmarish Jitterbug Instance.
+		*Fixed a failed assertion in achievement_validate_zeny.
+		*Added Rune Greaves.
+
 01/13/2026
 	r558 [15peaces]
 		*Fixed emotion command usage in quests_16_1.txt

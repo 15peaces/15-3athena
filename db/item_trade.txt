@@ -1080,7 +1080,7 @@
 12642,475,100	// Fruit Of Mastela 100 Box
 12654,475,100	// Lucky Egg C9
 12673,475,100	// Lucky Egg C10
-12704,507,100	// Elixir_Of_Life
+12704,471,100	// Elixir_Of_Life
 12705,507,100	// Noble_Nameplate
 12714,467,100	// Easter_Scroll
 12715,507,100	// Black_Treasure_Chest
@@ -2040,7 +2040,7 @@
 18781,507,100	//RWC_Champ_Crown_Third_Place
 18796,507,100	//RWC_Champ_Crown_Fourth_Place
 18828,87,100	// 2012RMSCNO1
-18829,507,100	//2013 RWC Runners-Up Helmet
+18829,479,100	//2013 RWC Runners-Up Helmet
 18830,507,100	//2013 RWC 3rd Helmet
 18971,507,100	//Old_Rune_Circlet
 18972,507,100	//Old_Mitra

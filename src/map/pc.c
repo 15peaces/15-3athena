@@ -4400,16 +4400,18 @@ int pc_payzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type,
 	sd->status.zeny -= zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
-	if (zeny > 0 && sd->state.showzeny) {
-		char output[255];
-		sprintf(output, "Removed %dz.", zeny);
-		clif_disp_onlyself(sd, output, strlen(output));
+	if (zeny > 0) 
+	{
+		achievement_validate_zeny(sd, -zeny); // Achievements [Smokexyz/Hercules]
+		log_zeny(sd, type, tsd ? tsd : sd, -zeny);
+
+		if (sd->state.showzeny)
+		{
+			char output[255];
+			sprintf(output, "Removed %dz.", zeny);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
 	}
-
-	if (!tsd) tsd = sd;
-	log_zeny(sd, type, tsd, -zeny);
-
-	achievement_validate_zeny(sd, -zeny); // Achievements [Smokexyz/Hercules]
 
 	return 0;
 }
@@ -4435,17 +4437,18 @@ int pc_getzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type,
 	sd->status.zeny += zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
-	if (!sd) tsd = sd;
-	log_zeny(sd, type, tsd, zeny);
-
-	if( zeny > 0 && sd->state.showzeny )
+	if( zeny > 0 )
 	{
-		char output[255];
-		sprintf(output, "Gained %dz.", zeny);
-		clif_disp_onlyself(sd,output,strlen(output));
-	}
+		achievement_validate_zeny(sd, zeny); // Achievements [Smokexyz/Hercules]
+		log_zeny(sd, type, tsd ? tsd : sd, zeny);
 
-	achievement_validate_zeny(sd, zeny); // Achievements [Smokexyz/Hercules]
+		if (sd->state.showzeny)
+		{
+			char output[255];
+			sprintf(output, "Gained %dz.", zeny);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
+	}
 
 	return 0;
 }

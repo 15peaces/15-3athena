@@ -5625,3 +5625,32 @@
 16431,Pole_Axe_Box_,Pole Axe Box,2,20,10,1,,,,,0xFFFFFFFF,63,2,,,,,,{ rentitem 1419,604800; },{},{}
 23202,Vin_Chaud,Mulled Wine,2,0,,40,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 0,7; },{},{}
 100709,All_Shadow_Cube,All Shadow Cube,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{/*getitempackage(IP_ALL_SHADOW_CUBE);*/},{},{}
+
+// Nightmarish Jitterbug Instance & more (renewal)
+4625,Time_Holder_Card,Time Holder Card,6,10,,10,,,,,,,,2,,,,,{ bonus bMatkRate,20; bonus bUseSPrate,10; },{},{}
+4626,Big_Ben_Card,Big Ben Card,6,10,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_Formless,5; bonus2 bMagicAddRace,RC_Demon,5; },{},{}
+4627,Big_Bell_Card,Big Bell Card,6,10,,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_Formless,10; bonus2 bAddRace,RC_Demon,10; },{},{}
+4628,Neo_Punk_Card,Neo Punk Card,6,10,,10,,,,,0xFFFFFFFF,63,2,32,,,,,{ bonus2 bSubRace,RC_Formless,20; bonus2 bSubRace,RC_Demon,20; },{},{}
+6719,Jitterbug's_Tooth,Jitterbug's Tooth,3,10,,100,,,,,,,,,,,,,{},{},{}
+6720,Status_Reset_Coupon,Status Reset Coupon,18,10,,0,,,,0,0xFFFFFFFF,63,2,,,1,,,{ resetstatus; },{},{}
+6721,Status_Reset_Coupon_,Status Reset Coupon,18,10,,0,,,,0,0xFFFFFFFF,63,2,,,1,,,{ resetstatus; },{},{}
+6722,Delicious_Clam_Flesh,Delicious Clam Flesh,3,10,,0,,,,,,,,,,,,,{},{},{}
+6723,Delicious_Canned_Food,Delicious Canned Food,3,10,,0,,,,,,,,,,,,,{},{},{}
+6724,Savage_Box,Savage Box,3,10,,0,,,,,,,,,,,,,{},{},{}
+6725,Grand_Peco_Box,Grand Peco Box,3,10,,0,,,,,,,,,,,,,{},{},{}
+6726,Desert_Wolf_Box,Desert Wolf Box,3,10,,0,,,,,,,,,,,,,{},{},{}
+6727,Arranged_Photo_Album,Arranged Photo Album,3,10,,0,,,,,,,,,,,,,{},{},{}
+15100,Frozen_Breastplate,Frozen Breastplate,5,20,,1500,,20,,1,0xFFFFFFFF,63,2,16,,130,1,0,{ bonus bDefEle,Ele_Water; },{},{}
+15101,Harden_Breastplate,Hardened Breastplate,5,20,,1500,,20,,1,0xFFFFFFFF,63,2,16,,130,1,0,{ bonus bDefEle,Ele_Earth; },{},{}
+22515,Twisted_Key_of_Time,Twisted Key of Time,3,10,,300,,,,,,,,,,,,,{},{},{}
+22516,Dark_Red_Clot,Black As Night Piece,3,10,,0,,,,,,,,,,,,,{},{},{}
+22517,Loki_Summon_Scroll,Rocker Summoning Scroll,3,10,,0,,,,,,,,,,,,,{},{},{}
+27106,Awaken_Pere_Card,Awaken Pere Card,6,20,,10,,,,,,,,16,,,,,{ if (BaseJob == Job_Bard || BaseJob == Job_Dancer) { bonus bMatk,(15*getrefine()); } },{},{}
+27107,Playing_Pere_Card,Playing Pere Card,6,20,,10,,,,,,,,8,,,,,{ bonus2 bAddEle,Ele_Neutral,20; },{},{}
+27108,Singing_Pere_Card,Singing Pere Card,6,20,,10,,,,,,,,128,,,,,{ bonus2 bMagicAddEle,Ele_Neutral,20; },{},{}
+27109,Jitterbug_Card,Jitterbug Card,6,20,,10,,,,,,,,769,,,,,{ bonus2 bSubDefEle,Ele_Neutral,10; bonus bMaxHP,500; },{},{}
+27110,Furious_Gazeti_Card,Furious Gazeti Card,6,20,,10,,,,,,,,16,,,,,{ bonus bLongAtkDef,20; },{},{}
+27111,Furious_Snowier_Card,Furious Snowier Card,6,20,,10,,,,,,,,136,,,,,{ bonus2 bAddItemHealRate,11522,50; bonus2 bAddItemHealRate,11523,50; bonus2 bAddItemHealRate,11524,50; },{},{}
+27112,Furious_Ice Titan_Card,Furious Ice Titan Card,6,20,,10,,,,,,,,16,,,,,{ bonus bDef,(5*(1+getrefine())); },{},{}
+470084,Rune_Greave_JP,Rune Greaves,5,0,,400,,12,,0,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}
+470085,Rune_Greave_JP_,Rune Greaves,5,0,,400,,12,,1,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}

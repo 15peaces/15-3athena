@@ -2134,7 +2134,12 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 		case GC_VENOMPRESSURE:
 			hitrate += 10 + 4 * skill_lv;
 			break;
-
+		case SC_FATALMENACE:
+			if (skill_lv < 6)
+				hitrate -= 35 - 5 * skill_lv;
+			else if (skill_lv > 6)
+				hitrate += 5 * skill_lv - 30;
+			break;
 		case RL_SLUGSHOT:
 		{
 			int8 dist = distance_bl(src, target);
@@ -2658,6 +2663,10 @@ static struct Damage battle_calc_multi_attack(struct Damage wd, struct block_lis
 	}
 
 	switch (skill_id) {
+	case SC_FATALMENACE:
+		if (sd && sd->weapontype1 == W_DAGGER)
+			wd.div_++;
+		break;
 	case RA_AIMEDBOLT:
 		if (tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]))
 			wd.div_ = tstatus->size + 2 + ((rnd() % 100 < 50 - tstatus->size * 10) ? 1 : 0);
@@ -3175,7 +3184,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case SC_FATALMENACE:
-		skillratio += 100 * skill_lv;
+		skillratio += 120 * skill_lv + 2*sstatus->agi;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
