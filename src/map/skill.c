@@ -11720,6 +11720,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 	struct map_session_data *sd;
 	struct mob_data *md;
 	struct homun_data *hd;
+	struct mercenary_data *mc;
 	struct unit_data *ud;
 	struct status_change *sc = NULL;
 	int flag = 0;
@@ -11741,6 +11742,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 	sd = BL_CAST(BL_PC,  src);
 	md = BL_CAST(BL_MOB, src);
 	hd = BL_CAST(BL_HOM, src);
+	mc = BL_CAST(BL_MER, src);
 
 	if( src->prev == NULL ) {
 		ud->skilltimer = INVALID_TIMER;
@@ -11916,10 +11918,32 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 			skill_blockhomun_start(hd, ud->skill_id, skill_get_cooldown(ud->skill_id, ud->skill_lv));
 		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
 			ud->canact_tick = max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
+
+		// Cooldown application
+		switch (src->type) {
+			case BL_PC:
+			{
+				// Increases/Decreases cooldown of a skill by item/card bonuses.
+				int32 cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv);
+				if (cooldown > 0)
+					skill_blockpc_start(sd, ud->skill_id, cooldown);
+			}
+			break;
+			case BL_HOM:
+			{
+				skill_blockhomun_start(hd, ud->skill_id, skill_get_delay(ud->skill_id, ud->skill_lv));
+			}
+			break;
+			case BL_MER:
+			{
+				skill_blockmerc_start(mc, ud->skill_id, skill_get_cooldown(ud->skill_id, ud->skill_lv));
+			}
+			break;
+		}
+
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
-		if( sd && (sd->skillitem != ud->skill_id || skill_get_cooldown(ud->skill_id,ud->skill_lv)) )
-			skill_blockpc_start(sd, ud->skill_id, skill_get_cooldown(ud->skill_id, ud->skill_lv));
+
 		if( sd )
 		{
 			switch( ud->skill_id )
@@ -12167,10 +12191,13 @@ int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 			skill_blockhomun_start(hd, ud->skill_id, skill_get_cooldown(ud->skill_id, ud->skill_lv));
 		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
 			ud->canact_tick = max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
-		if( battle_config.display_status_timers && sd )
+		if (sd) { //Cooldown application
+			int32 cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv);
+			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
+		}
+		if (battle_config.display_status_timers && sd)
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
-		if( sd && (sd->skillitem != ud->skill_id || skill_get_cooldown(ud->skill_id,ud->skill_lv)) )
-			skill_blockpc_start(sd, ud->skill_id, skill_get_cooldown(ud->skill_id, ud->skill_lv));
+
 //		if( sd )
 //		{
 //			switch( ud->skill_id )

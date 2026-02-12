@@ -2483,7 +2483,7 @@ lasagna,140,245,3	script	The sensitive-minded ela	546,{
 		mes "This amulet is already perfect!";
 		close;
 	}
-
+	if (.@your_charm_ID < 1) {
 		mes "[Goma Chara]";
 		mes "Show me your amulet, will you? I can't seem to find it in your inventory.";
 		close;
@@ -2505,7 +2505,7 @@ lasagna,140,245,3	script	The sensitive-minded ela	546,{
 		mes "[Goma Chara]";
 		mes "Insufficient materials, can not be repaired free.";
 		close;
-
+	}
 	mes "[Goma Chara]";
 	mes "The inside of this amulet seems pretty tough.";
 	mes "But my dexterity is tougher. Tada! Put my brother's amulet to good use.";

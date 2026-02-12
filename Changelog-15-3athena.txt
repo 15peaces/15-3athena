@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/12/2026
+	r560 [15peaces]
+		*Fixed some issues in lasagna npcs file.
+		*Re-Added slot to Ancient_Shield_Of_Aeon.
+			-It is confirmed on kRO / jRO / pRO to have a slot...
+		*Fixed some remaining issues with character deletion.
+			-Note: on some clients & langtypes you need to set the char_del_option back to email to work probably...
+		*WM_METALICSOUND
+			-Updated to latest official version.
+		*WM_DOMINION_IMPULSE
+			-Removed from skill trees since it was removed on official servers.
+		*Fixed bonus2 bSkillCooldown item bonus.
+		
 02/08/2026
 	r559 [15peaces]
 		*SC_FATALMENACE

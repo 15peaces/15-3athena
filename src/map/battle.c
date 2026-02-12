@@ -4981,7 +4981,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio = skillratio * status_get_job_lv_effect(src) / 25;
 						break;
 					case WM_METALICSOUND:
-						skillratio = 120 * skill_lv + 60 * (sd ? pc_checkskill(sd, WM_LESSON) : 10);
+						skillratio += -100 + 120 * skill_lv + 60 * ((sd) ? pc_checkskill(sd, WM_LESSON) : 1);
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 						if (tsc && (tsc->data[SC_SLEEP] || tsc->data[SC_DEEPSLEEP]))

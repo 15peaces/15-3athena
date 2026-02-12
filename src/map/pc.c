@@ -6012,9 +6012,8 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 	ARR_FIND(0, cooldownlen, i, sd->skillcooldown[i].id == skill_id);
 	if (i < cooldownlen) {
 		cooldown += sd->skillcooldown[i].val;
-		cooldown = max(0,cooldown);
 	}
-	return cooldown;
+	return max(0, cooldown);
 }
 
 /*==========================================

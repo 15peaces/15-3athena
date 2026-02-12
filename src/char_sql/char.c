@@ -1357,11 +1357,11 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 		WFIFOW(fd,0) = 0x99d;
 		for( i = (page_num*3); i < (page_num*3+send_cnt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++ )
 		{
-			if (p.delete_date && p.delete_date < time(NULL)) {
+			/*if (p.delete_date && p.delete_date < time(NULL)) {
 				delete_char_sql(sd, p.char_id);
 				i--;
 				continue;
-			}
+			}*/
 
 			p.last_point.map = mapindex_name2id(last_map);
 			p.sex = char_mmo_gender(sd, &p, sex[0]);
@@ -1955,7 +1955,7 @@ enum e_char_del_response delete_char_sql(struct char_session_data* sd, uint32 ch
 
 	// Such a character does not exist in the account
 	if (i == MAX_CHARS) {
-		ShowInfo("Char deletion aborted: Account ID: %u, Character ID: %u\n", sd->account_id, char_id);
+		ShowInfo("Char deletion aborted (not found(1)): Account ID: %u, Character ID: %u\n", sd->account_id, char_id);
 		return CHAR_DELETE_NOTFOUND;
 	}
 
@@ -1966,7 +1966,7 @@ enum e_char_del_response delete_char_sql(struct char_session_data* sd, uint32 ch
 
 	if( SQL_SUCCESS != Sql_NextRow(sql_handle) )
 	{
-		ShowInfo("Char deletion aborted: Account ID: %u, Character ID: %u\n", sd->account_id, char_id);
+		ShowInfo("Char deletion aborted (not found(2)): Account ID: %u, Character ID: %u\n", sd->account_id, char_id);
 		Sql_FreeResult(sql_handle);
 		return CHAR_DELETE_NOTFOUND;
 	}
@@ -4470,7 +4470,7 @@ static void char_delete2_accept(int fd, struct char_session_data* sd)
 	birthdate[5] = '-';
 	birthdate[6] = RFIFOB(fd,10);
 	birthdate[7] = RFIFOB(fd,11);
-	birthdate[8] = 0;
+	birthdate[8] = '\0';
 
 	// Only check for birthdate
 	if (!char_delchar_check(sd, birthdate, CHAR_DEL_BIRTHDATE)) {
