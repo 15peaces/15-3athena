@@ -1906,7 +1906,7 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	//Retrieve the newly auto-generated char id
 	char_id = (int)Sql_LastInsertId(sql_handle);
 	//Give the char the default items
-	for (k = 0; k <= MAX_STARTITEM && tmp_start_items[k].nameid != 0; k++) {
+	for (k = 0; k < MAX_STARTITEM && tmp_start_items[k].nameid != 0; k++) {
 		if (SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `equip`, `identify`) VALUES ('%d', '%u', '%u', '%u', '%d')", inventory_db, char_id, tmp_start_items[k].nameid, tmp_start_items[k].amount, tmp_start_items[k].pos, 1))
 			Sql_ShowDebug(sql_handle);
 	}

@@ -8329,7 +8329,9 @@ BUILDIN_FUNC(bonus)
 	case SP_SKILL_HEAL2:
 	case SP_ADD_SKILL_BLOW:
 	case SP_CASTRATE:
+	case SP_FIXEDCASTRATE:
 	case SP_ADDEFF_ONSKILL:
+	case SP_SPRATE:
 	case SP_SKILL_COOLDOWN:
 	case SP_SKILL_USE_SP:
 		// these bonuses support skill names

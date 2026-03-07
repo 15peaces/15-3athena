@@ -54,7 +54,7 @@ int inter_achievement_tosql(uint32 char_id, struct char_achievements *cp, const 
 
 		if (save) {
 			StringBuf_Printf(&buf, "%s('%d', '%d', '%"PRId64"', '%"PRId64"'", rows ? ", " : "", char_id, pa->id, (int64)pa->completed, (int64)pa->rewarded);
-			for (j = 1; j <= MAX_ACHIEVEMENT_OBJECTIVES; j++)
+			for (j = 0; j < MAX_ACHIEVEMENT_OBJECTIVES; j++)
 				StringBuf_Printf(&buf, ", '%d'", pa->objective[j]);
 			StringBuf_AppendStr(&buf, ")");
 			rows++;

@@ -349,7 +349,12 @@ void inter_final(void)
 	inter_clan_final();
 	inter_achievement_sql_final();
 	
-	if (accreg_pt) aFree(accreg_pt);
+	if (accreg_pt)
+		aFree(accreg_pt);
+
+	aFree(int_storages);
+	int_storages = NULL;
+
 	return;
 }
 

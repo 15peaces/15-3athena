@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/07/2026
+	r561 [15peaces]
+		*Re-Added some cases in bonus function I removed by accident.
+		*Fixed Tyr's_Blessing trading restrictions.
+		*Fixed some possible overflows memleaks on char server.
+			-Thanks to @Reilaen
+
 02/12/2026
 	r560 [15peaces]
 		*Fixed some issues in lasagna npcs file.

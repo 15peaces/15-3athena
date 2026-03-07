@@ -279,7 +279,7 @@ int mapif_parse_itembound_retrieve(int fd)
 	SqlStmt* stmt;
 	bool found = false;
 	unsigned short i = 0, count = 0;
-	struct item item, items[MAX_INVENTORY];
+	struct item item = { 0 }, items[MAX_INVENTORY] = { 0 };
 	int j, guild_id = RFIFOW(fd, 10);
 	uint32 char_id = RFIFOL(fd, 2), account_id = RFIFOL(fd, 6);
 

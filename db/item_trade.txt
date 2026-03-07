@@ -1824,7 +1824,7 @@
 14598,507,100	// GhostringS
 14599,507,100	// Greed_Scroll_C
 14600,507,100	// Mental_Potion
-14601,507,100	// Tyr's_Blessing
+14601,479,100	// Tyr's_Blessing
 14602,507,100	// TaogunkaS
 14603,507,100	// MistressS
 14604,507,100	// Orc_HeroS
