@@ -1881,8 +1881,9 @@ ACMD_FUNC(baselevelup)
 	unsigned int status_point=0;
 	nullpo_retr(-1, sd);
 	level = atoi(message);
+	nullpo_retr(-1, message);
 
-	if (!message || !*message || !level) {
+	if (level == 0) {
 		clif_displaymessage(fd, "Please, enter a level adjustment (usage: @lvup/@blevel/@baselvlup <number of levels>).");
 		return -1;
 	}
@@ -1962,10 +1963,11 @@ ACMD_FUNC(joblevelup)
 {
 	int level=0;
 	nullpo_retr(-1, sd);
+	nullpo_retr(-1, message);
 	
 	level = atoi(message);
 
-	if (!message || !*message || !level) {
+	if (level == 0) {
 		clif_displaymessage(fd, "Please, enter a level adjustment (usage: @joblvup/@jlevel/@joblvlup <number of levels>).");
 		return -1;
 	}
@@ -3564,7 +3566,6 @@ ACMD_FUNC(hatch)
 ACMD_FUNC(petfriendly)
 {
 	int friendly;
-	struct pet_data *pd;
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || (friendly = atoi(message)) < 0) {
@@ -3572,7 +3573,7 @@ ACMD_FUNC(petfriendly)
 		return -1;
 	}
 
-	pd = sd->pd;
+	struct pet_data* pd = sd->pd;
 	if (!pd) {
 		clif_displaymessage(fd, msg_txt(sd,184)); // Sorry, but you have no pet.
 		return -1;
@@ -8229,7 +8230,7 @@ ACMD_FUNC(showmobs)
 		return 0;
 	}
 #endif
-	if(mob_id == atoi(mob_name) && mob_db(mob_id)->jname)
+	if(mob_id == atoi(mob_name) && mob_db(mob_id)->jname[0] != '\0')
 		strcpy(mob_name,mob_db(mob_id)->jname);    // --ja--
 		//strcpy(mob_name,mob_db(mob_id)->name);    // --en--
 
@@ -10428,7 +10429,7 @@ ACMD_FUNC(fullstrip) {
 
 /* [Ind] */
 ACMD_FUNC(set) {
-	char reg[32], val[128];
+	char reg[33], val[129];
 	struct script_data* data;
 	int toset = 0;
 	bool is_str = false;
@@ -10520,7 +10521,7 @@ ACMD_FUNC(set) {
 
 	switch (data->type) {
 	case C_INT:
-		sprintf(atcmd_output, "%s value is now :%I64d", reg, data->u.num);
+		sprintf(atcmd_output, "%s value is now :%" PRId64, reg, data->u.num);
 		break;
 	case C_STR:
 		sprintf(atcmd_output, "%s value is now :%s", reg, data->u.str);

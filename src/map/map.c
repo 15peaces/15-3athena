@@ -2929,7 +2929,7 @@ int map_mapindex2mapid(unsigned short mapindex)
 {
 	struct map_data *md=NULL;
 	
-	if (!mapindex || mapindex > MAX_MAPINDEX)
+	if (!mapindex || mapindex >= MAX_MAPINDEX)
 		return -1;
 	
 	return index2mapid[mapindex];
@@ -4417,6 +4417,8 @@ void do_final(void)
 
 		map_free_questinfo(i);
 	}
+
+	aFree(map);
 
 	mapindex_final();
 	if(enable_grf)

@@ -870,7 +870,12 @@ void hom_alloc(struct map_session_data *sd, struct s_homunculus *hom)
 
 	nullpo_retv(sd);
 
-	Assert((sd->status.hom_id == 0 || sd->hd == 0) || sd->hd->master == sd); 
+	if (sd->status.hom_id > 0 && sd->hd != NULL) {
+		if (sd->hd->master != sd) {
+			ShowError("Homunculus master mismatch for player %s (%d)!\n", sd->status.name, sd->status.char_id);
+			return;
+		}
+	}
 
 	i = hom_search(hom->class_,HOMUNCULUS_CLASS);
 	if(i < 0) {

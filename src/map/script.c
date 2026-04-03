@@ -756,7 +756,13 @@ static unsigned int calc_hash(const char* p)
 /// Looks up string using the provided id.
 const char* get_str(int id)
 {
-	Assert( id >= LABEL_START && id < str_size );
+	if (id < LABEL_START || id >= str_size) {
+		ShowError("get_str: Invalid ID %d (Allowed: %d to %d)\n",
+			id, LABEL_START, str_size - 1);
+
+		return "";
+	}
+
 	return str_buf+str_data[id].str;
 }
 
@@ -2735,13 +2741,21 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 /// If there is no player attached, the script is terminated.
 TBL_PC *script_rid2sd(struct script_state *st)
 {
-	TBL_PC *sd=map_id2sd(st->rid);
+	if (!st) {
+		ShowError("script_rid2sd: fatal error ! missing script state!\n");
+		script_reportfunc(st);
+		script_reportsrc(st);
+		st->state = END;
+	}
+
+	TBL_PC* sd = map_id2sd(st->rid);
 	if(!sd){
 		ShowError("script_rid2sd: fatal error ! player not attached!\n");
 		script_reportfunc(st);
 		script_reportsrc(st);
 		st->state = END;
 	}
+
 	return sd;
 }
 
@@ -3849,7 +3863,7 @@ int run_script_timer(int tid, int64 tick, int id, intptr_t data)
 	}
 
 	while( node && st->sleep.timer != INVALID_TIMER ) {
-		if( (int)node->key == st->oid && ((struct script_state *)node->data)->sleep.timer == st->sleep.timer ) {
+		if( (int)(intptr_t)node->key == st->oid && ((struct script_state *)node->data)->sleep.timer == st->sleep.timer ) {
 			script_erase_sleepdb(node);
 			st->sleep.timer = INVALID_TIMER;
 			break;
@@ -4187,7 +4201,7 @@ void script_cleararray_pc(struct map_session_data* sd, const char* varname, void
 	{
 		for( idx = 0; idx < SCRIPT_MAX_ARRAYSIZE; idx++ )
 		{
-			pc_setreg(sd, reference_uid(key, idx), (int)value);
+			pc_setreg(sd, reference_uid(key, idx), (int)(intptr_t)value);
 		}
 	}
 }
@@ -4219,7 +4233,7 @@ void script_setarray_pc(struct map_session_data* sd, const char* varname, uint8 
 	}
 	else
 	{
-		pc_setreg(sd, reference_uid(key, idx), (int)value);
+		pc_setreg(sd, reference_uid(key, idx), (int)(intptr_t)value);
 	}
 
 	if( refcache )
@@ -4469,7 +4483,7 @@ BUILDIN_FUNC(close2)
 static int menu_countoptions(const char* str, int max_count, int* total)
 {
 	int count = 0;
-	int bogus_total;
+	int bogus_total = 0;
 
 	if( total == NULL )
 		total = &bogus_total;
@@ -5572,7 +5586,7 @@ static int32 getarraysize(struct script_state* st, int32 id, int32 idx, int isst
 	{
 		for( ; idx < SCRIPT_MAX_ARRAYSIZE; ++idx )
 		{
-			int32 num = (int32)get_val2(st, reference_uid(id, idx), ref);
+			int32 num = (int32)(intptr_t)get_val2(st, reference_uid(id, idx), ref);
 			if( num )
 				ret = idx + 1;
 			script_removetop(st, -1, 0);
@@ -14443,7 +14457,7 @@ BUILDIN_FUNC(getmapxy)
 		sd=script_rid2sd(st);
 	else
 		sd=NULL;
-	set_reg(st,sd,num,name,(void*)x,script_getref(st,3));
+	set_reg(st,sd,num,name,(void*)(intptr_t)x,script_getref(st,3));
 
 	//Set MapY
 	num=st->stack->stack_data[st->start+4].u.num;
@@ -14454,7 +14468,7 @@ BUILDIN_FUNC(getmapxy)
 		sd=script_rid2sd(st);
 	else
 		sd=NULL;
-	set_reg(st,sd,num,name,(void*)y,script_getref(st,4));
+	set_reg(st,sd,num,name,(void*)(intptr_t)y,script_getref(st,4));
 
 	//Return Success value
 	script_pushint(st,0);
@@ -14496,17 +14510,16 @@ BUILDIN_FUNC(logmes)
 
 BUILDIN_FUNC(summon)
 {
-	int _class, timeout=0;
-	const char *str,*event="";
-	TBL_PC *sd;
-	struct mob_data *md;
+	int timeout = 0;
+	const char* event = "";
 	int64 tick = gettick();
 
-	sd=script_rid2sd(st);
-	if (!sd) return 0;
+	TBL_PC* sd = script_rid2sd(st);
+	if (!sd)
+		return 0;
 	
-	str	=script_getstr(st,2);
-	_class=script_getnum(st,3);
+	const char* str = script_getstr(st, 2);
+	const int _class = script_getnum(st, 3);
 	if( script_hasdata(st,4) )
 		timeout=script_getnum(st,4);
 	if( script_hasdata(st,5) ){
@@ -14516,7 +14529,7 @@ BUILDIN_FUNC(summon)
 
 	clif_skill_poseffect(&sd->bl,AM_CALLHOMUN,1,sd->bl.x,sd->bl.y,tick);
 
-	md = mob_once_spawn_sub(&sd->bl, sd->bl.m, sd->bl.x, sd->bl.y, str, _class, event, 0, AI_NONE);
+	struct mob_data *md = mob_once_spawn_sub(&sd->bl, sd->bl.m, sd->bl.x, sd->bl.y, str, _class, event, 0, AI_NONE);
 	if (md) {
 		md->master_id=sd->bl.id;
 		md->special_state.ai=1;
@@ -14526,8 +14539,11 @@ BUILDIN_FUNC(summon)
 		mob_spawn (md); //Now it is ready for spawning.
 		clif_specialeffect(&md->bl,344,AREA);
 		sc_start4(&md->bl, SC_MODECHANGE, 100, 1, 0, MD_AGGRESSIVE, 0, 60000);
+		script_pushint(st, md->bl.id);
 	}
-	script_pushint(st, md->bl.id);
+	else {
+		script_pushint(st, 0);
+	}
 
 	return 0;
 }
@@ -15245,19 +15261,16 @@ BUILDIN_FUNC(implode)
 //-------------------------------------------------------
 BUILDIN_FUNC(sprintf)
 {
-	unsigned int len, argc = 0, arg = 0, buf2_len = 0;
-	const char* format;
+	unsigned int argc = 0, arg = 0, buf2_len = 0;
 	char* p;
-	char* q;
 	char* buf  = NULL;
 	char* buf2 = NULL;
-	struct script_data* data;
 	StringBuf final_buf;
 
 	// Fetch init data
-	format = script_getstr(st, 2);
+	const char* format = script_getstr(st, 2);
 	argc = script_lastdata(st)-2;
-	len = strlen(format);
+	unsigned int len = strlen(format);
 
 	// Skip parsing, where no parsing is required.
 	if(len == 0) {
@@ -15267,8 +15280,13 @@ BUILDIN_FUNC(sprintf)
 
 	// Pessimistic alloc
 	CREATE(buf, char, len+1);
+	if (buf == NULL) {
+		ShowError("buildin_sprintf: Out of memory!\n");
+		script_pushconststr(st, "");
+		return 0;
+	}
 
-	// Need not be parsed, just solve stuff like %%.
+	// No need to parse, just solve stuff like %%.
 	if(argc == 0) {
 		memcpy(buf,format,len+1);
 		script_pushstrcopy(st, buf);
@@ -15280,7 +15298,7 @@ BUILDIN_FUNC(sprintf)
 
 	// Issue sprintf for each parameter
 	StringBuf_Init(&final_buf);
-	q = buf;
+	char* q = buf;
 	while((p = strchr(q, '%')) != NULL) {
 		if(p != q) {
 			len = p - q + 1;
@@ -15337,7 +15355,7 @@ BUILDIN_FUNC(sprintf)
 		// probably crashes or returns anything else, than expected,
 		// but it would behave in normal code the same way so it's
 		// the scripter's responsibility.
-		data = script_getdata(st, arg+3);
+		struct script_data *data = script_getdata(st, arg+3);
 
 		if(data_isstring(data))  // String
 			StringBuf_Printf(&final_buf, buf2, script_getstr(st, arg+3));
@@ -15475,7 +15493,7 @@ BUILDIN_FUNC(sscanf) {
 			if (sscanf(str, buf, &ref_int) == 0) {
 				break;
 			}
-			set_reg(st, sd, reference_uid(reference_getid(data), reference_getindex(data)), buf_p, (void*)ref_int, reference_getref(data));
+			set_reg(st, sd, reference_uid(reference_getid(data), reference_getindex(data)), buf_p, (void*)(intptr_t)ref_int, reference_getref(data));
 		}
 		arg++;
 
@@ -15830,7 +15848,7 @@ BUILDIN_FUNC(setd)
 	if( is_string_variable(varname) ) {
 		setd_sub(st, sd, varname, elem, (void *)script_getstr(st, 3), NULL);
 	} else {
-		setd_sub(st, sd, varname, elem, (void *)script_getnum(st, 3), NULL);
+		setd_sub(st, sd, varname, elem, (void *)(intptr_t)script_getnum(st, 3), NULL);
 	}
 	
 	return 0;
@@ -15922,7 +15940,7 @@ int buildin_query_sql_sub(struct script_state* st, Sql* handle)
 			if( is_string_variable(name) )
 				setd_sub(st, sd, name, i, (void *)(str?str:""), reference_getref(data));
 			else
-				setd_sub(st, sd, name, i, (void *)(str?atoi(str):0), reference_getref(data));
+				setd_sub(st, sd, name, i, (void*)(intptr_t)(str ? atoi(str) : 0), reference_getref(data));
 		}
 	}
 	if( i == max_rows && max_rows < Sql_NumRows(handle) )
@@ -15988,36 +16006,29 @@ BUILDIN_FUNC(escape_sql)
 
 BUILDIN_FUNC(getd)
 {
-	const char* p;
-	const char* name;
-	int namelen;
-	bool isarray;
-	long idx;
-	struct script_data* data;
-
-	p = script_getstr(st, 2);
+	const char* p = script_getstr(st, 2);
 	p = skip_space(p);
 
 	// parse name
-	name = p; // not NUL terminated (not needed)
-	namelen = skip_word(p) - p;
+	const char* name = p; // not NUL terminated (not needed)
+	int namelen = skip_word(p) - p;
 	p += namelen;
 	p = skip_space(p);
 	// parse index (optional)
-	isarray = false;
-	idx = 0;
-	if( p[0] == '[' )
-	{
+	bool isarray = false;
+	long idx = 0;
+
+	if (p[0] == '[') {
 		char* end = NULL;
 		const char* p2 = skip_space(p + 1);
-		idx = strtol(p2, &end, 0);
-		if( p2 != NULL && p2 != end )
-		{ // has a numeric index
-			p2 = skip_space(end);
-			if( p2[0] == ']' )
-			{
-				p = skip_space(p2 + 1);
-				isarray = true;
+		if (p2 && *p2) {
+			idx = (int)strtol(p2, &end, 0);
+			if (p2 != end) {
+				p2 = skip_space(end);
+				if (p2 && *p2 == ']') {
+					p = skip_space(p2 + 1);
+					isarray = true;
+				}
 			}
 		}
 	}
@@ -16053,7 +16064,7 @@ BUILDIN_FUNC(getd)
 	}
 
 	// generate reference
-	data = push_val(st->stack, C_NAME, reference_uid(add_word(name), idx));
+	struct script_data* data = push_val(st->stack, C_NAME, reference_uid(add_word(name), idx));
 	if( reference_tonil(data) )
 		str_data[reference_getid(data)].type = C_NAME; // unused name, make it a reference to variable
 	//XXX references can point to other types of data, not just variables
@@ -16840,7 +16851,7 @@ BUILDIN_FUNC(getunitdata) {
 
 	name = reference_getname(data);
 
-#define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)(int)(var__),data->ref)
+#define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)(intptr_t)(var__),data->ref)
 
 	switch(bl->type) {
 		case BL_MOB:
@@ -17268,7 +17279,7 @@ BUILDIN_FUNC(setunitdata) {
 			case UHOM_X: if (!unit_walktoxy(bl, (short)value, hd->bl.y, 2)) unit_movepos(bl, (short)value, hd->bl.y, 0, 0); break;
 			case UHOM_Y: if (!unit_walktoxy(bl, hd->bl.x, (short)value, 2)) unit_movepos(bl, hd->bl.x, (short)value, 0, 0); break;
 			case UHOM_HUNGER: hd->homunculus.hunger = (short)value; clif_send_homdata(map_charid2sd(hd->homunculus.char_id), SP_HUNGRY, hd->homunculus.hunger); break;
-			case UHOM_INTIMACY: (unsigned int)value; clif_send_homdata(map_charid2sd(hd->homunculus.char_id), SP_INTIMATE, hd->homunculus.intimacy / 100); break;
+			case UHOM_INTIMACY: hd->homunculus.intimacy = value; clif_send_homdata(map_charid2sd(hd->homunculus.char_id), SP_INTIMATE, hd->homunculus.intimacy / 100); break;
 			case UHOM_SPEED: hd->base_status.speed = (unsigned short)value; status_calc_misc(bl, &hd->base_status, hd->homunculus.level); calc_status = true; break;
 			case UHOM_LOOKDIR: unit_setdir(bl, (uint8)value); break;
 			case UHOM_CANMOVETICK: hd->ud.canmove_tick = value > 0 ? (unsigned int)value : 0; break;
@@ -17944,7 +17955,7 @@ BUILDIN_FUNC(awake)
 
 	while (node)
 	{
-		if ((int)node->key == nd->bl.id)
+		if ((int)(intptr_t)node->key == nd->bl.id)
 		{// sleep timer for the npc
 			struct script_state* tst = (struct script_state*)node->data;
 
@@ -19678,22 +19689,23 @@ BUILDIN_FUNC(useatcmd)
  * npcskill "<skill name>", <skill lvl>, <stat point>, <NPC level>; */
 BUILDIN_FUNC(npcskill)
 {
-	uint16 skill_id;
-	unsigned short skill_level;
-	unsigned int stat_point;
-	unsigned int npc_level;
-	struct npc_data *nd;
-	struct map_session_data *sd;
-	struct script_data *data;
-	
-	data = script_getdata(st, 2);
+	struct script_data* data = script_getdata(st, 2);
 	get_val(st, data); // Convert into value in case of a variable
-	skill_id	= data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2);
-	skill_level	= script_getnum(st, 3);
-	stat_point	= script_getnum(st, 4);
-	npc_level	= script_getnum(st, 5);
-	sd			= script_rid2sd(st);
-	nd			= (struct npc_data *)map_id2bl(sd->npc_id);
+	const uint16 skill_id = data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2);
+	unsigned short skill_level = script_getnum(st, 3);
+	const unsigned int stat_point = script_getnum(st, 4);
+	unsigned int npc_level = script_getnum(st, 5);
+
+	struct map_session_data* sd = script_rid2sd(st);
+	if (sd == NULL) {
+		return 0;
+	}
+
+	struct npc_data* nd = (struct npc_data*)map_id2bl(sd->npc_id);
+	if (nd == NULL) {
+		ShowError("npcskill: couldn't find npc data.\n");
+		return 0;
+	}
 
 	if (stat_point > battle_config.max_parameter_renewal_jobs) {
 		ShowError("npcskill: stat point exceeded maximum of %d.\n",battle_config.max_parameter_renewal_jobs );
@@ -19701,9 +19713,6 @@ BUILDIN_FUNC(npcskill)
 	}
 	if (npc_level > MAX_LEVEL) {
 		ShowError("npcskill: level exceeded maximum of %d.\n", MAX_LEVEL);
-		return 0;
-	}
-	if (sd == NULL || nd == NULL) { //ain't possible, but I don't trust people.
 		return 0;
 	}
 
@@ -19750,7 +19759,7 @@ BUILDIN_FUNC(guild_create) {
 
 	safestrncpy(guild, script_getstr(st,2), NAME_LENGTH);
 	if ((g = guild_searchname(guild))) {
-		ShowError("buildin_guild_create: Guild is already exists (%s).\n", guild);
+		ShowError("buildin_guild_create: Guild already exists (%s).\n", guild);
 		script_pushint(st, 0);
 		return 0;
 	}
@@ -19773,7 +19782,7 @@ BUILDIN_FUNC(guild_break) {
 
 	if (script_hasdata(st,2)) {
 		if (!(g = guild_search(script_getnum(st,2)))) {
-			ShowError("buildin_guild_break: Guild is not exists (Guild ID: %d).\n", script_getnum(st,2));
+			ShowError("buildin_guild_break: Guild does not exist (Guild ID: %d).\n", script_getnum(st,2));
 			script_pushint(st, 0);
 			return 0;
 		}
@@ -19785,10 +19794,17 @@ BUILDIN_FUNC(guild_break) {
 			return 0;
 		}
 		if (!sd->status.guild_id) {
-			ShowError("buildin_guild_break: Player isn't join in any guild (CID: %d).\n", sd->status.char_id);
+			ShowError("buildin_guild_break: Player isn't in any guild (CID: %d).\n", sd->status.char_id);
 			script_pushint(st, 0);
 			return 0;
 		}
+
+		g = guild_search(sd->status.guild_id);
+	}
+
+	if (!g) {
+		script_pushint(st, 0);
+		return 0;
 	}
 
 	if (sd)

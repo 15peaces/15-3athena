@@ -112,6 +112,8 @@ struct view_data* npc_get_viewdata(int class_)
 			return &npc_viewdb_2[class_-NPC_CLASS_BASE_2];
 		else
 			return &npc_viewdb[class_];
+
+	ShowError("npc_get_viewdata: ID %d is outside of viewdb range!\n", class_);
 	return NULL;
 }
 
@@ -2341,23 +2343,26 @@ struct npc_data *npc_create_npc(int16 m, int16 x, int16 y) {
  */
 struct npc_data* npc_add_warp(char* name, short from_mapid, short from_x, short from_y, short xs, short ys, unsigned short to_mapindex, short to_x, short to_y)
 {
-	int i, flag = 0;
-	struct npc_data *nd;
-
-	nd = npc_create_npc(from_mapid, from_x, from_y);
-	map_addnpc(from_mapid, nd);
-	
-	if (name)
-	{
-		safestrncpy(nd->exname, name, ARRAYLENGTH(nd->exname));
-		if (npc_name2id(nd->exname) != NULL)
-			flag = 1;
+	struct npc_data* nd = npc_create_npc(from_mapid, from_x, from_y);
+	if (nd == NULL) {
+		ShowError("npc_add_warp: Couldn't add warp!\n");
+		return NULL;
 	}
 
-	if (name[0] == '\0' || flag == 1)
-		snprintf(nd->exname, ARRAYLENGTH(nd->exname), "warp_%d_%d_%d", from_mapid, from_x, from_y);
+	snprintf(nd->exname, sizeof(nd->exname), "warp_%d_%d_%d", from_mapid, from_x, from_y);
 
-	for( i = 0; npc_name2id(nd->exname) != NULL; ++i )
+	if (name && *name) {
+		if (npc_name2id(name) == NULL) {
+			safestrncpy(nd->exname, name, sizeof(nd->exname));
+		}
+		else {
+			ShowWarning("npc_add_warp: Name '%s' name is already used.\n", name);
+		}
+	}
+
+	map_addnpc(from_mapid, nd);
+
+	for( int i = 0; npc_name2id(nd->exname) != NULL; ++i )
 		snprintf(nd->exname, ARRAYLENGTH(nd->exname), "warp%d_%d_%d_%d", i, from_mapid, from_x, from_y);
 
 	if( battle_config.warp_point_debug )
@@ -2370,7 +2375,7 @@ struct npc_data* npc_add_warp(char* name, short from_mapid, short from_x, short 
 	nd->u.warp.x = to_x;
 	nd->u.warp.y = to_y;
 	nd->u.warp.xs = xs;
-	nd->u.warp.ys = xs;
+	nd->u.warp.ys = ys;
 	nd->bl.type = BL_NPC;
 	nd->subtype = NPCTYPE_WARP;
 	nd->trigger_on_hidden = false;
@@ -2404,7 +2409,7 @@ struct npc_data* npc_add_warp(char* name, short from_mapid, short from_x, short 
  */
 static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
-	int x, y, xs, ys, to_x, to_y, m, facing, episode_ident, min_episode, max_episode;
+	int x, y, xs, ys, to_x, to_y, m, facing, episode_ident, min_episode = 0, max_episode = 0;
 	unsigned short i;
 	char mapname[32], to_mapname[32];
 	struct npc_data *nd;
@@ -2493,7 +2498,7 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
  * @return new index for next parsing
  */
 static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath) {
-	char *p, point_str[32];
+	char *p, point_str[33];
 	int x, y, dir, m, is_discount = 0, episode_ident = 0, min_episode = 0, max_episode = 0;
 	t_itemid nameid = 0;
 	struct npc_data *nd;
@@ -2654,7 +2659,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		}
 		if (type == NPCTYPE_MARKETSHOP && (qty < -1 || qty > UINT16_MAX)) {
 			ShowWarning("npc_parse_shop: Item %s [%u] is stocked with invalid value %d, changed to 1. File '%s', line '%d'.\n",
-				id->name, nameid2, filepath, strline(buffer,start-buffer));
+				id->name, nameid2, qty, filepath, strline(buffer,start-buffer));
 			qty = 1;
 		}
 		//for logs filters, atcommands and iteminfo script command
@@ -2867,7 +2872,7 @@ static const char* npc_skip_script(const char* start, const char* buffer, const 
 /// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,<triggerX>,<triggerY>,{<code>}
 static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath, bool runOnInit)
 {
-	int x, y, dir = 0, m, xs = 0, ys = 0, class_ = 0, episode_ident, min_episode, max_episode = 0;	// [Valaris] thanks to fov
+	int x, y, dir = 0, m, xs = 0, ys = 0, class_ = 0, episode_ident, min_episode = 0, max_episode = 0;	// [Valaris] thanks to fov
 	char mapname[32];
 	struct script_code *script;
 	int i;
@@ -3529,7 +3534,7 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 		return strchr(start,'\n');// skip and continue
 	}
 
-	if(sscanf(w4, "%d,%d,%u,%u,%127[^,],%d,%d[^\t\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname, &size, &ai) < 2) {
+	if(sscanf(w4, "%d,%d,%u,%u,%79[^,],%d,%d[^\t\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname, &size, &ai) < 2) {
 		ShowError("npc_parse_mob: Invalid mob definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 		return strchr(start,'\n');// skip and continue
 	}

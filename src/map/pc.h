@@ -702,8 +702,7 @@ struct map_session_data {
 	} skill_keep_using;
 };
 
-struct eri *pc_sc_display_ers; /// Player's SC display table
-struct eri *pc_itemgrouphealrate_ers; /// Player's Item Group Heal Rate table
+extern struct eri *pc_sc_display_ers; /// Player's SC display table
 
 //Update this max as necessary. 105 is the value needed for the Expanded Super Baby.
 #define MAX_SKILL_TREE 105

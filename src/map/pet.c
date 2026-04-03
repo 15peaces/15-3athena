@@ -42,6 +42,10 @@ struct s_pet_db pet_db[MAX_PET_DB];
 static struct eri *item_drop_ers; //For loot drops delay structures.
 static struct eri *item_drop_list_ers;
 
+static int pet_unequipitem(struct map_session_data* sd, struct pet_data* pd);
+static int pet_food(struct map_session_data* sd, struct pet_data* pd);
+static int pet_ai_sub_hard_lootsearch(struct block_list* bl, va_list ap);
+
 int pet_hungry_val(struct pet_data *pd)
 {
 	nullpo_ret(pd);
@@ -170,13 +174,16 @@ int pet_attackskill(struct pet_data *pd, int target_id)
 	return 0;
 }
 
-int pet_target_check(struct pet_data *pd,struct block_list *bl,int type)
+int pet_target_check(struct pet_data *pd,struct block_list *bl, const int type)
 {
 	int rate;
 
 	nullpo_ret(pd);
 	
-	Assert((pd->master == 0) || (pd->master->pd == pd));
+	if (pd->master && pd->master->pd != pd) {
+		ShowError("Pet master desync detected! pd: %p, master: %p, master->pd: %p\n", (void*)pd, (void*)pd->master, (void*)pd->master->pd);
+		return 0;
+	}
 
 	if(bl == NULL || bl->type != BL_MOB || bl->prev == NULL ||
 		pd->pet.intimate < battle_config.pet_support_min_friendly ||
@@ -681,10 +688,6 @@ int pet_get_egg(uint32 account_id, short pet_class, int pet_id)
 	return 1;
 }
 
-static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd);
-static int pet_food(struct map_session_data *sd, struct pet_data *pd);
-static int pet_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap);
-
 int pet_menu(struct map_session_data *sd,int menunum)
 {
 	struct item_data *egg_id;
@@ -908,9 +911,8 @@ static int pet_randomwalk(struct pet_data *pd,int64 tick)
 		int i,x,y,c,d=12-pd->move_fail_count;
 		if(d<5) d=5;
 		for(i=0;i<retrycount;i++){
-			int r=rnd();
-			x=pd->bl.x+r%(d*2+1)-d;
-			y=pd->bl.y+r/(d*2+1)%(d*2+1)-d;
+			x=pd->bl.x+rnd()%(d*2+1)-d;
+			y=pd->bl.y+rnd()/(d*2+1)%(d*2+1)-d;
 			if(map_getcell(pd->bl.m,x,y,CELL_CHKPASS) && unit_walktoxy(&pd->bl,x,y,0)){
 				pd->move_fail_count=0;
 				break;

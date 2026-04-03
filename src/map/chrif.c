@@ -901,7 +901,7 @@ static void chrif_ack_login_req(int aid, const char* player_name, uint16 type, u
 	}
 
 	if (type > 0 && type <= 5)
-		sprintf(action, msg_txt(sd,847 + type)); //block|ban|unblock|unban|change the sex of
+		sprintf(action, "%s", msg_txt(sd,847 + type)); //block|ban|unblock|unban|change the sex of
 	else
 		sprintf(action, "???");
 	

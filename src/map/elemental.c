@@ -299,9 +299,8 @@ void elem_summon_init(struct elemental_data *ed) {
 int elem_data_received(struct s_elemental *elem, bool flag) {
 	struct map_session_data *sd;
 	struct elemental_data *ed;
-	struct s_elemental_db *db;
 
-	int i = elem_search_index(elem->class_);
+	const int i = elem_search_index(elem->class_);
 
 	if( (sd = map_charid2sd(elem->char_id)) == NULL )
 		return 0;
@@ -312,10 +311,12 @@ int elem_data_received(struct s_elemental *elem, bool flag) {
 		return 0;
 	}
 
-	db = &elemental_db[i];
-	if( !sd->ed )
-	{
-		sd->ed = ed = (struct elemental_data*)aCalloc(1,sizeof(struct elemental_data));
+	struct s_elemental_db* db = &elemental_db[i];
+	if (!sd->ed) {
+		ed = (struct elemental_data*)aCalloc(1, sizeof(struct elemental_data));
+		nullpo_ret(ed)
+
+		sd->ed = ed;
 		ed->bl.type = BL_ELEM;
 		ed->bl.id = npc_get_new_npc_id();
 		ed->water_screen_flag = 0;
@@ -749,7 +750,7 @@ static bool elem_ai_sub_hard(struct elemental_data *ed, unsigned int tick)
 			{ // Rude attacked
 				if (ed->state.attacked_count++ >= ELEM_RUDE_ATTACKED_COUNT
 				&& !elemskill_use(ed, tick, MSC_RUDEATTACKED) && can_move
-				&& !tbl && unit_escape(&ed->bl, abl, rnd()%10 +1))
+				&& !tbl && unit_escape(&ed->bl, tbl, rnd()%10 +1))
 				{	//Escaped.
 					//TODO: Maybe it shouldn't attempt to run if it has another, valid target?
 					ed->attacked_id = 0;

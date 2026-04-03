@@ -1401,7 +1401,7 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 int mob_randomwalk(struct mob_data *md,int64 tick)
 {
 	const int d = 7;
-	int i, r, rdir, dx, dy, max;
+	int i, rdir, dx, dy, max;
 
 	nullpo_ret(md);
 
@@ -1421,10 +1421,9 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 	md->ud.state.attack_continue = 0;
 	md->ud.target_to = 0;
 	
-	r = rnd();
 	rdir = rnd() % 4; // Randomize direction in which we iterate to prevent monster cluttering up in one corner
-	dx = r % (d * 2 + 1) - d;
-	dy = r / (d * 2 + 1) % (d * 2 + 1) - d;
+	dx = rnd() % (d * 2 + 1) - d;
+	dy = rnd() / (d * 2 + 1) % (d * 2 + 1) - d;
 	max = (d * 2 + 1) * (d * 2 + 1);
 	for (i = 0; i < max; i++) {	// Search of a movable place
 		int x = dx + md->bl.x;
@@ -3587,11 +3586,8 @@ static bool mob_clone_disabled_skills(uint16 skill_id)
 int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char *event, int master_id, int mode, int flag, unsigned int duration)
 {
 	int class_;
-	int i,j,inf,skill_id, fd;
-	struct mob_data *md;
-	struct mob_skill *ms;
-	struct mob_db* db;
-	struct status_data *status;
+	int i, j;
+	struct mob_skill* ms;
 
 	nullpo_ret(sd);
 
@@ -3602,8 +3598,8 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 	if(class_ >= MOB_CLONE_END)
 		return 0;
 
-	db = mob_db_data[class_]=(struct mob_db*)aCalloc(1, sizeof(struct mob_db));
-	status = &db->status;
+	struct mob_db* db = mob_db_data[class_]=(struct mob_db*)aCalloc(1, sizeof(struct mob_db));
+	struct status_data* status = &db->status;
 	strcpy(db->sprite,sd->status.name);
 	strcpy(db->name,sd->status.name);
 	strcpy(db->jname,sd->status.name);
@@ -3632,12 +3628,12 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 	ms = &db->skill[0];
 
 	// We temporarily disable sd's fd so it doesn't receive the messages from skill_check_condition_castbegin
-	fd = sd->fd;
+	const int fd = sd->fd;
 	sd->fd = 0;
 
 	//Go Backwards to give better priority to advanced skills.
 	for (i=0,j = MAX_SKILL_TREE-1;j>=0 && i< MAX_MOBSKILL ;j--) {
-		skill_id = skill_tree[pc_class2idx(sd->status.class_)][j].id;
+		int skill_id = skill_tree[pc_class2idx(sd->status.class_)][j].id;
 		if (!skill_id || sd->status.skill[skill_id].lv < 1 ||
 			(skill_get_inf2(skill_id)&(INF2_WEDDING_SKILL|INF2_GUILD_SKILL)) ||
 			mob_clone_disabled_skills(skill_id)
@@ -3665,7 +3661,7 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 		ms[i].casttime = skill_castfix(&sd->bl,skill_id, ms[i].skill_lv);
 		ms[i].delay = 5000+skill_delayfix(&sd->bl,skill_id, ms[i].skill_lv);
 
-		inf = skill_get_inf(skill_id);
+		int inf = skill_get_inf(skill_id);
 		if (inf&INF_ATTACK_SKILL) {
 			ms[i].target = MST_TARGET;
 			ms[i].cond1 = MSC_ALWAYS;
@@ -3752,7 +3748,7 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 	sd->fd = fd;
 
 	//Finally, spawn it.
-	md = mob_once_spawn_sub(&sd->bl, m, x, y, "--en--",class_,event,0,AI_NONE);
+	struct mob_data* md = mob_once_spawn_sub(&sd->bl, m, x, y, "--en--",class_,event,0,AI_NONE);
 	if (!md) return 0; //Failed?
 
 	md->special_state.clone = 1;

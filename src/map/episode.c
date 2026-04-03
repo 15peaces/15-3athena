@@ -21,6 +21,9 @@ bool EpisodeDBExists(const char* dbpath, const char* filename) {
 		ShowWarning("EpisodeDBExists: Please create episode specific file or disable episode.readdb. Loading default database...\n");
 		return false;
 	}
+
+	fclose(tfp);
+
 	return true;
 }
 

@@ -13,7 +13,6 @@
 #include "achievement.h"
 #include "itemdb.h"
 #include "mob.h"
-#include "party.h"
 #include "pc.h"
 #include "script.h"
 
@@ -1096,18 +1095,26 @@ int split_string(const char *txt, char delim, char ***tokens)
 	for (p = (char *)txt; *p != '\0'; p++) *p == delim ? *t++ : (*t)++;
 	*tokens = arr = malloc(count * sizeof(char *));
 	t = tklen;
-	p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+	p = *arr++ = calloc(*(t++) + 1, 1);
 	while (*txt != '\0')
 	{
 		if (*txt == delim)
 		{
-			p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+			p = *arr++ = calloc(*(t++) + 1, 1);
 			txt++;
 		}
 		else *p++ = *txt++;
 	}
 	free(tklen);
 	return count;
+}
+
+void free_tokens(int token_count, char** tokens)
+{
+	for (int i = 0; i < token_count; i++)
+		free(tokens[i]);
+
+	free(tokens);
 }
 
 
@@ -1137,6 +1144,7 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 	// get the data, split & count them
 	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
 	{
+		type[i] = CRITERIA_UNIQUE_NONE;
 		descriptions[i] = str[3];
 		str[3] = strchr(str[3], ':');
 		if (str[3] == NULL)
@@ -1151,6 +1159,7 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 		}
 		tcount++;
 	}
+
 	for (i = 0; i <= tcount; ++i)
 	{
 		typechar[i] = tmpchar = str[4];
@@ -1170,6 +1179,7 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 		}
 		script_get_constant(typechar[i], (int *)&type[i]);
 	}
+
 	for (i = 0; i <= tcount; ++i)
 	{
 		criteriaIDs[i] = str[5];
@@ -1185,6 +1195,7 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 			return false;
 		}
 	}
+
 	pc_split_atoi(str[6], goals, ':', tcount+1);
 
 
@@ -1225,23 +1236,32 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 				achievement_removeChar(criteriaIDs[i], '"');
 				c = split_string(criteriaIDs[i], '|', &arr);
 
+				VECTOR_INIT(obj.jobid);
+
 				for (j = 0; j < c; ++j)
 				{
 					if (arr[j] == NULL)
 					{
+						free_tokens(c, arr);
+						VECTOR_CLEAR(obj.jobid);
+
 						ShowError("achievement_readdb_objectives: Insufficient JobID in defined in achievement with id %d), skipping.\n", entry->id);
 						return false;
 					}
 
 					if (script_get_constant(arr[j], &val) == false) {
+						free_tokens(c, arr);
+						VECTOR_CLEAR(obj.jobid);
+
 						ShowError("achievement_readdb_objectives: Invalid JobId %d (const: %s) provided (Achievement: %d, Objective: %d). Skipping...\n", val, arr[j], entry->id, i);
 						return false;
 					}
 
-					VECTOR_INIT(obj.jobid);
 					VECTOR_ENSURE(obj.jobid, 1, 1);
 					VECTOR_PUSH(obj.jobid, val);
 				}
+
+				free_tokens(c, arr);
 				break;
 			case CRITERIA_UNIQUE_STATUS_TYPE:
 				achievement_removeChar(criteriaIDs[i], '"');
@@ -1264,11 +1284,15 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 				{
 					if (arr[j] == NULL)
 					{
+						free_tokens(c, arr);
+
 						ShowError("achievement_readdb_objectives: Insufficient item type in defined in achievement with id %d), skipping.\n", entry->id);
 						return false;
 					}
 
 					if (!script_get_constant(arr[j], &val) || val < IT_HEALING || val > IT_MAX) {
+						free_tokens(c, arr);
+
 						ShowError("achievement_readdb_validate_criteria_itemtype: Invalid ItemType %d provided (Achievement: %d, Objective: %d). Skipping...\n", val, entry->id, i);
 						return false;
 					}
@@ -1280,6 +1304,8 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 						obj.item_type |= (2 << val);
 					}
 				}
+
+				free_tokens(c, arr);
 				break;
 			case CRITERIA_UNIQUE_WEAPON_LV:
 				val = atoi(criteriaIDs[i]);
@@ -1305,7 +1331,6 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 
 		/* Push buffer */
 		VECTOR_PUSH(entry->objective, obj);
-		VECTOR_CLEAR(obj.jobid);
 	}
 
 	return true;
@@ -1427,7 +1452,7 @@ static void achievement_readdb()
 	// process rows one by one
 	while (fgets(line, sizeof(line), fp))
 	{
-		char *str[32], *p;
+		char *str[32];
 		int i;
 
 		struct achievement_data t_ad = {0}, *p_ad = NULL;
@@ -1437,7 +1462,7 @@ static void achievement_readdb()
 			continue;
 		memset(str, 0, sizeof(str));
 
-		p = line;
+		char* p = line;
 
 		while (ISSPACE(*p))
 			++p;
@@ -1453,15 +1478,9 @@ static void achievement_readdb()
 				break;// comma not found
 			*p = '\0';
 			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("achievement_read_db: Insufficient columns in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
-				continue;
-			}
 		}
 
-		if (p == NULL)
+		if (i < 11)
 		{
 			ShowError("achievement_read_db: Insufficient columns in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
 			continue;
@@ -1473,7 +1492,7 @@ static void achievement_readdb()
 			ShowError("achievement_read_db: Invalid format (Script column) in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
 			continue;
 		}
-		str[10] = p;
+		str[11] = p;
 
 		achievement_parse_dbrow(str, file, lines, &t_ad);
 
@@ -1517,10 +1536,9 @@ static void achievement_readdb_ranks(void)
 	char line[1024];
 
 	char file[256];
-	FILE* fp;
 
 	sprintf(file, "db/achievement_rank_db.txt");
-	fp = fopen(file, "r");
+	FILE* fp = fopen(file, "r");
 	if (fp == NULL)
 	{
 		ShowWarning("achievement_readdb_ranks: File not found \"%s\", skipping.\n", file);
@@ -1555,12 +1573,12 @@ static void achievement_readdb_ranks(void)
 				break;// comma not found
 			*p = '\0';
 			++p;
+		}
 
-			if (str[i] == NULL)
-			{
-				ShowError("achievement_readdb_ranks: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
-				return;
-			}
+		if (i < 1)
+		{
+			ShowError("achievement_readdb_ranks: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+			return;
 		}
 
 		if (entry > MAX_ACHIEVEMENT_RANKS)

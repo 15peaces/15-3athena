@@ -42,8 +42,8 @@
  * @param quest_id ID to lookup
  * @return Quest entry (equals to &quest_dummy if the ID is invalid)
  */
-struct quest_db *quest_db(int quest_id) {
-	if (quest_id < 0 || quest_id > MAX_QUEST_DB || quest_db_data[quest_id] == NULL)
+struct quest_db *quest_db(const int quest_id) {
+	if (quest_id < 0 || quest_id >= MAX_QUEST_DB || quest_db_data[quest_id] == NULL)
 		return &quest_dummy;
 	return quest_db_data[quest_id];
 }
@@ -457,7 +457,7 @@ int quest_read_db(void)
 
 		entry.id = atoi(str[0]);
 
-		if (entry.id < 0 || entry.id >= INT_MAX) {
+		if (entry.id < 0 || entry.id >= MAX_QUEST_DB) {
 			ShowError("quest_read_db: Invalid quest ID '%d' in line '%s' (min: 0, max: %d.)\n", entry.id, ln, INT_MAX);
 			continue;
 		}

@@ -225,7 +225,7 @@ int instance_add_map(const char *name, int instance_id, bool usebasename, const 
 	map[im].block = (struct block_list**)aCalloc(1, size);
 	map[im].block_mob = (struct block_list**)aCalloc(1, size);
 
-	memset(map[im].npc, 0x00, sizeof(map[i].npc));
+	memset(map[im].npc, 0x00, sizeof(map[im].npc));
 	map[im].npc_num = 0;
 
 	memset(map[im].moblist, 0x00, sizeof(map[im].moblist));

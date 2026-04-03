@@ -2372,6 +2372,8 @@ int status_base_amotion_pc(struct map_session_data* sd, struct status_data* stat
 {
 	int amotion;
 	int classidx = pc_class2idx(sd->status.class_);
+
+	nullpo_retr(1000, sd);
 	
 	// base weapon delay
 	amotion = (sd->status.weapon < MAX_WEAPON_TYPE)
@@ -6160,11 +6162,12 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	}
 	if (sc->data[SC_FLING])
 		def -= def * (sc->data[SC_FLING]->val2)/100;
-	if( sc->data[SC_FROST] )
+	if (sc->data[SC_FROST]) {
 		if (bl->type == BL_MOB)
 			def -= def * 10 / 100;
 		else
 			def -= def * 30 / 100;
+	}
 	if (sc->data[SC_CAMOUFLAGE])
 		def -= def * (5 * sc->data[SC_CAMOUFLAGE]->val2) / 100;
  	if(sc->data[SC_ANALYZE])
@@ -6707,11 +6710,13 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 
 static unsigned short status_calc_dmotion(struct block_list *bl, struct status_change *sc, int dmotion)
 {
+	nullpo_retr(400, sc)
+
 	/// It has been confirmed on official servers that MvP mobs have no dmotion even without endure
 	if (sc->data[SC_ENDURE] || (bl->type == BL_MOB && status_get_class_(bl) == CLASS_BOSS))
 		return 0;
 
-	if( !sc || !sc->count || map_flag_gvg2(bl->m) || map[bl->m].flag.battleground )
+	if(!sc->count || map_flag_gvg2(bl->m) || map[bl->m].flag.battleground)
 		return cap_value(dmotion,0,USHRT_MAX);
 		
 	if( sc->data[SC_ENDURE] )
@@ -7705,7 +7710,7 @@ int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_t
 		return tick ? tick : 1;
 	}
 	
-	if ( natural_def == true )
+	if (natural_def == true) {
 		if (sd)
 		{
 			if (battle_config.pc_sc_def_rate != 100) {
@@ -7736,6 +7741,7 @@ int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_t
 				tick_def2 = tick_def2 * battle_config.mob_sc_def_rate / 100;
 			}
 		}
+	}
 	
 	sc = status_get_sc(bl);
 	if (sc && sc->count)
@@ -7807,19 +7813,21 @@ int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_t
 		break;
 	}
 
-	if (type == SC_ANKLE)
-		if ( sc && sc->count && sc->data[SC_FEAR] && tick <= 2000 )
+	if (type == SC_ANKLE) {
+		if (sc && sc->count && sc->data[SC_FEAR] && tick <= 2000)
 			tick = 2000;
-		else if ( tick < 5000 )// Changed to 5 seconds according to recent tests [Playtester]
+		else if (tick < 5000)// Changed to 5 seconds according to recent tests [Playtester]
 			tick = 5000;
+	}
 
 	// Fear officially has 2 seconds added to the duration, even if its reduced to 0.
 	// Guess this is to work with the "Can't move for 2 seconds." part.
-	if (type == SC_FEAR)
+	if (type == SC_FEAR) {
 		if (tick >= 0)
 			tick += 2000;
 		else
 			tick = 2000;
+	}
 
 	// Burning has a minimum duration of 10 seconds.
 	if (type == SC_BURNING && tick < 10000)
@@ -10457,7 +10465,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_OVERED_BOOST:
 			// Hunger and SP reduction if skill is recasted while status is active.
-			if (sc && sc->data[SC_OVERED_BOOST])
+			if (sc && sc->data[SC_OVERED_BOOST]) {
 				if (hd)
 				{// Homunculus hunger is reduced by 50% of max hunger.
 					short hunger = hd->homunculus.hunger - 50;
@@ -10466,7 +10474,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 					hd->homunculus.hunger = hunger;
 				}
 				else if (sd)// Master's SP is reduced by 50% of MaxSP
-					status_zap(bl,0,status->max_sp * 50 / 100);
+					status_zap(bl, 0, status->max_sp * 50 / 100);
+			}
+
 			val2 = 300 + 40 * val1;//Fixed FLEE
 			val3 = 10 * (200 - (179 + 2 * val1));//Fixed ASPD
 			if ( val3 < 100 )// Don't allow going higher then 190 ASPD.
@@ -12465,8 +12475,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 					}
 				}
 				clif_emotion(bl, E_HEH);
-				if (sc->data[type])
+				if (sc->data[type]) {
 					sc_timer_next(4000 + tick, status_change_timer, bl->id, data);
+				}
 
 				map_freeblock_unlock();
 			}
@@ -12930,8 +12941,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_OVERHEAT_LIMITPOINT:
-		if( --(sce->val1) > 0 ) // Cooling
+		if (--(sce->val1) > 0) { // Cooling
 			sc_timer_next(30000 + tick, status_change_timer, bl->id, data);
+		}
 		break;
 
 	case SC_OVERHEAT:
@@ -12940,8 +12952,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			if( damage >= status->hp ) damage = status->hp - 1; // Do not kill, just keep you with 1 hp minimum
 			map_freeblock_lock();
 			status_fix_damage(NULL,bl,damage,clif_damage(bl,bl,tick,0,0,damage,0,0,0, false));
-			if (sc->data[type])
+			if (sc->data[type]) {
 				sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			}
 			map_freeblock_unlock();
 			return 0;
 		}
@@ -13263,16 +13276,17 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		{// Val1 is used to count the number of seconds that passed.
 			sce->val1 += 1;
 
-			if ( sce->val1 % 2 == 0 )// Loose HP every 2 seconds.
-				if ( sce->val3 > 0 )// SPdamage value higher then 0 signals target is not a monster.
+			if (sce->val1 % 2 == 0) {// Loose HP every 2 seconds.
+				if (sce->val3 > 0)// SPdamage value higher then 0 signals target is not a monster.
 				{// HP loss for players and other non monster entitys.
-					if( !status_charge(bl, sce->val2, 0))
+					if (!status_charge(bl, sce->val2, 0))
 						break;
 				}// If its a monster then use this to remove HP since status_charge won't work.
 				else if (!status_damage(NULL, bl, sce->val2, 0, 0, 3))
 
-			if ( sce->val1 % 3 == 0 )// Loose SP every 3 seconds.
-				status_charge(bl, 0, sce->val3);
+					if (sce->val1 % 3 == 0)// Loose SP every 3 seconds.
+						status_charge(bl, 0, sce->val3);
+			}
 
 			sc_timer_next(1000+tick, status_change_timer,bl->id, data);
 			return 0;
@@ -13463,6 +13477,8 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
  *------------------------------------------*/
 int status_change_clear_buffs (struct block_list* bl, uint8 type)
 {
+	nullpo_ret(bl);
+
 	int i;
 	struct status_change *sc= status_get_sc(bl);
 
@@ -13471,11 +13487,12 @@ int status_change_clear_buffs (struct block_list* bl, uint8 type)
 
 	map_freeblock_lock();
 
-	if (type&(SCCB_DEBUFFS | SCCB_REFRESH)) //Debuffs
-		for( i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++ )
+	if (type & (SCCB_DEBUFFS | SCCB_REFRESH)) { //Debuffs
+		for (i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++)
 		{
 			status_change_end(bl, (sc_type)i, INVALID_TIMER);
 		}
+	}
 
 	for( i = SC_COMMON_MAX+1; i < SC_MAX; i++ )
 	{

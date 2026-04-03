@@ -6,13 +6,12 @@
 
 #include "../common/db.h"
 #include "../common/mmo.h"
-//#include "map.h" // enum _sp
+#include "status.h" // enum _sp
 
 #define ACHIEVEMENT_NAME_LENGTH 50
 #define OBJECTIVE_DESCRIPTION_LENGTH 100
 
 struct achievement;
-//struct map_session_data;
 struct char_achievements;
 
 /**

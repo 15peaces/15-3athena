@@ -5,6 +5,7 @@
 if( BUILD_SQL_SERVERS )
 message( STATUS "Creating target map-server_sql" )
 set( SQL_MAP_HEADERS
+	"${SQL_MAP_SOURCE_DIR}/achievement.h"
 	"${SQL_MAP_SOURCE_DIR}/atcommand.h"
 	"${SQL_MAP_SOURCE_DIR}/battle.h"
 	"${SQL_MAP_SOURCE_DIR}/battleground.h"
@@ -18,7 +19,6 @@ set( SQL_MAP_HEADERS
 	"${SQL_MAP_SOURCE_DIR}/elemental.h"
 	"${SQL_MAP_SOURCE_DIR}/episode.h"
 	"${SQL_MAP_SOURCE_DIR}/guild.h"
-	"${SQL_MAP_SOURCE_DIR}/guild_expcache.h"
 	"${SQL_MAP_SOURCE_DIR}/homunculus.h"
 	"${SQL_MAP_SOURCE_DIR}/instance.h"
 	"${SQL_MAP_SOURCE_DIR}/intif.h"
@@ -45,6 +45,7 @@ set( SQL_MAP_HEADERS
 	"${SQL_MAP_SOURCE_DIR}/vending.h"
 	)
 set( SQL_MAP_SOURCES
+	"${SQL_MAP_SOURCE_DIR}/achievement.c"
 	"${SQL_MAP_SOURCE_DIR}/atcommand.c"
 	"${SQL_MAP_SOURCE_DIR}/battle.c"
 	"${SQL_MAP_SOURCE_DIR}/battleground.c"
@@ -58,7 +59,6 @@ set( SQL_MAP_SOURCES
 	"${SQL_MAP_SOURCE_DIR}/elemental.c"
 	"${SQL_MAP_SOURCE_DIR}/episode.c"
 	"${SQL_MAP_SOURCE_DIR}/guild.c"
-	"${SQL_MAP_SOURCE_DIR}/guild_expcache.c"
 	"${SQL_MAP_SOURCE_DIR}/homunculus.c"
 	"${SQL_MAP_SOURCE_DIR}/instance.c"
 	"${SQL_MAP_SOURCE_DIR}/intif.c"

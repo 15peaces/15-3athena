@@ -15,7 +15,7 @@ struct status_change;
 
 //Use this to refer the max refinery level [Skotlex]
 #define MAX_REFINE 20
-#define MAX_REFINE_BONUS 5
+#define MAX_REFINE_BONUS 6
 
 /// Refine type
 enum refine_type {

@@ -32,7 +32,6 @@ set( COMMON_ALL_HEADERS
 	"${COMMON_SOURCE_DIR}/cbasetypes.h"
 	"${COMMON_SOURCE_DIR}/mmo.h"
 	"${COMMON_SOURCE_DIR}/plugin.h"
-	"${COMMON_SOURCE_DIR}/version.h"
 	)
 
 

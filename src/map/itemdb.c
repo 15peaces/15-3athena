@@ -199,7 +199,7 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 		// Now we'll get an random item of the current group.
 		if (qty > 0)
 		{
-			r = rnd() % qty;
+			r = rnd() % qty-1;
 
 			it.nameid = tmp[r]->nameid;
 			it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
@@ -236,7 +236,7 @@ int itemdb_searchrandomid(uint16 group_id)
 		return UNKNOWN_ITEM_ID;
 	}
 	if (group->qty)
-		return group->nameid[rnd()%group->qty];
+		return group->nameid[rnd()%group->qty-1];
 	
 	ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group_id);
 	return UNKNOWN_ITEM_ID;
@@ -1603,7 +1603,7 @@ static bool itemdb_read_randomopt() {
 	}
 
 	while (fgets(line, sizeof(line), fp)) {
-		char *str[2], *p;
+		char *str[2];
 
 		lines++;
 
@@ -1612,24 +1612,22 @@ static bool itemdb_read_randomopt() {
 
 		memset(str, 0, sizeof(str));
 
-		p = line;
+		char* p = line;
 
 		p = trim(p);
 
 		if (*p == '\0')
 			continue;// empty line
 
-		if (!strchr(p, ','))
-		{
+		str[0] = p;
+		p = strchr(p, ',');
+		if (!p) {
 			ShowError("itemdb_read_randomopt: Insufficient columns in line %d of \"%s\", skipping.\n", lines, path);
 			continue;
 		}
 
-		str[0] = p;
-		p = strchr(p, ',');
 		*p = '\0';
 		p++;
-
 		str[1] = p;
 
 		if (str[1][0] != '{') {
@@ -1689,24 +1687,19 @@ void itemdb_parse_attendance_db(void)
 	char line[1024];
 
 	char file[256];
-	FILE* fp;
 
 	VECTOR_CLEAR(attendance_data);
 
 	sprintf(file, "db/attendance_db.txt");
-	fp = fopen(file, "r");
-	if (fp == NULL)
-	{
+	FILE* fp = fopen(file, "r");
+	if (fp == NULL) {
 		ShowWarning("itemdb_parse_attendance_db: File not found \"%s\", skipping.\n", file);
 		return;
 	}
 
 	// process rows one by one
-	while (fgets(line, sizeof(line), fp))
-	{
-		char *str[32], *p;
-		int i;
-		int day, id, amt;
+	while (fgets(line, sizeof(line), fp)) {
+		char* str[32];
 
 		struct attendance_entry entry = { 0 };
 
@@ -1715,7 +1708,7 @@ void itemdb_parse_attendance_db(void)
 			continue;
 		memset(str, 0, sizeof(str));
 
-		p = line;
+		char* p = line;
 
 		while (ISSPACE(*p))
 			++p;
@@ -1723,7 +1716,8 @@ void itemdb_parse_attendance_db(void)
 		if (*p == '\0')
 			continue;// empty line
 
-		for (i = 0; i < 3; ++i)
+		int i;
+		for (i = 0; i < 2; ++i)
 		{
 			str[i] = p;
 			p = strchr(p, ',');
@@ -1731,17 +1725,18 @@ void itemdb_parse_attendance_db(void)
 				break;// comma not found
 			*p = '\0';
 			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("itemdb_parse_attendance_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
-				continue;
-			}
 		}
 
-		day = atoi(str[0]);
-		id = atoi(str[1]);
-		amt = atoi(str[2]);
+		if (i < 2) {
+			ShowError("itemdb_parse_attendance_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+			continue;
+		}
+
+		str[2] = p;
+
+		int day = atoi(str[0]);
+		int id = atoi(str[1]);
+		int amt = atoi(str[2]);
 
 		if (day <= 0) {
 			ShowError("itemdb_parse_attendance_db: Day value cannot be < 1 in line %d.\n", lines);
@@ -1778,14 +1773,11 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 
 	uint32 lines = 0, cnt = 1;
 	char line[1024];
-
 	char file[256];
-	FILE* fp;
 
 	sprintf(file, "db/item_lapineddukddak_source.txt");
-	fp = fopen(file, "r");
-	if (fp == NULL)
-	{
+	FILE* fp = fopen(file, "r");
+	if (fp == NULL) {
 		ShowWarning("itemdb_parse_lapineddukddak_sources: File not found \"%s\", skipping.\n", file);
 		return false;
 	}
@@ -1793,11 +1785,8 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 	VECTOR_INIT(data->lapineddukddak->SourceItems);
 
 	// process rows one by one
-	while (fgets(line, sizeof(line), fp))
-	{
-		char *str[32], *p;
-		int i, sid, amt;
-		t_itemid nameid;
+	while (fgets(line, sizeof(line), fp)) {
+		char* str[32];
 
 		struct item_data *edata = NULL;
 		struct itemlist_entry item = { 0 };
@@ -1807,7 +1796,7 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 			continue;
 		memset(str, 0, sizeof(str));
 
-		p = line;
+		char* p = line;
 
 		while (ISSPACE(*p))
 			++p;
@@ -1815,7 +1804,8 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 		if (*p == '\0')
 			continue;// empty line
 
-		for (i = 0; i < 3; ++i)
+		int i;
+		for (i = 0; i < 2; ++i)
 		{
 			str[i] = p;
 			p = strchr(p, ',');
@@ -1823,15 +1813,16 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 				break;// comma not found
 			*p = '\0';
 			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("itemdb_parse_lapineddukddak_sources: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
-				continue;
-			}
 		}
 
-		sid = atoi(str[0]);
+		if (i < 2) {
+			ShowError("itemdb_parse_lapineddukddak_sources: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+			continue;
+		}
+
+		str[2] = p;
+
+		const int sid = atoi(str[0]);
 		if (sid < 0) {
 			ShowWarning("itemdb_parse_lapineddukddak_sources: Invalid id %d in %s:%d\n", id, file, lines);
 			continue;
@@ -1840,7 +1831,7 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 		if (id != sid) // ignore line.
 			continue;
 
-		nameid = strtoul(str[1], NULL, 10);
+		t_itemid nameid = strtoul(str[1], NULL, 10);
 		if (nameid == 0 || nameid == dummy_item->nameid)
 		{
 			ShowWarning("itemdb_parse_lapineddukddak_sources: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
@@ -1855,7 +1846,7 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 		edata = itemdb_search(nameid);
 		item.id = edata->nameid;
 
-		amt = atoi(str[2]);
+		int amt = atoi(str[2]);
 		if (amt < 1) {
 			ShowWarning("itemdb_parse_lapineddukddak_sources: invalid amount %d in %s:%d. Must be at least 1, skipping.\n", amt, file, lines);
 			continue;
@@ -1873,12 +1864,10 @@ void itemdb_parse_lapineddukddak_db(void)
 {
 	uint32 lines = 0, cnt = 1;
 	char line[1024];
-
 	char file[256];
-	FILE* fp;
 
 	sprintf(file, "db/item_lapineddukddak_db.txt");
-	fp = fopen(file, "r");
+	FILE* fp = fopen(file, "r");
 	if (fp == NULL)
 	{
 		ShowWarning("itemdb_parse_lapineddukddak_db: File not found \"%s\", skipping.\n", file);
@@ -1888,10 +1877,7 @@ void itemdb_parse_lapineddukddak_db(void)
 	// process rows one by one
 	while (fgets(line, sizeof(line), fp))
 	{
-		char *str[32], *p;
-		int i;
-		int id, needcount, refmin, refmax;
-		t_itemid nameid;
+		char* str[32];
 
 		struct item_data *data = NULL;
 
@@ -1900,7 +1886,7 @@ void itemdb_parse_lapineddukddak_db(void)
 			continue;
 		memset(str, 0, sizeof(str));
 
-		p = line;
+		char* p = line;
 
 		while (ISSPACE(*p))
 			++p;
@@ -1908,7 +1894,8 @@ void itemdb_parse_lapineddukddak_db(void)
 		if (*p == '\0')
 			continue;// empty line
 
-		for (i = 0; i < 6; ++i)
+		int i;
+		for (i = 0; i < 5; ++i)
 		{
 			str[i] = p;
 			p = strchr(p, ',');
@@ -1916,21 +1903,22 @@ void itemdb_parse_lapineddukddak_db(void)
 				break;// comma not found
 			*p = '\0';
 			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("itemdb_parse_lapineddukddak_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
-				continue;
-			}
 		}
 
-		id = atoi(str[0]);
+		if (i < 5) {
+			ShowError("itemdb_parse_lapineddukddak_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+			continue;
+		}
+
+		str[5] = p;
+
+		const int id = atoi(str[0]);
 		if (id < 0) {
 			ShowWarning("itemdb_parse_lapineddukddak_db: Invalid id %d in %s:%d\n", id, file, lines);
 			continue;
 		}
 
-		nameid = strtoul(str[1], NULL, 10);
+		t_itemid nameid = strtoul(str[1], NULL, 10);
 		if (nameid == 0 || nameid == dummy_item->nameid)
 		{
 			ShowWarning("itemdb_parse_lapineddukddak_db: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
@@ -1944,17 +1932,17 @@ void itemdb_parse_lapineddukddak_db(void)
 
 		data = itemdb_search(nameid);
 
-		needcount = atoi(str[2]);
+		int needcount = atoi(str[2]);
 		if (needcount < 1) {
 			ShowWarning("itemdb_parse_lapineddukddak_db: invalid NeedCount %d in %s:%d. Must be at least 1, skipping.\n", needcount, file, lines);
 			continue;
 		}
 
-		refmin = atoi(str[3]);
+		int refmin = atoi(str[3]);
 		if (refmin < 0 || refmin > 20)
 			refmin = 0;
 		
-		refmax = atoi(str[4]);
+		int refmax = atoi(str[4]);
 		if (refmax < 0 || refmax > 20)
 			refmax = 0;
 
@@ -1984,10 +1972,9 @@ static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
 	char line[1024];
 
 	char file[256];
-	FILE* fp;
 
 	sprintf(file, "db/item_lapineupgrade_target.txt");
-	fp = fopen(file, "r");
+	FILE* fp = fopen(file, "r");
 	if (fp == NULL)
 	{
 		ShowWarning("itemdb_parse_lapineupgrade_targets: File not found \"%s\", skipping.\n", file);
@@ -1999,11 +1986,9 @@ static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
 	// process rows one by one
 	while (fgets(line, sizeof(line), fp))
 	{
-		char *str[32], *p;
-		int i, sid, amt;
-		t_itemid nameid;
+		char* str[32];
 
-		struct item_data *edata = NULL;
+		const struct item_data* edata = NULL;
 		struct itemlist_entry item = { 0 };
 
 		lines++;
@@ -2011,7 +1996,7 @@ static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
 			continue;
 		memset(str, 0, sizeof(str));
 
-		p = line;
+		char* p = line;
 
 		while (ISSPACE(*p))
 			++p;
@@ -2019,7 +2004,8 @@ static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
 		if (*p == '\0')
 			continue;// empty line
 
-		for (i = 0; i < 3; ++i)
+		int i;
+		for (i = 0; i < 2; ++i)
 		{
 			str[i] = p;
 			p = strchr(p, ',');
@@ -2027,15 +2013,16 @@ static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
 				break;// comma not found
 			*p = '\0';
 			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("itemdb_parse_lapineupgrade_targets: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
-				continue;
-			}
 		}
 
-		sid = atoi(str[0]);
+		if (i < 2) {
+			ShowError("itemdb_parse_lapineupgrade_targets: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+			continue;
+		}
+
+		str[2] = p;
+
+		int sid = atoi(str[0]);
 		if (sid < 0) {
 			ShowWarning("itemdb_parse_lapineupgrade_targets: Invalid id %d in %s:%d\n", id, file, lines);
 			continue;
@@ -2044,7 +2031,7 @@ static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
 		if (id != sid) // ignore line.
 			continue;
 
-		nameid = strtoul(str[1], NULL, 10);
+		t_itemid nameid = strtoul(str[1], NULL, 10);
 		if (nameid == 0 || nameid == dummy_item->nameid)
 		{
 			ShowWarning("itemdb_parse_lapineupgrade_targets: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
@@ -2059,7 +2046,7 @@ static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
 		edata = itemdb_search(nameid);
 		item.id = edata->nameid;
 
-		amt = atoi(str[2]);
+		int amt = atoi(str[2]);
 		if (amt < 1) {
 			ShowWarning("itemdb_parse_lapineupgrade_targets: invalid amount %d in %s:%d. defaulting to 1...\n", amt, file, lines);
 			amt = 1;
@@ -2090,12 +2077,9 @@ void itemdb_parse_lapineupgrade_db(void)
 	}
 
 	// process rows one by one
-	while (fgets(line, sizeof(line), fp))
-	{
-		char *str[32], *p;
-		int i,id,refmin,refmax,opts;
+	while (fgets(line, sizeof(line), fp)) {
+		char* str[32];
 		bool NoEntchant = false;
-		t_itemid nameid;
 
 		struct item_data *data = NULL;
 
@@ -2104,7 +2088,7 @@ void itemdb_parse_lapineupgrade_db(void)
 			continue;
 		memset(str, 0, sizeof(str));
 
-		p = line;
+		char* p = line;
 
 		while (ISSPACE(*p))
 			++p;
@@ -2112,7 +2096,8 @@ void itemdb_parse_lapineupgrade_db(void)
 		if (*p == '\0')
 			continue;// empty line
 
-		for (i = 0; i < 7; ++i)
+		int i;
+		for (i = 0; i < 6; ++i)
 		{
 			str[i] = p;
 			p = strchr(p, ',');
@@ -2120,21 +2105,22 @@ void itemdb_parse_lapineupgrade_db(void)
 				break;// comma not found
 			*p = '\0';
 			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("itemdb_parse_lapineupgrade_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
-				continue;
-			}
 		}
 
-		id = atoi(str[0]);
+		if (i < 6) {
+			ShowError("itemdb_parse_lapineupgrade_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+			continue;
+		}
+
+		str[6] = p;
+
+		const int id = atoi(str[0]);
 		if (id < 0) {
 			ShowWarning("itemdb_parse_lapineupgrade_db: Invalid id %d in %s:%d\n", id, file, lines);
 			continue;
 		}
 
-		nameid = strtoul(str[1], NULL, 10);
+		t_itemid nameid = strtoul(str[1], NULL, 10);
 		if (nameid == 0 || nameid == dummy_item->nameid)
 		{
 			ShowWarning("itemdb_parse_lapineupgrade_db: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
@@ -2148,15 +2134,15 @@ void itemdb_parse_lapineupgrade_db(void)
 
 		data = itemdb_search(nameid);
 
-		refmin = atoi(str[2]);
+		int refmin = atoi(str[2]);
 		if (refmin < 0 || refmin > 20)
 			refmin = 0;
 
-		refmax = atoi(str[3]);
+		int refmax = atoi(str[3]);
 		if (refmax < 0 || refmax > 20)
 			refmax = 0;
 
-		opts = atoi(str[4]);
+		int opts = atoi(str[4]);
 		if (opts < 0 || opts > 5)
 			opts = 0;
 
@@ -2292,6 +2278,27 @@ static void destroy_item_data(struct item_data* self)
 		script_free_code(self->equip_script);
 	if( self->unequip_script )
 		script_free_code(self->unequip_script);
+
+	if (self->lapineupgrade) {
+		if (self->lapineupgrade->script) {
+			script_free_code(self->lapineupgrade->script);
+		}
+
+		VECTOR_CLEAR(self->lapineupgrade->TargetItems);
+
+		aFree(self->lapineupgrade);
+	}
+
+	if (self->lapineddukddak) {
+		if (self->lapineddukddak->script) {
+			script_free_code(self->lapineddukddak->script);
+		}
+
+		VECTOR_CLEAR(self->lapineddukddak->SourceItems);
+
+		aFree(self->lapineddukddak);
+	}
+
 #if defined(DEBUG)
 	// trash item
 	memset(self, 0xDD, sizeof(struct item_data));

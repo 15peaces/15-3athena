@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/03/2026
+	r562 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Fixed inconsistencies in npc_parse_warp handling, added memory cleanup for tokens in achievement.c, ensured proper cleanup of Lapine upgrades, and addressed iterator destruction in guild.c.
+			-Added missing memory deallocation for map in map.c
+			-Removed unused party include from achievement.c and adjusted pc.h to declare pc_sc_display_ers as an external variable.
+			-Lots of fixes regarding array access, possible null pointer dereferencings and many other small things.
+			-Updated CMake configurations:
+				--Added new headers/sources, removed unused files and set the runtime output directory, enabled -fcommon flag for newer compiler support.
+				--Enforced C11 standard, added new compiler/linker flags for Debug and Release builds, and enabled IPO/LTO when supported
+
 03/07/2026
 	r561 [15peaces]
 		*Re-Added some cases in bonus function I removed by accident.

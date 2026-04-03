@@ -27,13 +27,41 @@
 #   changes to some CPack generators
 #   CYGWIN no longer defines WIN32
 #   CMP0017: Prefer files from the CMake module directory when including from there.
-set( CMAKE_LEGACY_CYGWIN_WIN32 0 )
-cmake_minimum_required( VERSION 2.8.3 )
-project( eAthena C )
+cmake_minimum_required( VERSION 4.1.2 )
+project( eAthena C CXX )
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+if(NOT MSVC)
+	add_compile_options(-fno-strict-aliasing)
+
+	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		message(STATUS "Build-Configuration: DEBUG")
+		add_compile_options(-g -O0)
+		add_compile_options(-fsanitize=address)
+		add_link_options(-fsanitize=address)
+	elseif(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+		message(STATUS "Build-Configuration: RELEASE")
+
+		add_compile_options(-O3 -march=native -funroll-loops)
+
+		include(CheckIPOSupported)
+		check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+		if(ipo_supported)
+			set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+			message(STATUS "IPO/LTO activated.")
+		endif()
+	endif()
+endif()
+
 if( CYGWIN )
 	unset( WIN32 )
 endif()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcommon")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcommon")
 
 #
 # Prevent building in the source directory by default
