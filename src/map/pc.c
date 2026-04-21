@@ -1790,7 +1790,7 @@ static int pc_calc_skillpoint(struct map_session_data* sd)
 				if(sd->status.skill[i].flag == SKILL_FLAG_PERMANENT)
 					skill_point += skill_lv;
 				else
-					if (sd->status.skill[i].flag == SKILL_FLAG_REPLACED_LV_0)
+					if (sd->status.skill[i].flag >= SKILL_FLAG_REPLACED_LV_0)
 					skill_point += (sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0);
 			}
 		}
@@ -1913,7 +1913,7 @@ int pc_calc_skilltree(struct map_session_data *sd)
 						if (sd->status.skill[k].id == 0 || sd->status.skill[k].flag == SKILL_FLAG_TEMPORARY || sd->status.skill[k].flag == SKILL_FLAG_PLAGIARIZED)
 							k = 0; //Not learned.
 						else
-						if (sd->status.skill[k].flag == SKILL_FLAG_REPLACED_LV_0) //Real lerned level
+						if (sd->status.skill[k].flag >= SKILL_FLAG_REPLACED_LV_0) //Real lerned level
 							k = sd->status.skill[skill_tree[c][i].need[j].id].flag - SKILL_FLAG_REPLACED_LV_0;
 						else
 							k = pc_checkskill(sd,k);
@@ -2066,12 +2066,12 @@ void pc_clean_skilltree(struct map_session_data *sd)
 		{
 			sd->status.skill[i].id = 0;
 			sd->status.skill[i].lv = 0;
-			sd->status.skill[i].flag = 0;
+			sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
 		}
 		else
-		if (sd->status.skill[i].flag == SKILL_FLAG_REPLACED_LV_0){
+		if (sd->status.skill[i].flag >= SKILL_FLAG_REPLACED_LV_0){
 			sd->status.skill[i].lv = sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0;
-			sd->status.skill[i].flag = 0;
+			sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
 		}
 	}
 }
@@ -7814,7 +7814,7 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		if( sd->status.skill[i].flag == SKILL_FLAG_PERMANENT )
 			skill_point += lv;
 		else
-		if( sd->status.skill[i].flag == SKILL_FLAG_REPLACED_LV_0 )
+		if( sd->status.skill[i].flag >= SKILL_FLAG_REPLACED_LV_0 )
 			skill_point += (sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0);
 
 		if( !(flag&2) )

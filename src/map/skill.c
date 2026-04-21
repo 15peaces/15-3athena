@@ -1472,7 +1472,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 			sc_start2(bl, SC_ELEMENTALCHANGE, 10 + 10 * skill_lv, skill_lv, 5, skill_get_time2(skill_id, skill_lv)); // Need official rate. [LimitLine]
 		break;
 	case SO_VARETYR_SPEAR:
-		sc_start(bl, SC_STUN, 5 + 5 * skill_lv, skill_lv, skill_get_time(skill_id, skill_lv));
+		sc_start(bl, SC_STUN, 5 * skill_lv, skill_lv, skill_get_time(skill_id, skill_lv));
 		break;
 	case WM_POEMOFNETHERWORLD:
 		{
@@ -8578,7 +8578,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if(sd) {
 			int sp = skill_get_sp(sd->skillid_old,sd->skilllv_old);
 			if (skill_id == SO_SPELLFIST) { // enable Double Attack [15peaces]
-				sc_start4(src, type, 100, skill_lv + 1, skill_lv, sd->skillid_old, sd->skilllv_old, skill_get_time(skill_id, skill_lv));
+				sc_start4(src, type, 100, skill_lv, sd->skillid_old, sd->skilllv_old, 0, skill_get_time(skill_id, skill_lv));
 				sd->skillid_old = sd->skilllv_old = 0;
 				break;
 			}

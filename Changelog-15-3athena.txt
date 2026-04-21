@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/21/2026
+	r563 [15peaces]
+		*SO_SPELLFIST; SO_VARETYR_SPEAR
+			-Updated skills to latest official versions.
+		*Fixed some wrong checks with SKILL_FLAG_REPLACED_LV_0.
+			-This should also fix the deletion of skill tree bug...
+		*Some pet updates:
+			-Added LITTLE_ISIS, MUMMY and ANCIENT_MUMMY pets.
+			-Added ISIS -> LITTLE_ISIS evolution.
+			-Added MUMMY -> ANCIENT_MUMMY evolution.
+			-Added missing items.
+
 04/03/2026
 	r562 [15peaces]
 		*Some fixes, thanks to @Reilaen

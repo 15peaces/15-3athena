@@ -3442,11 +3442,6 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		else
 			skillratio += 300;	// Bombs
 		break;
-	case SO_VARETYR_SPEAR://ATK [{( Striking Level x 50 ) + ( Varetyr Spear Skill Level x 50 )} x Caster Base Level / 100 ] %
-		skillratio = 50 * skill_lv + (sd ? pc_checkskill(sd, SO_STRIKING) * 50 : 0);
-		if (sc && sc->data[SC_BLAST_OPTION])
-			skillratio += sd ? sd->status.job_level * 5 : 0;
-		break;
 		// Physical Elemantal Spirits Attack Skills
 	case EL_CIRCLE_OF_FIRE:
 	case EL_FIRE_BOMB_ATK:
@@ -4505,7 +4500,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	if (tsd) { // Card Fix for target (tsd), 2 is not added to the "left" flag meaning "target cards only"
 		switch (skill_id) { // These skills will do a card fix later
-		case SO_VARETYR_SPEAR:
+		case NJ_ISSEN:
+		case GN_FIRE_EXPANSION_ACID:
 			break;
 		default:
 			wd.damage += battle_calc_cardfix(BF_WEAPON, src, target, battle_skill_get_damage_properties(skill_id, wd.miscflag), right_element, left_element, wd.damage, 0, wd.flag);
@@ -4522,17 +4518,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	//Apply DAMAGE_DIV_FIX and check for min damage
 	wd = battle_apply_div_fix(wd);
-
 	wd = battle_calc_attack_left_right_hands(wd, src, target, skill_id, skill_lv);
-
-	switch (skill_id) { // These skills will do a GVG fix later
-	case SO_VARETYR_SPEAR:
-		return wd;
-	default:
-		wd = battle_calc_attack_gvg_bg(wd, src, target, skill_id, skill_lv);
-		break;
-	}
-
+	wd = battle_calc_attack_gvg_bg(wd, src, target, skill_id, skill_lv);
 	wd = battle_calc_weapon_final_atk_modifiers(wd, src, target, skill_id, skill_lv);
 
 	battle_do_reflect(BF_WEAPON, &wd, src, target, skill_id, skill_lv); //WIP
@@ -4732,7 +4719,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						{
 							if (sc->data[SC_SPELLFIST] && mflag&BF_SHORT)
 							{
-								skillratio = sc->data[SC_SPELLFIST]->val2 * 50 + sc->data[SC_SPELLFIST]->val4 * 100;//val2 = used spellfist level and val4 = used bolt level. [Rytech]
+								skillratio += (sc->data[SC_SPELLFIST]->val3 * 100) + (sc->data[SC_SPELLFIST]->val1 * 50 - 50) - 100; // val3 = used bolt level, val1 = used spellfist level. [Rytech]
 								ad.div_ = 1; // ad mods, to make it work similar to regular hits [Xazax]
  								ad.flag = BF_WEAPON|BF_SHORT; // ad mods, to make it work similar to regular hits [Xazax]
 								ad.type = 0;
@@ -4751,7 +4738,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						{
 							if (sc->data[SC_SPELLFIST] && mflag&BF_SHORT)
 							{
-								skillratio = sc->data[SC_SPELLFIST]->val2 * 50 + sc->data[SC_SPELLFIST]->val4 * 100;
+								skillratio += (sc->data[SC_SPELLFIST]->val3 * 100) + (sc->data[SC_SPELLFIST]->val1 * 50 - 50) - 100; // val3 = used bolt level, val1 = used spellfist level. [Rytech]
 								ad.div_ = 1;
 								ad.flag = BF_WEAPON|BF_SHORT;
 								ad.type = 0;
@@ -4765,7 +4752,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						{
 							if (sc->data[SC_SPELLFIST] && mflag&BF_SHORT)
 							{
-								skillratio = sc->data[SC_SPELLFIST]->val2 * 50 + sc->data[SC_SPELLFIST]->val4 * 100;
+								skillratio += (sc->data[SC_SPELLFIST]->val3 * 100) + (sc->data[SC_SPELLFIST]->val1 * 50 - 50) - 100; // val3 = used bolt level, val1 = used spellfist level. [Rytech]
 								ad.div_ = 1;
 								ad.flag = BF_WEAPON|BF_SHORT;
 								ad.type = 0;
@@ -5044,11 +5031,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio += sc->data[SC_CURSED_SOIL_OPTION]->val3;
 						break;
 					case SO_VARETYR_SPEAR:
-						skillratio = sstatus->int_ * skill_lv + 50 * (sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 5);
+						skillratio += -100 + (2 * sstatus->int_ + 150 * (pc_checkskill(sd, SO_STRIKING) + pc_checkskill(sd, SA_LIGHTNINGLOADER)) + sstatus->int_ * skill_lv / 2) / 3;
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 						if (sc && sc->data[SC_BLAST_OPTION])
-							skillratio += sc->data[SC_BLAST_OPTION]->val3;
+							skillratio += (sd ? sd->status.job_level * 5 : 0);
 						break;
 					case GN_DEMONIC_FIRE:
 						if ( skill_lv > 20 )// Fire Expansion Level 2
@@ -5276,13 +5263,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						else
 							ad.damage = 0;
 					}
-				}
-				break;
-			case SO_VARETYR_SPEAR:
-				{
-					struct Damage wd = battle_calc_weapon_attack(src, target, skill_id, skill_lv, mflag);
-
-					ad.damage += wd.damage;
 				}
 				break;
 		}
@@ -6102,14 +6082,21 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if(sc) 
 	{
-		if( sc->data[SC_SPELLFIST] ) 
-		{
-			if (--(sc->data[SC_SPELLFIST]->val1) >= 0 && !vellum_damage) {
-				wd = battle_calc_attack(BF_MAGIC, src, target, sc->data[SC_SPELLFIST]->val3, sc->data[SC_SPELLFIST]->val4, flag);
-				DAMAGE_DIV_FIX(wd.damage, wd.div_); // Double the damage for multiple hits.
+		if (sc->data[SC_SPELLFIST] && !vellum_damage) {
+			if (status_charge(src, 0, 20)) {
+				if (!is_infinite_defense(target, wd.flag)) {
+					struct Damage ad = battle_calc_attack(BF_MAGIC, src, target, sc->data[SC_SPELLFIST]->val2, sc->data[SC_SPELLFIST]->val3, flag | BF_SHORT);
+
+					wd.damage = ad.damage;
+					DAMAGE_DIV_FIX(wd.damage, wd.div_); // Double the damage for multiple hits.
+				}
+				else {
+					wd.damage = 1;
+					DAMAGE_DIV_FIX(wd.damage, wd.div_);
+				}
 			}
 			else
-				status_change_end(src,SC_SPELLFIST,-1);
+				status_change_end(src, SC_SPELLFIST, INVALID_TIMER);
 		}
 	}
 
