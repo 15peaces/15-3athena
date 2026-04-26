@@ -1184,7 +1184,7 @@
 //2186,Encyclopedia_Revision
 //2187,Shield_Of_Gray
 //2188,Svalinn_J
-//2190,Ancient_Shield_Of_Aeon
+2190,Ancient_Shield_Of_Aeon,Ancient Shield Of Aeon,5,0,,200,,1,,1,0x000FDF80,63,2,32,,130,1,2,{ bonus2 bSubEle,Ele_Neutral,10; bonus2 bSubEle,Ele_Fire,10; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Dark,10; bonus2 bSubEle,Ele_Holy,10; bonus2 bSubEle,Ele_Ghost,10; bonus bMaxHP,500; bonus bMaxSP,50; if(getrefine()>=14) skill "MG_STONECURSE",5; },{},{}
 //2194,Rouban_Shield
 //2195,Lian_Shield
 //2198,Lapine_Shield

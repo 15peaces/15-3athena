@@ -5,6 +5,22 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/26/2026
+	r564 [15peaces]
+		*Added missing check if instances currently exist, before iterating them.
+			-Thanks to @Reilaen
+		*Updated the copyable skills to include the latest skills.
+			-This also fixes some skills not being able to be copied due to missing dummy skills.
+			-Thanks to @Reilaen
+		*Some pet updates:
+			-Added METALLER and DR_LUNATIC pets.
+			-Added ROCKER -> METALLER evolution.
+			-Added LUNATIC -> DR_LUNATIC evolution.
+			-Added missing eggs.
+		*Fixed achievement loading
+			-The criteria field was overwritten with CRITERIA_UNIQUE_NONE in some cases.
+		*Some cleaning in item databases.
+
 04/21/2026
 	r563 [15peaces]
 		*SO_SPELLFIST; SO_VARETYR_SPEAR

@@ -135,3 +135,5 @@
 3636,LITTLE_ISIS,Little Isis,0,9090,0,537,20,120,15,100,250,20,0,150,0,0,300,300,800,1,{bonus2 bAddClass,Class_All,1;},{bonus2 bAddClass,Class_All,4;}
 1041,MUMMY,Mummy,23256,9102,0,934,70,60,50,100,250,20,2000,150,1,0,300,300,800,0,{},{bonus bHit,5;}
 1297,ANCIENT_MUMMY,Ancient Mummy,0,9107,0,537,20,120,15,100,250,20,0,150,0,0,300,300,800,1,{bonus bHit,4;},{bonus2 bAddRace,RC_Dragon,6; bonus2 bMagicAddRace,RC_Dragon,6; bonus bHit,6;}
+1058,METALLER,Metaller,0,9106,0,537,20,120,15,100,250,20,0,150,0,0,300,300,800,1,{bonus bHPrecovRate,5; bonus bMaxHP,25;},{bonus2 bAddRace,RC_Plant,6; bonus2 bMagicAddRace,RC_Plant,6; bonus bHPrecovRate,20; bonus bMaxHP,70;}
+3496,DR_LUNATIC,Leaf Lunatic,0,9094,0,537,20,120,15,100,250,20,0,150,0,0,300,300,800,1,{bonus bCritical,2; bonus bBaseAtk,2;},{bonus2 bAddRace,RC_Formless,6; bonus2 bMagicAddRace,RC_Formless,6; bonus bCritical,5; bonus bBaseAtk,5;}

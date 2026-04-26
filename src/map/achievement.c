@@ -1144,7 +1144,6 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 	// get the data, split & count them
 	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
 	{
-		type[i] = CRITERIA_UNIQUE_NONE;
 		descriptions[i] = str[3];
 		str[3] = strchr(str[3], ':');
 		if (str[3] == NULL)
@@ -1318,7 +1317,7 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 				break;
 			default:
 				if (achievement_type_requires_criteria(entry->type)) {
-					ShowError("achievement_readdb_objectives: No criteria field added (Achievement: %d, Type: %d)! Skipping...\n", entry->id, entry->type);
+					ShowError("achievement_readdb_objectives: No or unknown criteria field added (Achievement: %d, Type: %d, Criteria: %d)! Skipping...\n", entry->id, entry->type, (int)obj.unique_type);
 					return false;
 				}
 				break;

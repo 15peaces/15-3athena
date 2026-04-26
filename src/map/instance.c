@@ -739,6 +739,9 @@ void do_reload_instance(void) {
 			instance_set_timeout(i,instances[i].original_progress_timeout,instances[i].idle_timeoutval);
 		}
 	}
+
+	if (instance_count == 0)
+		return;
 	
 	iter = mapit_getallusers();
 	for( sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); sd = (TBL_PC*)mapit_next(iter) ) {
