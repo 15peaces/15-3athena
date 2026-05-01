@@ -79,7 +79,12 @@ Sql* Sql_Malloc(void)
 	self->result = NULL;
 	self->keepalive = INVALID_TIMER;
 
+#if MYSQL_VERSION_ID >= 50013
+	my_bool reconnect = 1;
+	mysql_options(&self->handle, MYSQL_OPT_RECONNECT, &reconnect);
+#else
 	self->handle.reconnect = 1;
+#endif
 	return self;
 }
 
@@ -118,7 +123,11 @@ void Sql_PrintExtendedInfo(Sql* self)
 	ShowInfo("MySQL client info: %s\n", mysql_get_client_info());
 	ShowInfo("MySQL server info: %s\n", mysql_get_server_info(&self->handle));
 	ShowInfo("MySQL host info: %s\n", mysql_get_host_info(&self->handle));
+#if defined(MYSQL_COMPILATION_COMMENT)
 	ShowInfo("Compiled with: %s %s\n", MYSQL_COMPILATION_COMMENT, MYSQL_SERVER_VERSION);
+#else
+	ShowInfo("Compiled with MySQL Version: %s\n", MYSQL_SERVER_VERSION);
+#endif
 }
 
 

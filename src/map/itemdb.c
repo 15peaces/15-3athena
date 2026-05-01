@@ -235,8 +235,8 @@ int itemdb_searchrandomid(uint16 group_id)
 		ShowError("itemdb_searchrandomid: Invalid group id %d\n", group_id);
 		return UNKNOWN_ITEM_ID;
 	}
-	if (group->qty)
-		return group->nameid[rnd()%group->qty-1];
+	if (group->qty > 0)
+		return group->nameid[rnd()%group->qty];
 	
 	ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group_id);
 	return UNKNOWN_ITEM_ID;

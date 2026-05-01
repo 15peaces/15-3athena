@@ -119,6 +119,7 @@
 948,Bear's_Foot,Bear's Footskin,3,174,,10,,,,,,,,,,,,,{},{},{}
 949,Feather,Feather,3,20,,10,,,,,,,,,,,,,{},{},{}
 
+951,Fin,Fin,3,412,,10,,,,,,,,,,,,,{},{},{}
 952,Cactus_Needle,Cactus Needle,3,82,,10,,,,,,,,,,,,,{},{},{}
 
 957,Decayed_Nail,Decayed Nail,3,82,,10,,,,,,,,,,,,,{},{},{}
@@ -311,6 +312,8 @@
 
 1809,Claw,Claw,4,67000,,500,86,,1,1,0x00008100,7,2,2,3,24,1,12,{ bonus bStr,2; },{},{}
 1810,Claw_,Claw,4,67000,,500,86,,1,2,0x00008100,7,2,2,3,24,1,12,{ bonus bStr,2; },{},{}
+1811,Finger,Finger,4,58000,,500,97,,1,1,0x00008100,7,2,2,3,24,1,12,{},{},{}
+1812,Finger_,Finger,4,58000,,500,97,,1,2,0x00008100,7,2,2,3,24,1,12,{},{},{}
 
 1814,Berserk,Berserk,4,20,,500,120,,1,0,0x00008100,7,2,2,4,36,1,12,{ bonus bAspdRate,12; },{},{}
 
@@ -504,6 +507,7 @@
 
 5011,Antenna,Aerial,5,20,,100,,3,,0,0xFFFFFFFF,7,2,256,,0,1,97,{},{},{}
 
+5014,Fin_Helm,Fin Helm,5,20,,300,,2,,0,0x00004082,7,2,512,,65,0,100,{},{},{}
 5015,Egg_Shell,Egg Shell,5,20,,200,,3,,0,0xFFFFFFFF,7,2,256,,0,0,101,{},{},{}
 5016,Boy's_Cap,Boy's Cap,5,20,,100,,2,,0,0xFFFFFFFE,7,2,256,,0,1,102,{},{},{}
 5017,Bone_Helm,Bone Helm,5,20,,800,,7,,0,0x000444A2,7,2,256,,70,1,103,{ bonus2 bSubEle,Ele_Dark,-15; },{},{}
@@ -557,6 +561,10 @@
 
 7036,Fang_Of_Garm,Fang of Hatii,3,100,,10,,,,,,,,,,,,,{},{},{}
 
+7041,Fine_Grit,Fine Grit,3,120,,10,,,,,,,,,,,,,{},{},{}
+
+7043,Fine_Sand,Fine Sand,3,100,,10,,,,,,,,,,,,,{},{},{}
+
 7046,Cart_Parts,Cart Parts,3,1,,10,,,,,,,,,,,,,{},{},{}
 7047,Alice's_Apron,Alice's Apron,3,2424,,10,,,,,,,,,,,,,{},{},{}
 
@@ -602,7 +610,7 @@
 7123,Dragon's_Skin,Dragon Skin,3,1025,,10,,,,,,,,,,,,,{},{},{}
 
 7127,Alcol_Create_Book,Alcohol Creation Guide,3,100000,,10,,,,,,,,,,,,,{},{},{}
-
+7128,FireBottle_Create_Book,Bottle Grenade Creation Guide,3,100000,,10,,,,,,,,,,,,,{},{},{}
 7129,Acid_Create_Book,Acid Bottle Creation Guide,3,100000,,10,,,,,,,,,,,,,{},{},{}
 
 7132,Coating_Create_Book,Glistening Coat Creation Guide,3,100000,,10,,,,,,,,,,,,,{},{},{}

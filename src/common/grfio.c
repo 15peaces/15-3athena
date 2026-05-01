@@ -278,9 +278,9 @@ static void filelist_modify(FILELIST* entry)
 }
 
 
-static int filelist_final_sub(DBKey key, void* data, va_list args)
+static int filelist_final_sub(DBKey key, DBData* data, va_list args)
 {
-	FILELIST* fentry = (FILELIST*)data;
+	FILELIST* fentry = data->u.ptr;
 	if( fentry && fentry->fnd != NULL )
 		aFree(fentry->fnd);
 	return 0;
