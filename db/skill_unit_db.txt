@@ -188,7 +188,7 @@
 8020,0xf5,    ,  3, 0,   0,enemy, 0x018	//MH_POISON_MIST // Inverval is set in source since its variable with this skill.
 8033,0x7e,    ,  0, 0,  -1,all,   0x003	//MH_STEINWAND
 8025,0x86,    ,  0, 2:2:3:3:4,1000,enemy, 0x018	//MH_XENO_SLASHER
-8041,0xf6,    ,  1:1:2:2:3, 0,2000,enemy, 0x018	//MH_LAVA_SLIDE CHECK - How often does this skill hit? iRO Wiki says 2 seconds. [Rytech]
+8041,0xf6,    ,  3, 0,1000,enemy,0x01A	//MH_LAVA_SLIDE CHECK
 8043,0xf7,    ,  1, 0,500,enemy, 0x2018	//MH_VOLCANIC_ASH
 
 8209,0x90,    ,  0, 1,1000,enemy, 0x006	//MA_SKIDTRAP

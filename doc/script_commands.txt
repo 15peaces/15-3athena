@@ -3409,14 +3409,16 @@ This command does not count skills which are set as flag 3 (permament granted) (
 This function will return pet information for the pet the invoking character 
 currently has active. Valid types are:
 
- 0 - Pet Game ID
- 1 - Pet class number as per 'db/pet_db.txt' - will tell you what kind of a pet it 
-     is.
- 2 - Pet name. Will return "null" if there's no pet. 
- 3 - Pet friendly level (intimacy score). 1000 is full loyalty.
- 4 - Pet hungry level. 100 is completely full.
- 5 - Pet rename flag. 0 means this pet has not been named yet.
-
+ (0) PETINFO_ID 		- Pet Game ID
+ (1) PETINFO_CLASS		- Pet class number as per 'db/pet_db.txt' - will tell you what kind of a pet it is.
+ (2) PETINFO_NAME		- Pet name. Will return "null" if there's no pet. 
+ (3) PETINFO_INTIMATE	- Pet friendly level (intimacy score). 1000 is full loyalty.
+ (4) PETINFO_HUNGRY		- Pet hungry level. 100 is completely full.
+ (5) PETINFO_RENAMED	- Pet rename flag. 0 means this pet has not been named yet.
+ (6) PETINFO_LEVEL		- Pet level.
+ (7) PETINFO_BLOCKID	- Pet bl ID.
+ (8) PETINFO_EGGID		- Pet egg ID.
+ (9) PETINFO_FOODID		- Pet food item ID.
 ---------------------------------------
 
 *gethominfo(<type>)

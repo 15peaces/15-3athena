@@ -2506,6 +2506,26 @@ void script_hardcoded_constants(void)
 	export_constant(IOT_PARTY);
 	export_constant(IOT_GUILD);
 
+	/* pet info */
+	export_constant(PETINFO_ID);
+	export_constant(PETINFO_CLASS);
+	export_constant(PETINFO_NAME);
+	export_constant(PETINFO_INTIMATE);
+	export_constant(PETINFO_HUNGRY);
+	export_constant(PETINFO_RENAMED);
+	export_constant(PETINFO_LEVEL);
+	export_constant(PETINFO_BLOCKID);
+	export_constant(PETINFO_EGGID);
+	export_constant(PETINFO_FOODID);
+
+	export_constant(PET_INTIMACY_NONE);
+	export_constant(PET_INTIMACY_AWKWARD);
+	export_constant(PET_INTIMACY_SHY);
+	export_constant(PET_INTIMACY_NEUTRAL);
+	export_constant(PET_INTIMACY_CORDIAL);
+	export_constant(PET_INTIMACY_LOYAL);
+	export_constant(PET_INTIMACY_MAX);
+
 	/* refine information types */
 	script_set_constant("REFINE_MATERIAL_ID", 0, false);
 	script_set_constant("REFINE_ZENY_COST", 1, false);
@@ -13919,12 +13939,16 @@ BUILDIN_FUNC(getpetinfo)
 	}
 	pd = sd->pd;
 	switch(type){
-		case 0: script_pushint(st,pd->pet.pet_id); break;
-		case 1: script_pushint(st,pd->pet.class_); break;
-		case 2: script_pushstrcopy(st,pd->pet.name); break;
-		case 3: script_pushint(st,pd->pet.intimate); break;
-		case 4: script_pushint(st,pd->pet.hungry); break;
-		case 5: script_pushint(st,pd->pet.rename_flag); break;
+		case PETINFO_ID: script_pushint(st, pd->pet.pet_id); break;
+		case PETINFO_CLASS: script_pushint(st, pd->pet.class_); break;
+		case PETINFO_NAME: script_pushstrcopy(st, pd->pet.name); break;
+		case PETINFO_INTIMATE: script_pushint(st, pd->pet.intimate); break;
+		case PETINFO_HUNGRY: script_pushint(st, pd->pet.hungry); break;
+		case PETINFO_RENAMED: script_pushint(st, pd->pet.rename_flag); break;
+		case PETINFO_LEVEL: script_pushint(st, (int32)pd->pet.level); break;
+		case PETINFO_BLOCKID: script_pushint(st, pd->bl.id); break;
+		case PETINFO_EGGID: script_pushint(st, pd->pet.egg_id); break;
+		case PETINFO_FOODID: script_pushint(st, pd->petDB->FoodID); break;
 		default:
 			script_pushint(st,0);
 			break;

@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/02/2026
+	r566 [15peaces]
+		*Updated MH_LAVA_SLIDE to latest official version.
+		*Updated SR_RAMPAGEBLASTER.
+			-Now only consumes 3 spirit spheres.
+		*Updated getpetinfo script command.
+			-It will now support constants.
+			-Also there are more informations available.
+		*Fixed the registry parser cutting of permanent global string variables after the first whitespace on save.
+			-Thanks to @Reilaen
+
 05/01/2026
 	r565 [15peaces]
 		*Some updates to item databases:

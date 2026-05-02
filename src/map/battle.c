@@ -3521,13 +3521,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio += 450;
 		break;
 	case MH_LAVA_SLIDE:
-		if (level_effect_bonus == 1)
-		{
-			skillratio = 20 * skill_lv + 2 * status_get_base_lv_effect(src);
-			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
-		}
-		else
-			skillratio = 20 * skill_lv + 300;
+		skillratio += -100 + 50 * skill_lv;
 		break;
 	case RL_MASS_SPIRAL:
 		{

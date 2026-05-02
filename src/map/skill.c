@@ -13739,6 +13739,10 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 			interval = 100;
 		break;
 
+	case MH_LAVA_SLIDE:
+		skill_clear_group(src, 1);
+		break;
+
 	case MH_STEINWAND:
 		val2=skill_lv+4;
 		break;
@@ -17152,9 +17156,6 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 					req.spiritball = max((sd) ? sd->spiritball : 15, 5);
 			}
 			break;
-		case SR_RAMPAGEBLASTER:
-			req.spiritball = sd->spiritball?sd->spiritball:15;
-			break;
 		case SR_GATEOFHELL:
 			if( sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE )
 				req.sp -= req.sp * 10 / 100;
@@ -17972,6 +17973,7 @@ int skill_clear_group (struct block_list *bl, int flag)
 			case NJ_SUITON:
 			case NJ_KAENSIN:
 			case SC_CONFUSIONPANIC:
+			case MH_LAVA_SLIDE:
 				if( flag&1 )
 					group[count++]= ud->skillunit[i];
 				break;
@@ -18018,6 +18020,7 @@ struct skill_unit_group *skill_locate_element_field(struct block_list *bl)
 			case SO_WATER_INSIGNIA:
 			case SO_WIND_INSIGNIA:
 			case SO_EARTH_INSIGNIA:
+			case MH_LAVA_SLIDE:
 				return ud->skillunit[i];
 		}
 	}

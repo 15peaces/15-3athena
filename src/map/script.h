@@ -607,6 +607,19 @@ enum itemskill_flag {
 	ISF_CASTONSELF = 0x04, // Forcefully cast skill on invoking character without showing the target selection cursor.
 };
 
+enum petinfo_types {
+	PETINFO_ID = 0,
+	PETINFO_CLASS,
+	PETINFO_NAME,
+	PETINFO_INTIMATE,
+	PETINFO_HUNGRY,
+	PETINFO_RENAMED,
+	PETINFO_LEVEL,
+	PETINFO_BLOCKID,
+	PETINFO_EGGID,
+	PETINFO_FOODID
+};
+
 const char* skip_space(const char* p);
 void script_error(const char* src, const char* file, int start_line, const char* error_msg, const char* error_pos);
 
