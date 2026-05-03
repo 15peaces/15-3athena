@@ -755,12 +755,23 @@ int parse_fromchar(int fd)
 				ShowNotice("char-server '%s': receiving (from the char-server) of account_reg2 (account: %d, ip: %s).\n", server[id].name, account_id, ip);
 				for( j = 0, p = 13; j < ACCOUNT_REG2_NUM && p < RFIFOW(fd,2); ++j )
 				{
-					sscanf((char*)RFIFOP(fd, p), "%31s%n", acc.account_reg2[j].str, &len);
-					acc.account_reg2[j].str[len]='\0';
-					p +=len+1; //+1 to skip the '\0' between strings.
-					sscanf((char*)RFIFOP(fd, p), "%255s%n", acc.account_reg2[j].value, &len);
-					acc.account_reg2[j].value[len]='\0';
-					p +=len+1;
+					int actual_len = strlen((char*)RFIFOP(fd, p));
+					int copy_len = actual_len > 32 ? 32 : actual_len;
+					strncpy(acc.account_reg2[j].str, (char*)RFIFOP(fd, p), copy_len);
+					acc.account_reg2[j].str[copy_len] = '\0';
+					
+					p += actual_len + 1;
+					
+					if (p >= RFIFOW(fd, 2))
+						break;
+					
+					actual_len = strlen((char*)RFIFOP(fd, p));
+					copy_len = actual_len > 255 ? 255 : actual_len;
+					strncpy(acc.account_reg2[j].value, (char*)RFIFOP(fd, p), copy_len);
+					acc.account_reg2[j].value[copy_len] = '\0';
+					
+					p += actual_len + 1;
+
 					remove_control_chars(acc.account_reg2[j].str);
 					remove_control_chars(acc.account_reg2[j].value);
 				}

@@ -74,17 +74,17 @@ int pet_hungry_val(struct pet_data *pd)
 int pet_get_card4_value(int rename_flag, int intimacy)
 {
 	Assert_ret(rename_flag == 0 || rename_flag == 1);
-	Assert_ret(intimacy >= PET_INTIMACY_NONE && intimacy <= PET_INTIMACY_MAX);
+	Assert_ret(intimacy >= PET_INTIMATE_NONE && intimacy <= PET_INTIMATE_MAX);
 
 	int card4 = rename_flag;
 
-	if (intimacy <= PET_INTIMACY_SHY)
+	if (intimacy <= PET_INTIMATE_SHY)
 		card4 |= (1 << 1);
-	else if (intimacy <= PET_INTIMACY_NEUTRAL)
+	else if (intimacy <= PET_INTIMATE_NEUTRAL)
 		card4 |= (2 << 1);
-	else if (intimacy <= PET_INTIMACY_CORDIAL)
+	else if (intimacy <= PET_INTIMATE_CORDIAL)
 		card4 |= (3 << 1);
-	else if (intimacy <= PET_INTIMACY_LOYAL)
+	else if (intimacy <= PET_INTIMATE_LOYAL)
 		card4 |= (4 << 1);
 	else
 		card4 |= (5 << 1);

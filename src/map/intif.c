@@ -1001,12 +1001,23 @@ int intif_parse_Registers(int fd)
 			return 0;
 	}
 	for(j=0,p=13;j<max && p<RFIFOW(fd,2);j++){
-		sscanf((char*)RFIFOP(fd, p), "%31s%n", reg[j].str, &len);
-		reg[j].str[len]='\0';
-		p += len+1; //+1 to skip the '\0' between strings.
-		sscanf((char*)RFIFOP(fd, p), "%255s%n", reg[j].value, &len);
-		reg[j].value[len]='\0';
-		p += len+1;
+		int actual_len = strlen((char*)RFIFOP(fd, p));
+		int copy_len = actual_len > 32 ? 32 : actual_len;
+		
+		strncpy(reg[j].str, (char*)RFIFOP(fd, p), copy_len);
+		reg[j].str[copy_len] = '\0';
+		
+		p += actual_len + 1;
+		
+		if (p >= RFIFOW(fd, 2))
+			break;
+		
+		actual_len = strlen((char*)RFIFOP(fd, p));
+		copy_len = actual_len > 255 ? 255 : actual_len;
+		strncpy(reg[j].value, (char*)RFIFOP(fd, p), copy_len);
+		reg[j].value[copy_len] = '\0';
+		
+		p += actual_len + 1;
 	}
 	*qty = j;
 

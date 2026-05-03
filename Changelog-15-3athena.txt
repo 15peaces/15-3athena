@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/03/2026
+	r567 [15peaces]
+		*Renamed the pet intimacy constants for parity with rathena to easier transfer their pet bonus scripts.
+		*Another fix to the registry parser (cutting of permanent global string variables after the first whitespace on save).
+			-Thanks to @Reilaen
+
 05/02/2026
 	r566 [15peaces]
 		*Updated MH_LAVA_SLIDE to latest official version.

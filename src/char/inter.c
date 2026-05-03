@@ -576,12 +576,22 @@ int mapif_parse_Registry(int fd) {
 	reg = (struct accreg*)idb_ensure(accreg_db, RFIFOL(fd,4), create_accreg);
 
 	for(j=0,p=13;j<ACCOUNT_REG_NUM && p<RFIFOW(fd,2);j++){
-		sscanf((char*)RFIFOP(fd, p), "%31s%n", reg->reg[j].str, &len);
-		reg->reg[j].str[len]='\0';
-		p +=len+1; //+1 to skip the '\0' between strings.
-		sscanf((char*)RFIFOP(fd, p), "%255s%n", reg->reg[j].value, &len);
-		reg->reg[j].value[len]='\0';
-		p +=len+1;
+		int actual_len = strlen((char*)RFIFOP(fd, p));
+		int copy_len = actual_len > 32 ? 32 : actual_len;
+		
+		strncpy(reg->reg[j].str, (char*)RFIFOP(fd, p), copy_len);
+		reg->reg[j].str[copy_len] = '\0';
+		
+		p += actual_len + 1;
+		
+		if (p >= RFIFOW(fd, 2)) break;
+		
+		actual_len = strlen((char*)RFIFOP(fd, p));
+		copy_len = actual_len > 255 ? 255 : actual_len;
+		strncpy(reg->reg[j].value, (char*)RFIFOP(fd, p), copy_len);
+		reg->reg[j].value[copy_len] = '\0';
+		
+		p += actual_len + 1;
 	}
 	reg->reg_num=j;
 	mapif_account_reg(fd, RFIFOP(fd,0));	// 他のMAPサーバーに送信

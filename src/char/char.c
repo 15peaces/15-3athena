@@ -2962,12 +2962,19 @@ int char_parse_Registry(uint32 account_id, uint32 char_id, unsigned char *buf, i
 	if(i >= char_num) //Character not found?
 		return 1;
 	for(j=0,p=0;j<GLOBAL_REG_NUM && p<buf_len;j++){
-		sscanf((char*)WBUFP(buf, p), "%31s%n", char_dat[i].global[j].str, &len);
-		char_dat[i].global[j].str[len]='\0';
-		p +=len+1; //+1 to skip the '\0' between strings.
-		sscanf((char*)WBUFP(buf, p), "%255s%n", char_dat[i].global[j].value, &len);
-		char_dat[i].global[j].value[len]='\0';
-		p +=len+1;
+		int actual_len = strlen((char*)WBUFP(buf, p));
+		int copy_len = actual_len > 32 ? 32 : actual_len;
+		strncpy(char_dat[i].global[j].str, (char*)WBUFP(buf, p), copy_len);
+		char_dat[i].global[j].str[copy_len] = '\0';
+		
+		p += actual_len + 1;
+		
+		actual_len = strlen((char*)WBUFP(buf, p));
+		copy_len = actual_len > 255 ? 255 : actual_len;
+		strncpy(char_dat[i].global[j].value, (char*)WBUFP(buf, p), copy_len);
+		char_dat[i].global[j].value[copy_len] = '\0';
+		
+		p += actual_len + 1;
 	}
 	char_dat[i].global_num = j;
 	return 0;

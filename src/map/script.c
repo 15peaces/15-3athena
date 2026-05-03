@@ -2518,13 +2518,13 @@ void script_hardcoded_constants(void)
 	export_constant(PETINFO_EGGID);
 	export_constant(PETINFO_FOODID);
 
-	export_constant(PET_INTIMACY_NONE);
-	export_constant(PET_INTIMACY_AWKWARD);
-	export_constant(PET_INTIMACY_SHY);
-	export_constant(PET_INTIMACY_NEUTRAL);
-	export_constant(PET_INTIMACY_CORDIAL);
-	export_constant(PET_INTIMACY_LOYAL);
-	export_constant(PET_INTIMACY_MAX);
+	export_constant(PET_INTIMATE_NONE);
+	export_constant(PET_INTIMATE_AWKWARD);
+	export_constant(PET_INTIMATE_SHY);
+	export_constant(PET_INTIMATE_NEUTRAL);
+	export_constant(PET_INTIMATE_CORDIAL);
+	export_constant(PET_INTIMATE_LOYAL);
+	export_constant(PET_INTIMATE_MAX);
 
 	/* refine information types */
 	script_set_constant("REFINE_MATERIAL_ID", 0, false);
