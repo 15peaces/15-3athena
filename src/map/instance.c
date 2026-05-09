@@ -26,6 +26,8 @@
 #include <stdarg.h>
 #include <time.h>
 
+struct instance_data* instances = NULL;
+
 unsigned short instance_start_id = 0;
 unsigned short instance_count = 0;
 
@@ -759,7 +761,10 @@ void do_final_instance(void)
 		instance_destroy(i);
 
 	if (instances)
+	{
 		aFree(instances);
+		instances = NULL;
+	}
 
 	instance_count = 0;
 }

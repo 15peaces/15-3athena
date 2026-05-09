@@ -21647,7 +21647,7 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	if (split[32][0] != '\0') {
 		int require[MAX_SKILL_EQUIP_REQUIRE];
 		if ((skill_db[i].require.eqItem_count = skill_split2(split[32], require, ":", false, 501))) {
-			skill_db[i].require.eqItem = aMalloc(skill_db[i].require.eqItem_count * sizeof(short));
+			skill_db[i].require.eqItem = aMalloc(skill_db[i].require.eqItem_count * sizeof(t_itemid));
 			for (j = 0; j < skill_db[i].require.eqItem_count; j++)
 				skill_db[i].require.eqItem[j] = require[j];
 		}

@@ -942,11 +942,11 @@ int inter_mapif_init(int fd)
 	
 	int_storages[0].id = 0;
 	safestrncpy(int_storages[0].name, "Storage", NAME_LENGTH);
-	safestrncpy(int_storages[0].table, storage_db, 512);
+	safestrncpy(int_storages[0].table, storage_db, sizeof(int_storages[0].table));
 
 	int_storages[1].id = 1;
 	safestrncpy(int_storages[1].name, "Storage", NAME_LENGTH);
-	safestrncpy(int_storages[1].table, storage2_db, 512);
+	safestrncpy(int_storages[1].table, storage2_db, sizeof(int_storages[1].table));
 
 	int_storage_count=2;
 

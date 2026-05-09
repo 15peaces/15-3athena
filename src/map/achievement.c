@@ -1129,14 +1129,14 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 	nullpo_retr(false, entry);
 
 	int c, i, j, val;
-	enum unique_criteria_types type[MAX_ACHIEVEMENT_OBJECTIVES];
+	enum unique_criteria_types type[MAX_ACHIEVEMENT_OBJECTIVES] = { 0 };
 	int tcount = 0;
 	char **arr = NULL;
 	char *tmpchar = NULL;
-	char *typechar[MAX_ACHIEVEMENT_OBJECTIVES];
-	char *descriptions[MAX_ACHIEVEMENT_OBJECTIVES];
-	char *criteriaIDs[MAX_ACHIEVEMENT_OBJECTIVES];
-	int goals[MAX_ACHIEVEMENT_OBJECTIVES];
+	char *typechar[MAX_ACHIEVEMENT_OBJECTIVES] = { NULL };
+	char *descriptions[MAX_ACHIEVEMENT_OBJECTIVES] = { NULL };
+	char *criteriaIDs[MAX_ACHIEVEMENT_OBJECTIVES] = { NULL };
+	int goals[MAX_ACHIEVEMENT_OBJECTIVES] = { 0 };
 
 	// Initialize the buffer objective vector.
 	VECTOR_INIT(entry->objective);

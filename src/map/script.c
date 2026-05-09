@@ -9592,6 +9592,11 @@ BUILDIN_FUNC(monster)
 		m = sd->bl.m;
 	else
 	{
+		if (strcmp(mapn, "") == 0) {
+			ShowError("buildin_monster: Trying to spawn monster (%d) on map failed because there was no name provided for the map.\n", class_);
+			return 1;
+		}
+
 		m = map_mapname2mapid(mapn);
 		if (map[m].flag.src4instance && st->instance_id >= 0) { // Try to redirect to the instance map, not the src map
 			if ((m = instance_mapid2imapid(m, st->instance_id)) < 0) {

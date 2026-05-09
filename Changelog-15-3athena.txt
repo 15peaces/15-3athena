@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/09/2026
+	r568 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Fix for a possible buffer overflow caused by a too generous length in safestrncpy.
+			-Fix for a too small array pointer size allocation.
+			-Initialized variables in achievement_readdb_objectives to prevent unexpected behavior.
+			-Added a check if a map name is empty to prevent a crash on monster spawn.
+			-Fix for a server crash if you reloaded scripts and then entered an instance.
+			-Fix for two checks if we are in an instance.
+		*MH_LAVA_SLIDE
+			-Fixed maxlevel in skill tree.
+
 05/03/2026
 	r567 [15peaces]
 		*Renamed the pet intimacy constants for parity with rathena to easier transfer their pet bonus scripts.

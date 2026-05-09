@@ -57,7 +57,7 @@ struct instance_data {
 	struct point respawn;/* reload spawn */
 };
 
-struct instance_data *instances;
+extern struct instance_data* instances;
 
 bool instance_is_valid(int instance_id);
 

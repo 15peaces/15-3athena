@@ -19863,8 +19863,8 @@ void clif_font(struct map_session_data *sd)
  *------------------------------------------*/
 int clif_instance(int instance_id, int type, int flag)
 {
-	struct map_session_data *sd;
-	unsigned char buf[255];
+	struct map_session_data* sd = NULL;
+	unsigned char buf[255] = { 0 };
 	enum send_target target = PARTY;
 
 	switch (instances[instance_id].owner_type) {
@@ -21530,7 +21530,7 @@ void clif_parse_private_airship_request(int fd, struct map_session_data *sd)
 	}
 
 	// This can only be a hack, so we prevent it
-	if (map[sd->bl.m].instance_id) {
+	if (map[sd->bl.m].instance_id >= 0) {
 		// Ignore requests to warp directly into a running instance
 		return;
 	}

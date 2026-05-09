@@ -1027,7 +1027,7 @@ ACMD_FUNC(save)
 {
 	nullpo_retr(-1, sd);
 
-	if (map[sd->bl.m].instance_id) {
+	if (map[sd->bl.m].instance_id >= 0) {
 		clif_displaymessage(fd, msg_txt(sd, 437)); // You cannot create a savepoint in an instance.
 		return 1;
 	}
