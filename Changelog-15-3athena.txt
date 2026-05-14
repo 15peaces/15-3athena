@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/14/2026
+	r569 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Fixed a misplaced if that didn't work correctly.
+			-Added an early return to the episode check in npc_parse_script to prevent unnecessary work and memory allocation.
+			-Declared char_achievements as extern and initialized it in int_achievement.c for proper usage across modules.
+		*Added the ability to explode and implode to handle integer arrays.
+			-Thanks to @Reilaen
+		*Updates to Pet System, thanks to @Reilaen
+			-Added some more constants for convenience.
+			-Added a helper function to streamline the search for an egg in the inventory.
+			-Updated the pet intimate calculation to work with modern pet stat bonus calculations.
+			-Removed constraints for stat recalcuation of pet bonuses.
+			-Implemented petautobonus for modern pet script support.
+
 05/09/2026
 	r568 [15peaces]
 		*Some fixes, thanks to @Reilaen

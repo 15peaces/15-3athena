@@ -6,6 +6,9 @@
 
 struct s_search_store_search;
 
+struct PACKET_CZ_REQ_OPEN_BUYING_STORE_sub;
+struct PACKET_CZ_REQ_TRADE_BUYING_STORE_sub;
+
 #define MAX_BUYINGSTORE_SLOTS 5
 
 struct s_buyingstore_item

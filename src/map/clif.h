@@ -29,6 +29,7 @@ struct battleground_data;
 struct quest;
 struct party_booking_ad_info;
 struct achievement;
+struct achievement_data;
 
 #define P2PTR(fd) RFIFO2PTR(fd)
 

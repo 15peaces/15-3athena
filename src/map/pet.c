@@ -50,13 +50,13 @@ int pet_hungry_val(struct pet_data *pd)
 {
 	nullpo_ret(pd);
 
-	if(pd->pet.hungry > 90)
+	if(pd->pet.hungry > PET_HUNGRY_SATISFIED)
 		return 4;
-	else if(pd->pet.hungry > 75)
+	else if(pd->pet.hungry > PET_HUNGRY_NEUTRAL)
 		return 3;
-	else if(pd->pet.hungry > 25)
+	else if(pd->pet.hungry > PET_HUNGRY_HUNGRY)
 		return 2;
-	else if(pd->pet.hungry > 10)
+	else if(pd->pet.hungry > PET_HUNGRY_VERY_HUNGRY)
 		return 1;
 	else
 		return 0;
@@ -78,43 +78,51 @@ int pet_get_card4_value(int rename_flag, int intimacy)
 
 	int card4 = rename_flag;
 
-	if (intimacy <= PET_INTIMATE_SHY)
-		card4 |= (1 << 1);
-	else if (intimacy <= PET_INTIMATE_NEUTRAL)
-		card4 |= (2 << 1);
-	else if (intimacy <= PET_INTIMATE_CORDIAL)
-		card4 |= (3 << 1);
-	else if (intimacy <= PET_INTIMATE_LOYAL)
-		card4 |= (4 << 1);
-	else
+	card4 |= (1 << 1);
+
+	if (intimacy >= PET_INTIMATE_LOYAL)
 		card4 |= (5 << 1);
+	else if (intimacy >= PET_INTIMATE_CORDIAL)
+		card4 |= (4 << 1);
+	else if (intimacy >= PET_INTIMATE_NEUTRAL)
+		card4 |= (3 << 1);
+	else if (intimacy >= PET_INTIMATE_SHY)
+		card4 |= (2 << 1);
+	else
+		card4 |= (1 << 1);
 
 	return card4;
 }
 
-void pet_set_intimate(struct pet_data *pd, int value)
+int pet_egg_search(const struct map_session_data* sd, const int pet_id)
 {
-	int intimate;
-	struct map_session_data *sd;
-
-	nullpo_retv(pd);
-	intimate = pd->pet.intimate;
-	sd = pd->master;
-
-	pd->pet.intimate = value;
-	if(sd && (intimate >= battle_config.pet_equip_min_friendly && pd->pet.intimate < battle_config.pet_equip_min_friendly) || (intimate < battle_config.pet_equip_min_friendly && pd->pet.intimate >= battle_config.pet_equip_min_friendly) )
-		status_calc_pc(sd, SCO_NONE);
-
-	/* Pet is lost, delete the egg */
-	if (value <= 0) {
-		int i;
-
-		ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].card[0] == CARD0_PET &&
-			pd->pet.pet_id == MakeDWord(sd->inventory.u.items_inventory[i].card[1], sd->inventory.u.items_inventory[i].card[2]));
-
-		if (i != MAX_INVENTORY)
-			pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_OTHER);
+	for (int i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].card[0] == CARD0_PET &&
+			pet_id == MakeDWord(sd->inventory.u.items_inventory[i].card[1], sd->inventory.u.items_inventory[i].card[2]))
+			return i;
 	}
+	return -1;
+}
+
+void pet_set_intimate(struct pet_data* pd, const int value) {
+	nullpo_retv(pd);
+
+	struct map_session_data* sd = pd->master;
+	nullpo_retv(sd);
+
+	pd->pet.intimate = cap_value(value, PET_INTIMATE_NONE, PET_INTIMATE_MAX);
+
+	const int index = pet_egg_search(sd, pd->pet.pet_id);
+	if (index > -1) {
+		/* Pet is lost, delete the egg */
+		if (value <= PET_INTIMATE_NONE) {
+			pc_delitem(sd, index, 1, 0, 0, LOG_TYPE_OTHER);
+		}
+		else {
+			sd->inventory.u.items_inventory[index].card[3] = pet_get_card4_value(pd->pet.rename_flag, pd->pet.intimate);
+		}
+	}
+	status_calc_pc(sd, SCO_NONE);
 }
 
 int pet_create_egg(struct map_session_data *sd, t_itemid item_id)
@@ -124,7 +132,7 @@ int pet_create_egg(struct map_session_data *sd, t_itemid item_id)
 	if (!pc_inventoryblank(sd)) return 0; // Inventory full
 	sd->catch_target_class = pet_db[pet_id].class_;
 	intif_create_pet(sd->status.account_id, sd->status.char_id,
-		(short)pet_db[pet_id].class_,
+		pet_db[pet_id].class_,
 		(short)mob_db(pet_db[pet_id].class_)->lv,
 		(short)pet_db[pet_id].EggID, 0,
 		(short)pet_db[pet_id].intimate,
@@ -347,18 +355,14 @@ static int pet_performance(struct map_session_data *sd, struct pet_data *pd)
 
 int pet_return_egg(struct map_session_data *sd, struct pet_data *pd)
 {
-	int i;
-
 	nullpo_retr(1, sd);
 	nullpo_retr(1, pd);
 
 	pet_lootitem_drop(pd,sd);
 
 	// Pet Evolution
-	ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].card[0] == CARD0_PET &&
-		pd->pet.pet_id == MakeDWord(sd->inventory.u.items_inventory[i].card[1], sd->inventory.u.items_inventory[i].card[2]));
-
-	if (i != MAX_INVENTORY) {
+	const int i = pet_egg_search(sd, pd->pet.pet_id);
+	if (i > -1) {
 		sd->inventory.u.items_inventory[i].attribute = 0;
 		sd->inventory.u.items_inventory[i].bound = BOUND_NONE;
 		sd->inventory.u.items_inventory[i].card[3] = pet_get_card4_value(pd->pet.rename_flag, pd->pet.intimate);
@@ -465,6 +469,12 @@ int pet_data_init(struct map_session_data *sd, struct s_pet *pet)
 		interval = 1;
 	pd->pet_hungry_timer = add_timer(gettick() + interval, pet_hungry, sd->bl.id, 0);
 	pd->masterteleport_timer = INVALID_TIMER;
+	for (i = 0; i < ARRAYLENGTH(sd->autobonus); i++)
+		pd->autobonus[i].timer = INVALID_TIMER;
+	for (i = 0; i < ARRAYLENGTH(sd->autobonus2); i++)
+		pd->autobonus2[i].timer = INVALID_TIMER;
+	for (i = 0; i < ARRAYLENGTH(sd->autobonus3); i++)
+		pd->autobonus3[i].timer = INVALID_TIMER;
 	return 0;
 }
 
@@ -524,12 +534,9 @@ int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag)
 		return 1;
 	}
 	if(p->incuvate == 1) {
-		int i;
-		// Get Egg Index
-		ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].card[0] == CARD0_PET &&
-			p->pet_id == MakeDWord(sd->inventory.u.items_inventory[i].card[1], sd->inventory.u.items_inventory[i].card[2]));
+		const int i = pet_egg_search(sd, p->pet_id);
 
-		if (i == MAX_INVENTORY) {
+		if (i == -1) {
 			ShowError("pet_recv_petdata: Hatching pet (%d:%s) aborted, couldn't find egg in inventory for removal!\n",p->pet_id, p->name);
 			sd->status.pet_id = 0;
 			return 1;
@@ -852,7 +859,7 @@ static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd) {
 	return 0;
 }
 
-int pet_food(struct map_session_data *sd, struct pet_data *pd)
+static int pet_food(struct map_session_data *sd, struct pet_data *pd)
 {
 	int i,k;
 
@@ -1315,6 +1322,137 @@ int pet_skill_support_timer(int tid, int64 tick, int id, intptr_t data)
 	return 0;
 }
 
+/**
+ * Add petautobonus to player when attacking/attacked.
+ * @param bonus: Bonus
+ * @param script: Script to execute
+ * @param rate: Success chance
+ * @param dur: Duration
+ * @param flag: Battle flag/skill
+ * @param other_script: Secondary script to execute
+ * @param onskill: Skill used to trigger autobonus
+ * @return True on success or false otherwise
+ */
+bool pet_addautobonus(struct s_petautobonus* bonus, const char* script, const int16 rate, const uint32 dur, uint16 flag, const char* other_script, const bool onskill) {
+	int free_slot = 0;
+	ARR_FIND(0, MAX_PC_BONUS, free_slot, bonus[free_slot].bonus_script != NULL && strcmp(bonus[free_slot].bonus_script, script) == 0);
+	if (free_slot < MAX_PC_BONUS) {
+		return false;
+	}
+
+	free_slot = 0;
+	ARR_FIND(0, MAX_PC_BONUS, free_slot, bonus[free_slot].bonus_script == NULL);
+	if (free_slot == MAX_PC_BONUS) {
+		ShowWarning("pet_addautobonus: Reached max (%d) number of petautobonus per pet!\n", MAX_PC_BONUS);
+		return false;
+	}
+
+	if (!onskill) {
+		if (!(flag & BF_RANGEMASK))
+			flag |= BF_SHORT | BF_LONG;
+		if (!(flag & BF_WEAPONMASK))
+			flag |= BF_WEAPON;
+		if (!(flag & BF_SKILLMASK)) {
+			if (flag & (BF_MAGIC | BF_MISC))
+				flag |= BF_SKILL;
+			if (flag & BF_WEAPON)
+				flag |= BF_NORMAL | BF_SKILL;
+		}
+	}
+
+	if (rate < -10000 || rate > 10000) {
+		ShowWarning("pet_addautobonus: Bonus rate %d exceeds -10000~10000 range, capping.\n", rate);
+	}
+
+	struct s_petautobonus* entry = &bonus[free_slot];
+
+	entry->rate = cap_value(rate, -10000, 10000);
+	entry->duration = dur;
+	entry->timer = INVALID_TIMER;
+	entry->atk_type = flag;
+	entry->bonus_script = aStrdup(script);
+	entry->other_script = other_script ? aStrdup(other_script) : NULL;
+
+	return true;
+}
+
+/**
+ * Execute petautobonus on player.
+ * @param sd: Player data
+ * @param bonus: Bonus vector
+ * @param autobonus: Autobonus to run
+ */
+void pet_exeautobonus(struct map_session_data* sd, struct s_petautobonus* autobonus) {
+	nullpo_retv(sd);
+	nullpo_retv(autobonus);
+
+	if (autobonus->timer != INVALID_TIMER) {
+		delete_timer(autobonus->timer, pet_endautobonus);
+		autobonus->timer = INVALID_TIMER;
+	}
+
+	if (autobonus->other_script && autobonus->other_script[0] != '\0') {
+		script_run_petautobonus(autobonus->other_script, sd);
+	}
+
+	if (autobonus->duration > 0) {
+		autobonus->timer = add_timer(gettick() + autobonus->duration, pet_endautobonus, sd->bl.id, (intptr_t)autobonus);
+	}
+	else {
+		autobonus->timer = INVALID_TIMER;
+	}
+
+	status_calc_pc(sd, SCO_FORCE);
+}
+
+/**
+ * Remove a petautobonus from player.
+ * @param sd: Player data
+ * @param bonus: Autobonus
+ * @param restore: Run script on clearing or not
+ */
+void pet_delautobonus(const struct map_session_data* sd, struct s_petautobonus* bonus, const bool restore) {
+	nullpo_retv(sd);
+	nullpo_retv(bonus);
+
+	for (int i = 0; i < MAX_PC_BONUS; i++) {
+		struct s_petautobonus* b = &bonus[i];
+
+		if (b->timer != INVALID_TIMER) {
+			if (restore) {
+				if (b->bonus_script && b->bonus_script[0] != '\0')
+					script_run_petautobonus(b->bonus_script, sd);
+
+				continue;
+			}
+
+			delete_timer(b->timer, pet_endautobonus);
+		}
+
+		if (b->bonus_script)
+			aFree(b->bonus_script);
+
+		if (b->other_script)
+			aFree(b->other_script);
+
+		memset(b, 0, sizeof(struct s_petautobonus));
+		b->timer = INVALID_TIMER;
+	}
+}
+
+int pet_endautobonus(const int tid, int64 tick, const int id, const intptr_t autobonus) {
+	struct map_session_data* sd = map_id2sd(id);
+	struct s_petautobonus* bonus = (struct s_petautobonus*)autobonus;
+
+	nullpo_ret(sd);
+	nullpo_ret(bonus);
+
+	bonus->timer = INVALID_TIMER;
+
+	status_calc_pc(sd, SCO_FORCE);
+	return 0;
+}
+
 /*==========================================
  *ペットデータ読み込み
  *------------------------------------------*/ 
@@ -1596,6 +1734,7 @@ void do_init_pet(void)
 	add_timer_func_list(pet_skill_support_timer, "pet_skill_support_timer"); // [Skotlex]
 	add_timer_func_list(pet_recovery_timer,"pet_recovery_timer"); // [Valaris]
 	add_timer_func_list(pet_heal_timer,"pet_heal_timer"); // [Valaris]
+	add_timer_func_list(pet_endautobonus, "pet_endautobonus");
 	add_timer_interval(gettick()+MIN_PETTHINKTIME,pet_ai_hard,0,0,MIN_PETTHINKTIME);
 }
 

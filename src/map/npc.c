@@ -2876,7 +2876,6 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 	char mapname[32];
 	struct script_code *script;
 	int i;
-	bool ignore = false;
 	const char* end;
 	const char* script_start;
 
@@ -2932,40 +2931,38 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 	else if(battle_config.feature_episode >= min_episode && max_episode == -1);
 	else if(battle_config.feature_episode >= min_episode && battle_config.feature_episode <= max_episode);
 	else
-		ignore = true;// ignore npc [15peaces]
+		return end;// ignore npc [15peaces]
 
-	if(ignore == false){
-		script = parse_script(script_start, filepath, strline(buffer,script_start-buffer), SCRIPT_USE_LABEL_DB);
-		label_list = NULL;
-		label_list_num = 0;
-		if( script )
-		{
-			DBMap* label_db = script_get_label_db();
-			label_db->foreach(label_db, npc_convertlabel_db, &label_list, &label_list_num, filepath);
-			db_clear(label_db); // not needed anymore, so clear the db
-		}
+	script = parse_script(script_start, filepath, strline(buffer,script_start-buffer), SCRIPT_USE_LABEL_DB);
+	label_list = NULL;
+	label_list_num = 0;
+	if( script )
+	{
+		DBMap* label_db = script_get_label_db();
+		label_db->foreach(label_db, npc_convertlabel_db, &label_list, &label_list_num, filepath);
+		db_clear(label_db); // not needed anymore, so clear the db
 	}
-
+	
 	nd = npc_create_npc(m, x, y);
 
-	if(ignore == false){
-		nd->u.scr.ep_min = min_episode;
-		nd->u.scr.ep_max = max_episode;
-		nd->u.scr.xs = xs;
-		nd->u.scr.ys = ys;
-		npc_parsename(nd, w3, start, buffer, filepath);
-		nd->class_ = class_;
-		nd->speed = 200;
-		nd->u.scr.script = script;
-		nd->u.scr.label_list = label_list;
-		nd->u.scr.label_list_num = label_list_num;
 
-		++npc_script;
-		nd->bl.type = BL_NPC;
-		nd->subtype = NPCTYPE_SCRIPT;
-	}
+	nd->u.scr.ep_min = min_episode;
+	nd->u.scr.ep_max = max_episode;
+	nd->u.scr.xs = xs;
+	nd->u.scr.ys = ys;
+	npc_parsename(nd, w3, start, buffer, filepath);
+	nd->class_ = class_;
+	nd->speed = 200;
+	nd->u.scr.script = script;
+	nd->u.scr.label_list = label_list;
+	nd->u.scr.label_list_num = label_list_num;
 
-	if( m >= 0 && ignore == false)
+	++npc_script;
+	nd->bl.type = BL_NPC;
+	nd->subtype = NPCTYPE_SCRIPT;
+
+
+	if( m >= 0)
 	{
 		map_addnpc(m, nd);
 		status_change_init(&nd->bl);
@@ -4210,7 +4207,6 @@ void npc_read_event_script(void)
 int npc_reload(void)
 {
 	struct npc_src_list *nsl;
-	int m, i;
 	int npc_new_min = npc_id;
 	struct s_mapiterator* iter;
 	struct block_list* bl;
@@ -4243,8 +4239,8 @@ int npc_reload(void)
 
 	if(battle_config.dynamic_mobs)
 	{// dynamic check by [random]
-		for (m = 0; m < map_num; m++) {
-			for (i = 0; i < MAX_MOB_LIST_PER_MAP; i++) {
+		for (int m = 0; m < map_num; m++) {
+			for (int i = 0; i < MAX_MOB_LIST_PER_MAP; i++) {
 				if (map[m].moblist[i] != NULL) {
 					aFree(map[m].moblist[i]);
 					map[m].moblist[i] = NULL;
@@ -4254,10 +4250,10 @@ int npc_reload(void)
 					delete_timer(map[m].mob_delete_timer, map_removemobs_timer);
 					map[m].mob_delete_timer = INVALID_TIMER;
 				}
+				if (map[m].npc_num > 0)
+					ShowWarning("npc_reload: %d npcs weren't removed at map %s!\n", map[m].npc_num, map[m].name);
 			}
 		}
-		if (map[m].npc_num > 0)
-			ShowWarning("npc_reload: %d npcs weren't removed at map %s!\n", map[m].npc_num, map[m].name);
 	}
 
 	// clear mob spawn lookup index

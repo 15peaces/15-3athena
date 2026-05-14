@@ -324,6 +324,7 @@ static int buildin_getelementofarray_ref = 0;
 // Caches compiled autoscript item code. 
 // Note: This is not cleared when reloading itemdb.
 static DBMap* autobonus_db=NULL; // char* script -> char* bytecode
+static DBMap* pet_autobonus_db = NULL;
 
 struct Script_Config script_config = {
 	1, // warn_func_mismatch_argtypes
@@ -2526,6 +2527,13 @@ void script_hardcoded_constants(void)
 	export_constant(PET_INTIMATE_LOYAL);
 	export_constant(PET_INTIMATE_MAX);
 
+	export_constant(PET_HUNGRY_NONE);
+	export_constant(PET_HUNGRY_VERY_HUNGRY);
+	export_constant(PET_HUNGRY_HUNGRY);
+	export_constant(PET_HUNGRY_NEUTRAL);
+	export_constant(PET_HUNGRY_SATISFIED);
+	export_constant(PET_HUNGRY_STUFFED);
+
 	/* refine information types */
 	script_set_constant("REFINE_MATERIAL_ID", 0, false);
 	script_set_constant("REFINE_ZENY_COST", 1, false);
@@ -4169,32 +4177,47 @@ static int db_script_free_code_sub(DBKey key, DBData *data, va_list ap)
 	return 0;
 }
 
-void script_run_autobonus(const char *autobonus, struct map_session_data *sd, unsigned int pos)
+void script_add_autobonus(const char* autobonus)
 {
-	struct script_code *script = (struct script_code *)strdb_get(autobonus_db, autobonus);
+	if (strdb_get(autobonus_db, autobonus) != NULL)
+		return;
 
-	if( script )
-	{
-		int j;
-		ARR_FIND(0, EQI_MAX, j, sd->equip_index[j] >= 0 && sd->inventory.u.items_inventory[sd->equip_index[j]].equip == pos);
-		if (j < EQI_MAX)
-			current_equip_item_index = sd->equip_index[j];
+	struct script_code* script = parse_script(autobonus, "autobonus", 0, 0);
+	if (!script)
+		return;
 
-		run_script(script, 0, sd->bl.id, 0);
-	}
+	strdb_put(autobonus_db, autobonus, script);
 }
 
-void script_add_autobonus(const char *autobonus)
+void script_run_autobonus(const char* autobonus, const struct map_session_data* sd, const unsigned int pos)
 {
-	if( strdb_get(autobonus_db, autobonus) == NULL )
-	{
-		struct script_code *script = parse_script(autobonus, "autobonus", 0, 0);
+	struct script_code* script = strdb_get(autobonus_db, autobonus);
+	if (!script)
+		return;
 
-		if( script )
-			strdb_put(autobonus_db, autobonus, script);
-	}
+	int j;
+	ARR_FIND(0, EQI_MAX, j, sd->equip_index[j] >= 0 && sd->inventory.u.items_inventory[sd->equip_index[j]].equip == pos);
+	if (j < EQI_MAX)
+		current_equip_item_index = sd->equip_index[j];
+
+	run_script(script, 0, sd->bl.id, 0);
 }
 
+void script_add_petautobonus(const char* autobonus) {
+	if (strdb_get(pet_autobonus_db, autobonus) != NULL) return;
+
+	struct script_code* script = parse_script(autobonus, "petautobonus", 0, 0);
+	if (!script) return;
+
+	strdb_put(pet_autobonus_db, autobonus, script);
+}
+
+void script_run_petautobonus(const char* autobonus, const struct map_session_data* sd) {
+	struct script_code* script = strdb_get(pet_autobonus_db, autobonus);
+	if (!script) return;
+
+	run_script(script, 0, sd->bl.id, 0);
+}
 
 /// resets a temporary character array variable to given value
 void script_cleararray_pc(struct map_session_data* sd, const char* varname, void* value)
@@ -4330,6 +4353,7 @@ void do_final_script()
 	db_destroy(scriptlabel_db);
 	userfunc_db->destroy(userfunc_db, db_script_free_code_sub);
 	autobonus_db->destroy(autobonus_db, db_script_free_code_sub);
+	pet_autobonus_db->destroy(pet_autobonus_db, db_script_free_code_sub);
 	if(sleep_db) {
 		struct linkdb_node *n = (struct linkdb_node *)sleep_db;
 		while(n) {
@@ -4365,6 +4389,7 @@ void do_init_script()
 	userfunc_db=strdb_alloc(DB_OPT_DUP_KEY,0);
 	scriptlabel_db=strdb_alloc(DB_OPT_DUP_KEY | DB_OPT_ALLOW_NULL_DATA,50);
 	autobonus_db = strdb_alloc(DB_OPT_DUP_KEY,0);
+	pet_autobonus_db = strdb_alloc(DB_OPT_DUP_KEY, 0);
 
 	mapreg_init();
 }
@@ -8533,6 +8558,103 @@ BUILDIN_FUNC(autobonus3)
 		if( other_script )
 			script_add_autobonus(other_script);
 	}
+
+	return 0;
+}
+
+BUILDIN_FUNC(petautobonus) {
+	TBL_PC* sd;
+
+	if (!(sd = script_rid2sd(st)))
+		return 1; // No player attached
+
+	const char* command = script_getfuncname(st);
+
+	if (sd->pd == NULL) {
+		ShowError("buildin_%s: Requires an active pet.\n", command);
+		return 0; // No pet attached to player
+	}
+
+	const char* bonus_script = script_getstr(st, 2);
+	const int16 rate = script_getnum(st, 3);
+	const unsigned int dur = script_getnum(st, 4);
+
+	if (!rate || !dur || bonus_script == NULL || bonus_script[0] == '\0')
+		return 0;
+
+	uint16 atk_type = 0;
+	const char* other_script = NULL;
+	bool bonus2 = false;
+
+	if (strcmpi(command, "petautobonus2") == 0)
+		bonus2 = true;
+
+	if (script_hasdata(st, 5))
+		atk_type = script_getnum(st, 5);
+	if (script_hasdata(st, 6))
+		other_script = script_getstr(st, 6);
+
+	if (!pet_addautobonus(bonus2 ? sd->pd->autobonus2 : sd->pd->autobonus, bonus_script, rate, dur, atk_type, other_script, false)) {
+		return 0;
+	}
+
+	script_add_petautobonus(bonus_script);
+	if (other_script && other_script[0] != '\0')
+		script_add_petautobonus(other_script);
+
+	return 0;
+}
+
+
+BUILDIN_FUNC(petautobonus3) {
+	TBL_PC* sd;
+
+	if (!(sd = script_rid2sd(st)))
+		return 0; // No player attached
+
+	if (sd->pd == NULL) {
+		ShowError("buildin_petautobonus3: Requires an active pet.\n");
+		return 1; // No pet attached to player
+	}
+
+	const char* bonus_script = script_getstr(st, 2);
+	const int16 rate = script_getnum(st, 3);
+	const unsigned int dur = script_getnum(st, 4);
+
+	if (!rate || !dur || bonus_script == NULL || bonus_script[0] == '\0')
+		return 0;
+
+	uint16 skill_id = 0;
+	const char* other_script = NULL;
+
+	if (script_isstring(st, 5)) {
+		const char* name = script_getstr(st, 5);
+
+		if (!(skill_id = skill_name2id(name))) {
+			ShowError("buildin_petautobonus3: Invalid skill name %s passed to autobonus. Skipping.\n", name);
+			return 1;
+		}
+	}
+	else {
+		skill_id = script_getnum(st, 5);
+
+		if (!skill_get_index(skill_id)) {
+			ShowError("buildin_petautobonus3: Invalid skill ID %d passed to autobonus. Skipping.\n", skill_id);
+			return 1;
+		}
+	}
+
+	if (script_hasdata(st, 6)) {
+		other_script = script_getstr(st, 6);
+	}
+
+	if (!pet_addautobonus(sd->pd->autobonus3, bonus_script, rate, dur, skill_id, other_script, true)) {
+		return 0;
+	}
+
+	script_add_petautobonus(bonus_script);
+	if (other_script && other_script[0] != '\0')
+		script_add_petautobonus(other_script);
 
 	return 0;
 }
@@ -15104,13 +15226,9 @@ BUILDIN_FUNC(explode)
 	struct script_data* data = script_getdata(st, 2);
 	const char *str = script_getstr(st,3);
 	const char delimiter = script_getstr(st, 4)[0];
-	int32 id;
-	size_t len = strlen(str);
+	const size_t len = strlen(str);
 	size_t i = 0, j = 0;
-	int index;
-
-	char *temp;
-	const char* name;
+	bool is_string = true;
 
 	TBL_PC* sd = NULL;
 
@@ -15122,9 +15240,9 @@ BUILDIN_FUNC(explode)
 		return 1;// not a variable
 	}
 
-	id = reference_getid(data);
-	index = reference_getindex(data);
-	name = reference_getname(data);
+	const int id = reference_getid(data);
+	int index = reference_getindex(data);
+	const char* name = reference_getname(data);
 
 	if( not_array_variable(*name) )
 	{
@@ -15134,13 +15252,7 @@ BUILDIN_FUNC(explode)
 		return 1;// not supported
 	}
 
-	if( !is_string_variable(name) )
-	{
-		ShowError("script:explode: not string array\n");
-		script_reportdata(data);
-		st->state = END;
-		return 1;// data type mismatch
-	}
+	is_string = is_string_variable(name);
 
 	if( not_server_variable(*name) )
 	{
@@ -15149,14 +15261,26 @@ BUILDIN_FUNC(explode)
 			return 0;// no player attached
 	}
 
-	temp = (char*)aMalloc(len + 1);
+	char* temp = aMalloc(len + 1);
 
-	for( i = 0; i < len; ++i )
-	{
-		if( index < SCRIPT_MAX_ARRAYSIZE-1 && str[i] == delimiter )
-		{ // break string at delimiter while there is space in the array
+	for (i = 0; i < len; ++i) {
+		if (index < SCRIPT_MAX_ARRAYSIZE - 1 && str[i] == delimiter) {
+			// break string at delimiter while there is space in the array
 			temp[j] = '\0';
-			set_reg(st, sd, reference_uid(id, index), name, (void*)temp, reference_getref(data));
+			if (is_string) {
+				set_reg(st, sd, reference_uid(id, index), name, temp, reference_getref(data));
+			}
+			else {
+				char* endptr = NULL;
+				long val = strtol(temp, &endptr, 10);
+
+				if (endptr == temp && temp[0] != '\0') {
+					ShowWarning("script:explode: '%s' is not a valid number. Defaulting to 0 at array index %d.\n", temp, index);
+					val = 0;
+				}
+
+				set_reg(st, sd, reference_uid(id, index), name, (void*)val, reference_getref(data));
+			}
 			++index;
 			j = 0;
 		}
@@ -15168,7 +15292,20 @@ BUILDIN_FUNC(explode)
 	}
 	//set last string
 	temp[j] = '\0';
-	set_reg(st, sd, reference_uid(id, index), name, (void*)temp, reference_getref(data));
+	if (is_string) {
+		set_reg(st, sd, reference_uid(id, index), name, temp, reference_getref(data));
+	}
+	else {
+		char* endptr = NULL;
+		long val = strtol(temp, &endptr, 10);
+
+		if (endptr == temp && temp[0] != '\0') {
+			ShowWarning("script:explode: '%s' is not a valid number. Defaulting to 0 at array index %d.\n", temp, index);
+			val = 0;
+		}
+
+		set_reg(st, sd, reference_uid(id, index), name, (void*)val, reference_getref(data));
+	}
 
 	aFree(temp);
 	return 0;
@@ -15180,8 +15317,7 @@ BUILDIN_FUNC(explode)
 BUILDIN_FUNC(implode)
 {
 	struct script_data* data = script_getdata(st, 2);
-	const char* name;
-	int32 array_size, id;
+	bool is_string = true;
 
 	TBL_PC* sd = NULL;
 
@@ -15193,8 +15329,8 @@ BUILDIN_FUNC(implode)
 		return 1;// not a variable
 	}
 
-	id = reference_getid(data);
-	name = reference_getname(data);
+	const int id = reference_getid(data);
+	const char* name = reference_getname(data);
 
 	if( not_array_variable(*name) )
 	{
@@ -15204,13 +15340,7 @@ BUILDIN_FUNC(implode)
 		return 1;// not supported
 	}
 
-	if( !is_string_variable(name) )
-	{
-		ShowError("script:implode: not string array\n");
-		script_reportdata(data);
-		st->state = END;
-		return 1;// data type mismatch
-	}
+	is_string = is_string_variable(name);
 
 	if( not_server_variable(*name) )
 	{
@@ -15220,7 +15350,7 @@ BUILDIN_FUNC(implode)
 	}
 
 	//count chars
-	array_size = getarraysize(st, id, reference_getindex(data), is_string_variable(name), reference_getref(data));
+	const int array_size = getarraysize(st, id, reference_getindex(data), is_string_variable(name), reference_getref(data));
 
 	if( array_size < 0 || array_size >= SCRIPT_MAX_ARRAYSIZE )
 	{
@@ -15241,6 +15371,7 @@ BUILDIN_FUNC(implode)
 	{
 		const char* str[SCRIPT_MAX_ARRAYSIZE];
 		size_t len[SCRIPT_MAX_ARRAYSIZE];
+		int int_vals[SCRIPT_MAX_ARRAYSIZE];
 		size_t total_len = 0;
 		const char* glue = "";
 		size_t glue_len = 0;
@@ -15248,10 +15379,17 @@ BUILDIN_FUNC(implode)
 		int i, k;
 
 		// parse data
-		for( i = 0; i < array_size; ++i )
-		{
-			str[i] = (const char*)get_val2(st, reference_uid(id, i), reference_getref(data)); // leave string data in the stack
-			len[i] = strlen(str[i]);
+		for (i = 0; i < array_size; ++i) {
+			if (is_string) {
+				str[i] = (const char*)get_val2(st, reference_uid(id, i), reference_getref(data));
+				len[i] = strlen(str[i]);
+			}
+			else {
+				int_vals[i] = (int)(intptr_t)get_val2(st, reference_uid(id, i), reference_getref(data));
+				char temp_buf[16];
+				len[i] = snprintf(temp_buf, sizeof(temp_buf), "%d", int_vals[i]);
+			}
+
 			total_len += len[i];
 		}
 
@@ -15264,9 +15402,13 @@ BUILDIN_FUNC(implode)
 
 		//build output
 		output = (char*)aMalloc(total_len + 1);
-		for( i = 0, k = 0; i < array_size; ++i )
-		{
-			memcpy(&output[k], str[i], len[i]);
+		for (i = 0, k = 0; i < array_size; ++i) {
+			if (is_string) {
+				memcpy(&output[k], str[i], len[i]);
+			}
+			else {
+				sprintf(&output[k], "%d", int_vals[i]);
+			}
 			k += len[i];
 			if( glue_len > 0 && i < array_size - 1 )
 			{
@@ -15275,8 +15417,8 @@ BUILDIN_FUNC(implode)
 			}
 		}
 		output[k] = '\0';
-		script_removetop(st, -array_size, 0); // clear string data in the stack
 
+		script_removetop(st, -array_size, 0);
 		script_pushstr(st, output);
 	}
 
@@ -21472,6 +21614,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(autobonus,"sii??"),
 	BUILDIN_DEF(autobonus2,"sii??"),
 	BUILDIN_DEF(autobonus3,"siiv?"),
+	BUILDIN_DEF(petautobonus, "sii??"),
+	BUILDIN_DEF2(petautobonus, "petautobonus2", "sii??"),
+	BUILDIN_DEF(petautobonus3, "siiv?"),
 	BUILDIN_DEF(skill,"vi?"),
 	BUILDIN_DEF(addtoskill,"vi?"), // [Valaris]
 	BUILDIN_DEF(guildskill,"vi"),

@@ -643,7 +643,11 @@ void script_free_state(struct script_state* st);
 
 struct DBMap* script_get_label_db(void);
 struct DBMap* script_get_userfunc_db(void);
-void script_run_autobonus(const char *autobonus, struct map_session_data *sd, unsigned int pos);
+
+void script_add_autobonus(const char* autobonus);
+void script_run_autobonus(const char* autobonus, const struct map_session_data* sd, unsigned int pos);
+void script_add_petautobonus(const char* autobonus);
+void script_run_petautobonus(const char* autobonus, const struct map_session_data* sd);
 
 void script_run_item_lapineddukddak_script(struct map_session_data *sd, struct item_data *data, int oid);
 void script_run_item_lapineupgrade_script(struct map_session_data *sd, struct item_data *data, int oid);

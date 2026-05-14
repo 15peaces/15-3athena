@@ -4,6 +4,8 @@
 #ifndef _PET_H_
 #define _PET_H_
 
+#include "pc.h"
+
 #define MAX_PET_DB	300
 #define MAX_PETEVOLVE_ITEMS	5
 #define MAX_PETLOOT_SIZE	30
@@ -57,8 +59,17 @@ enum e_pet_intimacy_level {
 	PET_INTIMATE_SHY = 100,
 	PET_INTIMATE_NEUTRAL = 250,
 	PET_INTIMATE_CORDIAL = 750,
-	PET_INTIMATE_LOYAL = 900,
+	PET_INTIMATE_LOYAL = 910,
 	PET_INTIMATE_MAX = 1000
+};
+
+enum e_pet_hungry {
+	PET_HUNGRY_NONE = 0,
+	PET_HUNGRY_VERY_HUNGRY = 10,
+	PET_HUNGRY_HUNGRY = 25,
+	PET_HUNGRY_NEUTRAL = 75,
+	PET_HUNGRY_SATISFIED = 90,
+	PET_HUNGRY_STUFFED = 100
 };
 
 struct pet_recovery { //Stat recovery
@@ -100,6 +111,14 @@ struct pet_loot {
 	unsigned short max;
 };
 
+struct s_petautobonus {
+	int16 rate;
+	uint16 atk_type;
+	char* bonus_script, * other_script;
+	unsigned short duration;
+	int32 timer;
+};
+
 struct pet_data {
 	struct block_list bl;
 	struct unit_data ud;
@@ -122,6 +141,7 @@ struct pet_data {
 	struct pet_skill_attack* a_skill;
 	struct pet_skill_support* s_skill;
 	struct pet_loot* loot;
+	struct s_petautobonus autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS];
 
 	int masterteleport_timer;
 	struct map_session_data *master;
@@ -133,6 +153,7 @@ int pet_create_egg(struct map_session_data *sd, t_itemid item_id);
 int pet_return_egg(struct map_session_data *sd, struct pet_data *pd);
 int pet_hungry_val(struct pet_data *pd);
 int pet_get_card4_value(int rename_flag, int intimacy);
+int pet_egg_search(const struct map_session_data* sd, const int pet_id);
 void pet_set_intimate(struct pet_data *pd, int value);
 int pet_target_check(struct pet_data *pd,struct block_list *bl,int type);
 int pet_unlocktarget(struct pet_data *pd);
@@ -150,13 +171,17 @@ int pet_menu(struct map_session_data *sd,int menunum);
 int pet_change_name(struct map_session_data *sd,char *name);
 int pet_change_name_ack(struct map_session_data *sd, char* name, int flag);
 int pet_equipitem(struct map_session_data *sd,int index);
-int pet_food(struct map_session_data *sd, struct pet_data *pd);
 int pet_lootitem_drop(struct pet_data *pd,struct map_session_data *sd);
 int pet_attackskill(struct pet_data *pd, int target_id);
 int pet_skill_support_timer(int tid, int64 tick, int id, intptr_t data); // [Skotlex]
 int pet_skill_bonus_timer(int tid, int64 tick, int id, intptr_t data); // [Valaris]
 int pet_recovery_timer(int tid, int64 tick, int id, intptr_t data); // [Valaris]
 int pet_heal_timer(int tid, int64 tick, int id, intptr_t data); // [Valaris]
+
+bool pet_addautobonus(struct s_petautobonus* bonus, const char* script, int16 rate, uint32 dur, uint16 flag, const char* other_script, bool onskill);
+void pet_exeautobonus(struct map_session_data* sd, struct s_petautobonus* autobonus);
+void pet_delautobonus(const struct map_session_data* sd, struct s_petautobonus* bonus, bool restore);
+int pet_endautobonus(int tid, int64 tick, int id, intptr_t data);
 
 #define pet_stop_walking(pd, type) unit_stop_walking(&(pd)->bl, type)
 #define pet_stop_attack(pd) unit_stop_attack(&(pd)->bl)

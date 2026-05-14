@@ -7,7 +7,7 @@
 struct achievement;
 struct char_achievements;
 
-struct DBMap *char_achievements;
+extern struct DBMap* char_achievements;
 
 int inter_achievement_tosql(uint32 char_id, struct char_achievements *cp, const struct char_achievements *p);
 bool inter_achievement_fromsql(uint32 char_id, struct char_achievements *cp);

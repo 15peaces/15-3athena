@@ -1530,10 +1530,10 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type,..
 * Use it to pick 'max' random targets.
 * Unlike other map_foreach* functions, this
 * will return the ID of the last bl processed.
-* max = max number of bl's it'll operate on.
+* max_value = max number of bl's it'll operate on.
 * ignore_id = if set, the bl with the given ID will be ignored.
 *------------------------------------------*/
-int map_pickrandominrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int max, int ignore_id, int type, ...)
+int map_pickrandominrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int max_value, int ignore_id, int type, ...)
 {
 	int bx,by,m;
 	struct block_list *bl;
@@ -1611,7 +1611,7 @@ int map_pickrandominrange(int (*func)(struct block_list*,va_list), struct block_
 				va_end(ap);
 				count ++;
 			}
-			if( max && count && count >= max )
+			if(max_value && count && count >= max_value)
 				break; // Limit the number of targets processed. [LimitLine]
 		}
 		map_freeblock_unlock();

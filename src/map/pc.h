@@ -9,6 +9,7 @@
 #include "../common/timer.h" // INVALID_TIMER
 #include "../common/strlib.h"// StringBuf
 #include "battle.h" // battle_config
+#include "battleground.h" // enum bg_queue_types
 #include "buyingstore.h"  // struct s_buyingstore
 #include "clan.h" // struct clan
 #include "itemdb.h"

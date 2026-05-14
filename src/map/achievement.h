@@ -120,7 +120,6 @@ struct achievement_objective {
 		int weapon_lv;
 	} unique;
 	enum unique_criteria_types unique_type;
-	/* */
 	uint32 item_type;
 	int mobid;
 	VECTOR_DECL(int) jobid;

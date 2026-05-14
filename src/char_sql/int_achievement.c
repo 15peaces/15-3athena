@@ -13,10 +13,11 @@
 #include "char.h"
 #include "inter.h"
 #include "int_achievement.h"
-#include "int_mail.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+
+struct DBMap* char_achievements = NULL;
 
 /**
  * Saves changed achievements for a character.
@@ -318,4 +319,3 @@ void inter_achievement_sql_final(void)
 {
 	char_achievements->destroy(char_achievements, inter_achievement_char_achievements_clear);
 }
-

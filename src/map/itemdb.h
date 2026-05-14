@@ -5,6 +5,7 @@
 #define _ITEMDB_H_
 
 #include "../common/mmo.h"
+#include "status.h"
 
 #define MAX_RANDITEM	11000
 

@@ -7860,7 +7860,9 @@ The first letter is position 0.
 	Substrings will be stored within the specified string array.
 	Only the 1st char of the delimiter parameter will be used.
 	If an empty string is passed as a delimiter, the string will be placed
-	in the array in it's original form.
+	in the array in it's original form. Can also take an integer array as
+	destination, if the provided string consists of separated integer,
+	they will fill the integer array.
 	
 	Example:
 	
@@ -7874,10 +7876,12 @@ The first letter is position 0.
 
 ---------------------------------------
 
-*implode(<string_array>{,<glue>})
+*implode(<dest_array>{,<glue>})
 
 	Combines all substrings within the specified string array into a single string.
 	If the glue parameter is specified, it will be inserted inbetween each substring.
+	
+	Also works with turning integer arrays into strings.
 	
 	Example:
 	setarray .@my_array$[0], "This", "is", "a", "test";

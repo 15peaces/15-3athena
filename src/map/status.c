@@ -3325,6 +3325,12 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	pc_delautobonus(sd,sd->autobonus2,ARRAYLENGTH(sd->autobonus2),true);
 	pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus3),true);
 
+	if (sd->pd != NULL) {
+		pet_delautobonus(sd, sd->pd->autobonus, true);
+		pet_delautobonus(sd, sd->pd->autobonus2, true);
+		pet_delautobonus(sd, sd->pd->autobonus3, true);
+	}
+
 	pc_itemgrouphealrate_clear(sd);
 
 	// Parse equipment.
@@ -3532,12 +3538,12 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	pc_bonus_script(sd);
 
-	if( sd->pd )
-	{ // Pet Bonus
-		struct pet_data *pd = sd->pd;
-		if( pd && pd->petDB && pd->petDB->pet_loyal_script && pd->pet.intimate >= battle_config.pet_equip_min_friendly )
+	if (sd->pd) { // Pet Bonus
+		const struct pet_data* pd = sd->pd;
+		if (pd && pd->petDB && pd->petDB->pet_loyal_script)
 			run_script(pd->petDB->pet_loyal_script,0,sd->bl.id,0);
-		if( pd && pd->pet.intimate > 0 && (!battle_config.pet_equip_required || pd->pet.equip > 0) && pd->state.skillbonus == 1 && pd->bonus )
+
+		if (pd && pd->pet.intimate > PET_INTIMATE_NONE && (!battle_config.pet_equip_required || pd->pet.equip > 0) && pd->state.skillbonus == 1 && pd->bonus)
 			pc_bonus(sd,pd->bonus->type, pd->bonus->val);
 	}
 
