@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/16/2026
+	r570 [15peaces]
+		*Added the sanitizer for undefined behaviour and added the compileflag to keep the frame pointer for debug builds.
+			-Thanks to @Reilaen
+		*Some fixes, thanks to @Reilaen
+			-Fix to langtype check to prevent bitshift with negative values.
+			-Added missing AB_EXPIATIO status icon.
+			-Fix for bonus_scripts not getting saved on logging out.
+		
 05/14/2026
 	r569 [15peaces]
 		*Some fixes, thanks to @Reilaen

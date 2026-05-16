@@ -6806,6 +6806,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case GC_VENOMIMPRESS:
 	case AB_DUPLELIGHT:
 	case AB_SECRAMENT:
+	case AB_EXPIATIO:
 	case RA_FEARBREEZE:
 	case RA_CAMOUFLAGE:
 	case NC_ACCELERATION:

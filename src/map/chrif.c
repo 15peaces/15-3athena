@@ -304,6 +304,8 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if(!chrif_isconnected())
 		return -1; //Character is saved on reconnect.
 
+	chrif_bsdata_save(sd, flag&CSAVE_QUITTING && !(flag&CSAVE_AUTOTRADE));
+
 	if (sd->storage.dirty)
 		intif_storage_save(sd, &sd->storage);
 	if (flag&CSAVE_INVENTORY)
@@ -1573,7 +1575,7 @@ int chrif_bsdata_request(uint32 char_id) {
  * @param sd
  * @author [Cydh]
  **/
-int chrif_bsdata_save(struct map_session_data *sd, bool quit) {
+int chrif_bsdata_save(struct map_session_data *sd, const bool quit) {
 	uint8 i = 0;
 
 	chrif_check(-1);

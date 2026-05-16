@@ -75,6 +75,7 @@ int chrif_req_charban(int aid, const char* character_name, int timediff);
 int chrif_req_charunban(int cid);
 
 int chrif_bsdata_request(uint32 char_id);
+int chrif_bsdata_save(struct map_session_data* sd, const bool quit);
 
 int chrif_removefriend(uint32 char_id, int friend_id);
 

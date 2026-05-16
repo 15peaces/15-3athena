@@ -35,7 +35,7 @@ void _do_final_msg(int size, char ** msg_table);
 int msg_langstr2langtype(char * langtype);
 const char* msg_langtype2langstr(int langtype);
 // Verify that the choosen langtype is enabled.
-int msg_checklangtype(int lang, bool display);
+int msg_checklangtype(const int lang, const bool display);
 
 #ifdef	__cplusplus
 }

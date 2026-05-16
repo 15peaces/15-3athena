@@ -37,9 +37,9 @@ if(NOT MSVC)
 
 	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 		message(STATUS "Build-Configuration: DEBUG")
-		add_compile_options(-g -O0)
-		add_compile_options(-fsanitize=address)
-		add_link_options(-fsanitize=address)
+		add_compile_options(-g -O0 -fno-omit-frame-pointer)
+		add_compile_options(-fsanitize=address,undefined)
+		add_link_options(-fsanitize=address,undefined)
 	elseif(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
 		message(STATUS "Build-Configuration: RELEASE")
 

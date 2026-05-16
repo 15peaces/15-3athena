@@ -124,12 +124,21 @@ const char* msg_langtype2langstr(int langtype) {
  * -1 : false range
  * -2 : disable
  */
-int msg_checklangtype(int lang, bool display) {
+int msg_checklangtype(const int lang, const bool display) {
+	if (!lang)
+		return 1; //default english
+
+	if (lang < 0)
+		return -1; //false range
+
 	uint16 test = (1 << (lang - 1));
-	if (!lang) return 1; //default english
-	else if (lang < 0 || test > LANG_MAX) return -1; //false range
-	else if (LANG_ENABLE&test) return 1;
-	else if (display) {
+
+	if (test > LANG_MAX)
+		return -1; //false range
+	else if (LANG_ENABLE&test)
+		return 1;
+	
+	if (display) {
 		ShowDebug("Unsupported langtype '%d'.\n", lang);
 	}
 	return -2;

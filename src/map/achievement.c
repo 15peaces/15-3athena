@@ -1129,7 +1129,7 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 	nullpo_retr(false, entry);
 
 	int c, i, j, val;
-	enum unique_criteria_types type[MAX_ACHIEVEMENT_OBJECTIVES] = { 0 };
+	enum unique_criteria_types type[MAX_ACHIEVEMENT_OBJECTIVES];
 	int tcount = 0;
 	char **arr = NULL;
 	char *tmpchar = NULL;
