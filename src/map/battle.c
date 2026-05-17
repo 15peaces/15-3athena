@@ -234,31 +234,28 @@ int battle_delay_damage_sub(int tid, int64 tick, int id, intptr_t data)
 	if (dat)
 	{
 		struct block_list *target = map_id2bl(dat->target);
+		struct block_list* src = map_id2bl(id);
 
-		if (!target || status_isdead(target)) { /* Nothing we can do */
-			if (dat->src_type == BL_PC &&
-				--((TBL_PC*)dat->src)->delayed_damage == 0 && ((TBL_PC*)dat->src)->state.hold_recalc) {
-				((TBL_PC*)dat->src)->state.hold_recalc = 0;
-				status_calc_pc(((TBL_PC*)dat->src), SCO_FORCE);
+		if (target && !status_isdead(target)) {
+			if (src && target->m == src->m && (target->type != BL_PC || ((TBL_PC*)target)->invincible_timer == INVALID_TIMER) && check_distance_bl(src, target, dat->distance)) { //Check to see if you haven't teleported. [Skotlex]
+
+				//Deal damage
+				battle_damage(src, target, dat->damage, dat->delay, dat->skill_lv, dat->skill_id, dat->dmg_lv, dat->attack_type, dat->additional_effects, tick, dat->isspdamage);
+				
 			}
-			ers_free(delay_damage_ers, dat);
-			return 0;
+			else if (!src && dat->skill_id == CR_REFLECTSHIELD) { // it was monster reflected damage, and the monster died, we pass the damage to the character as expected
+				battle_damage(target, target, dat->damage, dat->delay, 0, dat->skill_id, ATK_DEF, BF_MISC, false, gettick(), false);
+			}
 		}
 
-		if (map_id2bl(id) == dat->src && target->prev != NULL && !status_isdead(target) &&
-			target->m == dat->src->m &&
-			(target->type != BL_PC || ((TBL_PC*)target)->invincible_timer == INVALID_TIMER) &&
-			check_distance_bl(dat->src, target, dat->distance)) //Check to see if you haven't teleported. [Skotlex]
-		{
-			//Deal damage
-			battle_damage(dat->src, target, dat->damage, dat->delay, dat->skill_lv, dat->skill_id, dat->dmg_lv, dat->attack_type, dat->additional_effects, tick, dat->isspdamage);
-		}
-
-		if (dat->src && dat->src->type == BL_PC && --((TBL_PC*)dat->src)->delayed_damage == 0 && ((TBL_PC*)dat->src)->state.hold_recalc) {
-			((TBL_PC*)dat->src)->state.hold_recalc = 0;
-			status_calc_pc(((TBL_PC*)dat->src), SCO_FORCE);
+		 struct map_session_data* sd = BL_CAST(BL_PC, src);
+		
+		if (sd && --sd->delayed_damage == 0 && sd->state.hold_recalc) {
+			sd->state.hold_recalc = 0;
+			status_calc_pc((TBL_PC*)src, SCO_FORCE);
 		}
 	}
+
 	ers_free(delay_damage_ers, dat);
 	return 0;
 }
@@ -6228,23 +6225,21 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		short skill_lv = sc->data[SC__AUTOSHADOWSPELL]->val3;
 		
 		if (sd) sd->state.autocast = 1;
-		if (status_charge(src, 0, skill_get_sp(skill_id,skill_lv)))
-		{
-			switch (skill_get_casttype(skill_id))
-		{
-				case CAST_GROUND:
-					skill_castend_pos2(src, target->x, target->y, skill_id, skill_lv, tick, flag);
-					break;
-				case CAST_NODAMAGE:
-					skill_castend_nodamage_id(src, target, skill_id, skill_lv, tick, flag);
-					break;
-				case CAST_DAMAGE:
-					skill_castend_damage_id(src, target, skill_id, skill_lv, tick, flag);
-					break;
-			}
 
-			battle_autocast_aftercast(src, skill_id, skill_lv, tick);
+		switch (skill_get_casttype(skill_id))
+		{
+			case CAST_GROUND:
+				skill_castend_pos2(src, target->x, target->y, skill_id, skill_lv, tick, flag);
+				break;
+			case CAST_NODAMAGE:
+				skill_castend_nodamage_id(src, target, skill_id, skill_lv, tick, flag);
+				break;
+			case CAST_DAMAGE:
+				skill_castend_damage_id(src, target, skill_id, skill_lv, tick, flag);
+				break;
 		}
+
+		battle_autocast_aftercast(src, skill_id, skill_lv, tick);
 		if (sd) sd->state.autocast = 0;
 	}
 

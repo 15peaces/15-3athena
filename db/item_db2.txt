@@ -136,7 +136,6 @@
 1398,Metal_Two_Handed_Axe,Metal Two Handed Axe,4,20,,0,105,,1,1,0x000444A2,63,2,34,3,1,1,7,{ bonus bUnbreakableWeapon,1; bonus bBaseAtk,(getrefine()*7); set .@i,((BaseLevel/10)>12)?12:(BaseLevel/10); if(.@i>2) bonus bBaseAtk,((.@i-2)*5); },{},{}
 1435,Cannon_Spear,Cannon Spear,4,56000,,1600,180,,3,1,0x00004000,63,2,2,4,100,1,4,{ bonus bMaxSP,-100; bonus2 bSkillAtk,"LG_CANNONSPEAR",10; bonus bBaseAtk,(getrefine()/3); },{},{}
 1436,Velum_Spear,Vellum Spear,4,20,,850,150,,3,0,0x00004082,63,2,2,4,95,1,4,{ bonus2 bAddRace,RC_DemiHuman,60; set .@r,getrefine(); if(.@r>=6) { bonus2 bSkillAtk,"RK_HUNDREDSPEAR",80; bonus2 bSkillAtk,"LG_PINPOINTATTACK",80; } if(.@r>=9) { bonus2 bAddRace,RC_DemiHuman,30; } },{},{}
-1438,Tanos_Spear,Tanos Spear,4,10,,3000,150:100,,,1,0x00004082,63,2,2,4,120,1,4,{ bonus bInt,6; bonus bVit,6; bonus bLuk,-6; bonus bAtkRate,5; bonus2 bHPLossRate,100,10000; },{},{}
 1439,Half_BF_Spear1,Half BF Spear1,4,20,,0,60,,3,0,0x00004082,63,2,2,3,80,1,4,{ bonus bStr,2; bonus2 bAddRace,RC_DemiHuman,45; bonus2 bAddRace,RC_DemiHuman,45; bonus2 bIgnoreDefRaceRate,RC_DemiHuman,10; bonus2 bIgnoreDefRaceRate,RC_DemiHuman,10; bonus bUnbreakableWeapon,1; if(BaseJob==Job_Crusader) bonus bAspdRate,20; },{},{}
 1441,Blue_Spear,Blue Spear,4,10,,1200,180,,3,1,0x00004000,56,2,2,3,100,1,4,{ bonus bDex,5; bonus bInt,5; bonus bMatk,170; },{},{}
 1442,Ru_Gold_Spear,Ru Gold Spear,4,0,,1200,180,,3,2,0x00004000,56,2,2,3,120,1,4,{ bonus bStr,8; bonus bAgi,8; },{},{}
@@ -2044,7 +2043,6 @@
 1319,TE_Woe_Axe,TE Woe Axe,4,0,,0,100,,1,0,0x000654E3,63,2,2,3,40,1,6,{ bonus bUnbreakableWeapon,1; bonus2 bAddRace,RC_Player,40; bonus2 bAddEff,Eff_Freeze,3000; },{},{}
 1399,TE_Woe_Two_Handed_Axe,TE Woe Two Handed Axe,4,0,,0,150,,1,0,0x000444A2,63,2,34,3,40,1,7,{ bonus bUnbreakableWeapon,1; bonus2 bAddRace,RC_Player,40; bonus2 bAddEff,Eff_Stun,3000; },{},{}
 1437,TE_Woe_Pike,TE Woe Pike,4,0,,0,100,,3,0,0x00004082,63,2,2,3,40,1,4,{ bonus2 bAddRace,RC_Player,40; bonus2 bAddEff,Eff_Curse,3000; },{},{}
-1438,Tanos_Spear,Tanos Spear,4,10,,3000,150:100,,,1,0x00004082,63,2,2,4,120,1,4,{ bonus bInt,6; bonus bVit,6; bonus bLuk,-6; bonus bAtkRate,5; bonus2 bHPLossRate,100,10000; },{},{}
 1439,Half_BF_Spear1,Half BF Spear1,4,20,,0,60,,3,0,0x00004082,63,2,2,3,80,1,4,{ bonus bStr,2; bonus2 bAddRace,RC_DemiHuman,45; bonus2 bAddRace,RC_Player,45; bonus2 bIgnoreDefRaceRate,RC_DemiHuman,10; bonus2 bIgnoreDefRaceRate,RC_Player,10; bonus bUnbreakableWeapon,1; if(BaseJob==Job_Crusader) bonus bAspdRate,20; },{},{}
 1440,Battle_Hook_,Battle Hook,4,20,,900,140,,3,3,0x00004082,18,2,2,4,65,1,4,{ bonus2 bAddEff,Eff_Stun,500; bonus2 bAddRace,RC_DemiHuman,20; bonus2 bAddRace,RC_Player,20; skill "KN_PIERCE",3; },{},{}
 1441,Blue_Spear,Blue Spear,4,10,,1200,180:170,,3,1,0x00004000,56,2,2,3,100,1,4,{ bonus bDex,5; bonus bInt,5; },{},{}
@@ -3734,7 +3732,7 @@
 22654,Golden_Seal_Card,Golden Seal Card,3,20,,50,,,,,,,,,,,,,{},{},{}
 
 // Missing items / ghost papace (renewal)
-1438,Thanos_Spear,Thanos Spear,4,10,,3000,150:100,,3,1,0x00004082,56,2,2,4,120,1,4,{ bonus bInt,6; bonus bVit,6; bonus bLuk,-6; bonus2 bHPDrainRate,50,5; bonus2 bSPDrainRate,10,5; bonus2 bHPLossRate,100,10000; },{},{ heal -1000,0; }
+1438,Thanos_Spear,Thanos Spear,4,10,,3000,150,,3,1,0x00004082,56,2,2,4,120,1,4,{ bonus bMatk, 100; bonus bInt,6; bonus bVit,6; bonus bLuk,-6; bonus2 bHPDrainRate,50,5; bonus2 bSPDrainRate,10,5; bonus2 bHPLossRate,100,10000; },{},{ heal -1000,0; }
 1439,Half_BF_Spear1,Half BF Spear1,4,20,,0,60,,3,0,0x00004082,63,2,2,3,80,1,4,{ bonus bStr,2; bonus2 bAddRace,RC_DemiHuman,45; bonus2 bAddRace,RC_Player_Human,45; bonus2 bIgnoreDefRaceRate,RC_DemiHuman,10; bonus2 bIgnoreDefRaceRate,RC_Player_Human,10; bonus bUnbreakableWeapon, 0; if(BaseJob==Job_Crusader) bonus bAspdRate,20; },{},{}
 1440,Battle_Hook_,Battle Hook,4,20,,900,140,,3,3,0x00004082,18,2,2,4,65,1,4,{ bonus2 bAddEff,Eff_Stun,500; bonus2 bAddRace,RC_DemiHuman,20; bonus2 bAddRace,RC_Player_Human,20; skill "KN_PIERCE",3; },{},{}
 1441,Ru_Blue_Spear,Blue Spear,4,10,,1200,180,,3,1,0x00004000,56,2,2,3,100,1,4,{ bonus bStr,5; bonus bAgi,5; },{},{}

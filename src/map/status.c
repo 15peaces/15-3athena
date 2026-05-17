@@ -659,7 +659,7 @@ void initChangeTables(void)
 	set_sc( SR_CRESCENTELBOW			, SC_CRESCENTELBOW			, SI_CRESCENTELBOW			, SCB_NONE );
 	set_sc( SR_CURSEDCIRCLE				, SC_CURSEDCIRCLE_TARGET	, SI_CURSEDCIRCLE_TARGET	, SCB_NONE );
 	set_sc( SR_LIGHTNINGWALK			, SC_LIGHTNINGWALK			, SI_LIGHTNINGWALK			, SCB_NONE );
-	set_sc( SR_RAISINGDRAGON			, SC_RAISINGDRAGON			, SI_RAISINGDRAGON			, SCB_REGEN | SCB_MAXHP | SCB_MAXSP );
+	set_sc( SR_RAISINGDRAGON			, SC_RAISINGDRAGON			, SI_RAISINGDRAGON			, SCB_MAXHP | SCB_MAXSP );
 	set_sc( SR_GENTLETOUCH_ENERGYGAIN	, SC_GENTLETOUCH_ENERGYGAIN	, SI_GENTLETOUCH_ENERGYGAIN	, SCB_NONE );
 	set_sc( SR_GENTLETOUCH_CHANGE		, SC_GENTLETOUCH_CHANGE		, SI_GENTLETOUCH_CHANGE		, SCB_WATK|SCB_MDEF|SCB_ASPD|SCB_MAXHP );
 	set_sc( SR_GENTLETOUCH_REVITALIZE	, SC_GENTLETOUCH_REVITALIZE	, SI_GENTLETOUCH_REVITALIZE	, SCB_MAXHP | SCB_DEF2 | SCB_REGEN );
@@ -13015,9 +13015,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_RAISINGDRAGON:
-		// 1% every 5 seconds [Jobbie]
-		if( --(sce->val3)>0 && status_charge(bl, sce->val2, 0) ){
-			if( !sc->data[type] ) return 0;
+		if (--sce->val3 > 0) {
+			if (!sc->data[type]) return 0;
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}

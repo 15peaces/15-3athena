@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/17/2026
+	r571 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Fixed Special Pharmacy not producing items due to an old check.
+			-Fix for a use after free bug in battle_delay_damage_sub.
+				--Additionally fixed reflect damage not being dealt if the monster died.
+			-Removed HP drain from Rising Dragon.
+		*Removed SP costs from Auto Shadow Spell.
+		*Fixed Thanos Spear Item bonus.
+
 05/16/2026
 	r570 [15peaces]
 		*Added the sanitizer for undefined behaviour and added the compileflag to keep the frame pointer for debug builds.

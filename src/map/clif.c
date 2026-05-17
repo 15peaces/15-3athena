@@ -13485,12 +13485,11 @@ void clif_parse_SkillSelectMenu(int fd, struct map_session_data *sd)
 ///     6 = GN_S_PHARMACY
 void clif_parse_Cooking(int fd,struct map_session_data *sd)
 {
+	nullpo_retv(sd);
+
 	const struct PACKET_CZ_REQ_MAKINGITEM *p = (struct PACKET_CZ_REQ_MAKINGITEM *)RFIFOP(fd, 0);
 
 	if (p->type == 6 && sd->menuskill_id != GN_MIX_COOKING && sd->menuskill_id != GN_S_PHARMACY)
-		return;
-
-	if (sd->menuskill_id != AM_PHARMACY)
 		return;
 
 	if (pc_istrading(sd))
