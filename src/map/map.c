@@ -3890,10 +3890,11 @@ int parse_console(const char* buf)
  *------------------------------------------*/
 int map_config_read(char *cfgName)
 {
-	char line[1024], w1[1024], w2[1024];
-	FILE *fp;
+	char line[1024] = { 0 };
+	char w1[1024] = { 0 };
+	char w2[1024] = { 0 };
 
-	fp = fopen(cfgName,"r");
+	FILE* fp = fopen(cfgName, "r");
 	if( fp == NULL )
 	{
 		ShowError("Map configuration file not found at: %s\n", cfgName);

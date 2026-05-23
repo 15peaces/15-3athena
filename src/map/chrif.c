@@ -1268,7 +1268,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 #ifdef ENABLE_SC_SAVING
 	int i, count=0;
 	int64 tick;
-	struct status_change_data data;
+	struct status_change_data data = { 0 };
 	struct status_change *sc = &sd->sc;
 	const struct TimerData *timer;
 

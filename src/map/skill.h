@@ -32,6 +32,7 @@ struct status_change_entry;
 #define MAX_HOWL_MINES 5
 #define MAX_STELLAR_MARKS 5
 #define MAX_UNITED_SOULS 12
+#define SKILL_NAME_LENGTH 30 /// Max Skill Name length
 
 #define MAX_SKILL_LEVEL 100
 
@@ -144,7 +145,7 @@ struct s_skill_require {
 
 /// Database skills.
 struct s_skill_db {
-	char name[NAME_LENGTH];
+	char name[SKILL_NAME_LENGTH];
 	char desc[40];
 	int range[MAX_SKILL_LEVEL],hit,inf,element[MAX_SKILL_LEVEL],nk,splash[MAX_SKILL_LEVEL],max;
 	int num[MAX_SKILL_LEVEL];

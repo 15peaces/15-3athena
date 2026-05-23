@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/23/2026
+	r572 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Fixed an infinite loop caused by the expiration of a rental item due to an overflow caused by a 32-bit min function cutting off a 64-bit tick value.
+			-Fix for multiple broken checks, that allowed the usage of 0 as skill db index.
+			-Fix for a memory leak in clif_parse_NpcBuyListSend.
+			-Added initializations to variables that were used uninitialized.
+			-Fix for a memory leak when callfunc has more than one argument.
+		*Added missing VALKYRIE_N monster.
+			-This should also fix the Arch Bishop job quest.
+		*Increased the maximum size of skill names.
+			-This fixes some issues with the WM_SEVERE_RAINSTORM_MELEE skill (name was cutted).
+			-Added SKILL_NAME_LENGTH define (set to 30 for now).
+
 05/17/2026
 	r571 [15peaces]
 		*Some fixes, thanks to @Reilaen

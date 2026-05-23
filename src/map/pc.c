@@ -829,13 +829,13 @@ void pc_inventory_rentals(struct map_session_data *sd)
 		else {
 			int64 expire_tick = (int64)(sd->inventory.u.items_inventory[i].expire_time - time(NULL));
 			clif_rental_time(sd, sd->inventory.u.items_inventory[i].nameid, (int)expire_tick);
-			next_tick = min(expire_tick * 1000, next_tick);
+			next_tick = i64min(expire_tick * 1000, next_tick);
 			c++;
 		}
 	}
 
 	if( c > 0 ) // min(next_tick,3600000) 1 hour each timer to keep announcing to the owner, and to avoid a but with rental time > 15 days
-		sd->rental_timer = add_timer(gettick() + min(next_tick,3600000), pc_inventory_rental_end, sd->bl.id, 0);
+		sd->rental_timer = add_timer(gettick() + min(next_tick, 3600000LL), pc_inventory_rental_end, sd->bl.id, 0);
 	else
 		sd->rental_timer = INVALID_TIMER;
 }
@@ -1665,6 +1665,9 @@ int pc_reg_received(struct map_session_data *sd)
 	// Cooking Exp
 	sd->cook_mastery = pc_readglobalreg(sd,"COOK_MASTERY");
 
+	sd->cloneskill_idx = 0;
+	sd->reproduceskill_idx = 0;
+
 	if( (sd->class_&MAPID_BASEMASK) == MAPID_TAEKWON )
 	{ // Better check for class rather than skill to prevent "skill resets" from unsetting this
 		sd->mission_mobid = pc_readglobalreg(sd,"TK_MISSION_ID");
@@ -1697,7 +1700,7 @@ int pc_reg_received(struct map_session_data *sd)
 
 	if ((i = pc_checkskill(sd,RG_PLAGIARISM)) > 0) {
 		sd->cloneskill_idx = skill_get_index(pc_readglobalreg(sd,"CLONE_SKILL"));
-		if (sd->cloneskill_idx >= 0) {
+		if (sd->cloneskill_idx > 0) {
 			sd->status.skill[sd->cloneskill_idx].id = pc_readglobalreg(sd, "CLONE_SKILL");
 			sd->status.skill[sd->cloneskill_idx].lv = pc_readglobalreg(sd,"CLONE_SKILL_LV");
 			if (sd->status.skill[sd->cloneskill_idx].lv > i)
@@ -1708,7 +1711,7 @@ int pc_reg_received(struct map_session_data *sd)
 
 	if ((i = pc_checkskill(sd,SC_REPRODUCE)) > 0) {
 		sd->reproduceskill_idx = skill_get_index(pc_readglobalreg(sd,"REPRODUCE_SKILL"));
-		if( sd->reproduceskill_idx >= 0)
+		if( sd->reproduceskill_idx > 0)
 		{
 			sd->status.skill[sd->reproduceskill_idx].id = pc_readglobalreg(sd, "REPRODUCE_SKILL");
 			sd->status.skill[sd->reproduceskill_idx].lv = pc_readglobalreg(sd,"REPRODUCE_SKILL_LV");
@@ -1757,6 +1760,8 @@ int pc_reg_received(struct map_session_data *sd)
 	intif_Mail_requestinbox(sd->status.char_id, 0, MAIL_INBOX_NORMAL); // MAIL SYSTEM - Request Mail Inbox
 	intif_request_questlog(sd);
 #endif
+
+	pc_inventory_rentals(sd); // Needed here to remove rentals that have Status Changes after chrif_load_scdata has finished
 
 	sd->state.pc_loaded = true;
 
@@ -1870,7 +1875,7 @@ int pc_calc_skilltree(struct map_session_data *sd)
 		uint16 c_ = pc_class2idx(JOB_TAEKWON);
 		for (i = 0; i < MAX_SKILL_TREE; i++) {
 			uint16 x = skill_get_index(skill_tree[c_][i].id), id;
-			if ((id = sd->status.skill[x].id)) {
+			if (x > 0 && ((id = sd->status.skill[x].id))) {
 				if (id == NV_BASIC || id == NV_FIRSTAID || id == WE_CALLBABY)
 					continue;
 				sd->status.skill[x].id = 0;
@@ -9170,7 +9175,7 @@ bool pc_jobchange(struct map_session_data *sd,int job, char upper)
 		pc_setglobalreg (sd, "jobchange_level", sd->change_level[0]);
 	}
 
-	if(sd->cloneskill_idx >= 0)
+	if(sd->cloneskill_idx > 0)
 	{
 		if (sd->status.skill[sd->cloneskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
 			sd->status.skill[sd->cloneskill_idx].id = 0;
@@ -9178,11 +9183,11 @@ bool pc_jobchange(struct map_session_data *sd,int job, char upper)
 			sd->status.skill[sd->cloneskill_idx].flag = 0;
 			clif_deleteskill(sd, pc_readglobalreg(sd, "CLONE_SKILL"));
 		}
-		sd->cloneskill_idx = -1;
+		sd->cloneskill_idx = 0;
 		pc_setglobalreg(sd, "CLONE_SKILL", 0);
 		pc_setglobalreg(sd, "CLONE_SKILL_LV", 0);
 	}
-	if(sd->reproduceskill_idx >= 0)
+	if(sd->reproduceskill_idx > 0)
 	{
 		if (sd->status.skill[sd->reproduceskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
 			sd->status.skill[sd->reproduceskill_idx].id = 0;
@@ -9190,7 +9195,7 @@ bool pc_jobchange(struct map_session_data *sd,int job, char upper)
 			sd->status.skill[sd->reproduceskill_idx].flag = 0;
 			clif_deleteskill(sd, pc_readglobalreg(sd, "REPRODUCE_SKILL"));
 		}
-		sd->reproduceskill_idx = -1;
+		sd->reproduceskill_idx = 0;
 		pc_setglobalreg(sd, "REPRODUCE_SKILL",0);
 		pc_setglobalreg(sd, "REPRODUCE_SKILL_LV",0);
 	}

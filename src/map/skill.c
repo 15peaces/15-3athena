@@ -546,7 +546,9 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 ///   1 - Can be copied by Plagiarism
 ///   2 - Can be copied by Reproduce
 static short skill_isCopyable(struct map_session_data *sd, uint16 skill_id) {
-	int idx = skill_get_index(skill_id);
+	const int idx = skill_get_index(skill_id);
+	if (!idx)
+		return 0;
 
 	// Only copy skill that player doesn't have or the skill is old clone
 	if (sd->status.skill[idx].id != 0 && sd->status.skill[idx].flag != SKILL_FLAG_PLAGIARIZED)
@@ -2786,13 +2788,13 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
 	skill_id = skill_dummy2skill_id(skill_id);
 
 	//Use skill index, avoiding out-of-bound array [Cydh]
-	if ((idx = skill_get_index(skill_id)) < 0)
+	if (!((idx = skill_get_index(skill_id))))
 		return;
 
 	switch (skill_isCopyable(tsd, skill_id)) {
 	case 1: //Copied by Plagiarism
 	{
-		if (tsd->cloneskill_idx >= 0 && tsd->status.skill[tsd->cloneskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
+		if (tsd->cloneskill_idx > 0 && tsd->status.skill[tsd->cloneskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
 			clif_deleteskill(tsd, tsd->status.skill[tsd->cloneskill_idx].id);
 			tsd->status.skill[tsd->cloneskill_idx].id = 0;
 			tsd->status.skill[tsd->cloneskill_idx].lv = 0;
@@ -2812,7 +2814,7 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
 		//Already did SC check
 		//Skill level copied depends on Reproduce skill that used
 		lv = (tsc) ? tsc->data[SC__REPRODUCE]->val1 : 1;
-		if (tsd->reproduceskill_idx >= 0 && tsd->status.skill[tsd->reproduceskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
+		if (tsd->reproduceskill_idx > 0 && tsd->status.skill[tsd->reproduceskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
 			clif_deleteskill(tsd, tsd->status.skill[tsd->reproduceskill_idx].id);
 			tsd->status.skill[tsd->reproduceskill_idx].id = 0;
 			tsd->status.skill[tsd->reproduceskill_idx].lv = 0;
@@ -3372,7 +3374,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	map_freeblock_lock();
 
-	if (bl->type == BL_PC && skill_id && skill_get_index(skill_id) >= 0 && skill_db[skill_get_index(skill_id)].copyable.option && //Only copy skill that copyable [Cydh]
+	if (bl->type == BL_PC && skill_id && skill_get_index(skill_id) > 0 && skill_db[skill_get_index(skill_id)].copyable.option && //Only copy skill that copyable [Cydh]
 		dmg.flag&BF_SKILL && dmg.damage + dmg.damage2 > 0 && damage < status_get_hp(bl)) //Cannot copy skills if the blow will kill you. [Skotlex]
 		skill_do_copy(src, bl, skill_id, skill_lv);
 
@@ -10636,7 +10638,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	
 	case SC_AUTOSHADOWSPELL:
 		if( sd ){
-			if ((sd->reproduceskill_idx >= 0 && sd->status.skill[sd->reproduceskill_idx].id) ||
+			if ((sd->reproduceskill_idx > 0 && sd->status.skill[sd->reproduceskill_idx].id) ||
 				(sd->cloneskill_idx >= 0 && sd->status.skill[sd->cloneskill_idx].id))
 			{
 				sc_start(src,SC_STOP,100,skill_lv,-1);
@@ -17032,7 +17034,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 	req.sp = skill_db[j].require.sp[lv-1];
 	if((sd->skillid_old == BD_ENCORE) && skill == sd->skillid_dance)
 		req.sp /= 2;
-	if (skill == sd->status.skill[sd->reproduceskill_idx].id)
+	if (sd->reproduceskill_idx > 0 && skill == sd->status.skill[sd->reproduceskill_idx].id)
 		req.sp += req.sp * 30 / 100;
 	sp_rate = skill_db[j].require.sp_rate[lv-1];
 	if(sp_rate > 0)
@@ -20478,9 +20480,12 @@ int skill_select_menu(struct map_session_data *sd,int flag,int skill_id)
 	else
 		autoshadowlv = 10;// Safety.
 
+	const uint16 clone_id = sd->cloneskill_idx > 0 ? sd->status.skill[sd->cloneskill_idx].id : 0;
+	const uint16 reproduce_id = sd->reproduceskill_idx > 0 ? sd->status.skill[sd->reproduceskill_idx].id : 0;
+
 	// First check to see if skill is a copied skill to protect against forged packets.
 	// Then check to see if its a skill that can be autocasted through auto shadow spell.
-	if ((skill_id != sd->status.skill[sd->cloneskill_idx].id && skill_id != sd->status.skill[sd->reproduceskill_idx].id) || 
+	if ((skill_id != clone_id && skill_id != reproduce_id) ||
 		!(skill_id == MG_NAPALMBEAT || 
 		skill_id >= MG_SOULSTRIKE && skill_id <= MG_FROSTDIVER || 
 		skill_id >= MG_FIREBALL && skill_id <= MG_THUNDERSTORM || 
@@ -21774,7 +21779,7 @@ static bool skill_parse_row_copyabledb(char* split[], int column, int current) {
 	else
 		id = skill_name2id(split[0]);
 
-	if ((id = skill_get_index(id)) < 0) {
+	if (!((id = skill_get_index(id)))) {
 		ShowError("skill_parse_row_copyabledb: Invalid skill %s\n", split[0]);
 		return false;
 	}

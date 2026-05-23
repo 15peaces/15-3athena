@@ -4878,9 +4878,8 @@ BUILDIN_FUNC(goto)
  *------------------------------------------*/
 BUILDIN_FUNC(callfunc)
 {
-	int i, j;
-	struct script_retinfo* ri;
-	struct script_code* scr;
+	struct script_retinfo* ri = NULL;
+	struct script_code* scr = NULL;
 	const char* str = script_getstr(st,2);
 	DBMap **ref = NULL;
 
@@ -4892,17 +4891,19 @@ BUILDIN_FUNC(callfunc)
 		return 1;
 	}
 
-	for( i = st->start+3, j = 0; i < st->end; i++, j++ )
+	ref = (struct DBMap**)aCalloc(2, sizeof(struct DBMap*));
+	ref[0] = st->stack->var_function;
+	ref[1] = st->script->script_vars;
+	
+	int j = 0;
+	for (int i = st->start + 3; i < st->end; i++, j++)
 	{
 		struct script_data* data = push_copy(st->stack,i);
 		if( data_isreference(data) && !data->ref )
 		{
 			const char* name = reference_getname(data);
-			if (name[0] == '.') {
-				ref = (struct DBMap**)aCalloc(1, sizeof(struct DBMap*));
-				ref[0] = (name[1] == '@' ? st->stack->var_function : st->script->script_vars);
-				data->ref = ref;
-			}
+			if (name[0] == '.')
+				data->ref = (name[1] == '@' ? &ref[0] : &ref[1]);
 		}
 	}
 

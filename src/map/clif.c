@@ -4062,8 +4062,12 @@ int clif_skill_select_request(struct map_session_data *sd)
 
 	WFIFOHEAD(fd, 2 * 6 + 4);
 	WFIFOW(fd,0) = 0x442;
+
+	const uint16 clone_id = sd->cloneskill_idx > 0 ? sd->status.skill[sd->cloneskill_idx].id : 0;
+	const uint16 reproduce_id = sd->reproduceskill_idx > 0 ? sd->status.skill[sd->reproduceskill_idx].id : 0;
+
 	for( i = 0, c = 0; i < MAX_SKILL; i++ )
-		if ((sd->status.skill[i].id == sd->status.skill[sd->cloneskill_idx].id || sd->status.skill[i].id == sd->status.skill[sd->reproduceskill_idx].id) && 
+		if ((sd->status.skill[i].id == clone_id || sd->status.skill[i].id == reproduce_id) &&
 			(sd->status.skill[i].id == MG_NAPALMBEAT || 
 			sd->status.skill[i].id >= MG_SOULSTRIKE && sd->status.skill[i].id <= MG_FROSTDIVER || 
 			sd->status.skill[i].id >= MG_FIREBALL && sd->status.skill[i].id <= MG_THUNDERSTORM || 
@@ -12632,6 +12636,7 @@ void clif_parse_NpcBuyListSend(int fd, struct map_session_data* sd) {
 		}
 
 		result = npc_buylist(sd, n, items);
+		aFree(items);
 	}
 
 	sd->npc_shopid = 0; //Clear shop data.

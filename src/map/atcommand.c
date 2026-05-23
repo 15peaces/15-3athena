@@ -6541,7 +6541,7 @@ ACMD_FUNC(storeit) {
 #define MAX_SKILLID_PARTIAL_RESULTS_LEN 74 // "skill " (6) + "%d:" (up to 5) + "%s" (up to 30) + " (%s)" (up to 33)
 ACMD_FUNC(skillid)
 {
-	int skillen, idx, i, found = 0;
+	int skillen, i, found = 0;
 	DBIterator* iter;
 	DBKey key;
 	DBData *data;
@@ -6560,7 +6560,9 @@ ACMD_FUNC(skillid)
 	iter = db_iterator(skilldb_name2id);
 
 	for (data = iter->first(iter, &key); iter->exists(iter); data = iter->next(iter, &key)) {
-		idx = skill_get_index(db_data2i(data));
+		const int idx = skill_get_index(db_data2i(data));
+		if (!idx)
+			continue;
 		if (strnicmp(key.str, message, skillen) == 0 || strnicmp(skill_db[idx].desc, message, skillen) == 0) {
 			sprintf(atcmd_output, msg_txt(sd, 825), db_data2i(data), skill_db[idx].desc, key.str); // skill %d: %s (%s)
 			clif_displaymessage(fd, atcmd_output);
