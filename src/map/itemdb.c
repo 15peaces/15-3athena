@@ -1504,10 +1504,12 @@ static bool itemdb_read_cashshop(char* str[], int columns, int current){
 		struct cash_item_data* cid;
 		int j;
 
-		if( tab > CASHSHOP_TAB_MAX ){
+		if( tab >= CASHSHOP_TAB_MAX ){
 			ShowWarning( "itemdb_read_cashshop: Invalid tab %d, skipping...\n", tab);
 			return false;
-		}else if( price < 1 ){
+		}
+		
+		if( price < 1 ){
 			ShowWarning( "itemdb_read_cashshop: Invalid price %d, skipping...\n", price);
 			return false;
 		}

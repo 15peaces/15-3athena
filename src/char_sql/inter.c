@@ -649,24 +649,32 @@ int mapif_parse_Registry(int fd)
 	default:
 		return 1;
 	}
-	for(j=0,p=13;j<max && p<RFIFOW(fd,2);j++){
-		int actual_len = strlen((char*)RFIFOP(fd, p));
-		int copy_len = actual_len > 32 ? 32 : actual_len;
+
+	const int packet_len = RFIFOW(fd, 2);
+	for (j = 0, p = 13; j < max && p < packet_len; j++) {
+		const char* str = (const char*)RFIFOP(fd, p);
+		int str_len = strnlen(str, packet_len - p) + 1;
 		
-		strncpy(reg->reg[j].str, (char*)RFIFOP(fd, p), copy_len);
+		int capacity = sizeof(reg->reg[j].str);
+		int copy_len = (str_len < capacity ? str_len : capacity) - 1;
+		
+		memcpy(reg->reg[j].str, str, copy_len);
 		reg->reg[j].str[copy_len] = '\0';
 		
-		p += actual_len + 1;
+		p += str_len;
 		
-		if (p >= RFIFOW(fd, 2))
+		if (p >= packet_len)
 			break;
 		
-		actual_len = strlen((char*)RFIFOP(fd, p));
-		copy_len = actual_len > 255 ? 255 : actual_len;
-		strncpy(reg->reg[j].value, (char*)RFIFOP(fd, p), copy_len);
-		reg->reg[j].value[copy_len] = '\0';
+		str = (const char*)RFIFOP(fd, p);
+		str_len = strnlen(str, packet_len - p) + 1;
 		
-		p += actual_len + 1;
+		capacity = sizeof(reg->reg[j].value);
+		copy_len = (str_len < capacity ? str_len : capacity) - 1;
+		
+		memcpy(reg->reg[j].value, str, copy_len);
+		reg->reg[j].value[copy_len] = '\0';
+		p += str_len;
 	}
 	reg->reg_num=j;
 

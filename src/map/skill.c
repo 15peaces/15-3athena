@@ -2339,7 +2339,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 				rate = skill_delayfix(bl, skill_id, skill_lv);
 				if (DIFF_TICK(ud->canact_tick, tick + rate) < 0) {
 					ud->canact_tick = max(tick + rate, ud->canact_tick);
-					if (battle_config.display_status_timers && dstsd)
+					if (battle_config.display_status_timers)
 						clif_status_change(bl, SI_ACTIONDELAY, 1, rate, 0, 0, 0);
 			}
 				if (skill_get_cooldown(skill_id, skill_lv))
@@ -5980,7 +5980,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	{
 		TBL_HOM *hd = BL_CAST(BL_HOM, src);
 		int32 duration = max(skill_lv, (status_get_str(src) / 7 - status_get_str(bl) / 10)) * 1000; //Yommy formula
-		sc_type type;
+		sc_type type = SC_NONE;
 
 		if (skill_id == MH_TINDER_BREAKER) {
 			type = SC_TINDER_BREAKER_POSTDELAY;
@@ -13627,7 +13627,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 	{
 		struct skill_condition req = skill_get_requirement(sd, skill_id, skill_lv);
 		ARR_FIND(0, MAX_SKILL_ITEM_REQUIRE, i, req.itemid[i] && (req.itemid[i] == ITEMID_TRAP || req.itemid[i] == ITEMID_SPECIAL_ALLOY_TRAP));
-		if (req.itemid[i])
+		if (i < MAX_SKILL_ITEM_REQUIRE)
 			req_item = req.itemid[i];
 		if (map_flag_gvg2(src->m) || map[src->m].flag.battleground)
 			limit *= 4; // longer trap times in WOE [celest]
@@ -18202,11 +18202,8 @@ int skill_detonator (struct block_list *bl, va_list ap)
 int skill_flicker_bind_trap(struct block_list *bl, va_list ap)
 {
 	struct skill_unit *unit = NULL;
-	struct block_list *src;
-	int tick;
-
-	src = va_arg(ap, struct block_list *);
-	tick = va_arg(ap, int);
+	struct block_list* src = va_arg(ap, struct block_list*);
+	const int tick = va_arg(ap, int);
 
 	nullpo_ret(src);
 	nullpo_ret(bl);
@@ -18216,10 +18213,10 @@ int skill_flicker_bind_trap(struct block_list *bl, va_list ap)
 		return 0;
 
 	// Can only detonate your own binding traps.
-	if (unit->group->src_id != src->id)
+	if (!unit->group || unit->group->src_id != src->id)
 		return 0;
 
-	if ((unit->group) && (unit->group->unit_id == UNT_B_TRAP))
+	if (unit->group->unit_id == UNT_B_TRAP)
 	{
 		clif_skill_nodamage(bl, bl, RL_B_FLICKER_ATK, 1, 1);// Explosion animation.
 		map_foreachinrange(skill_trap_splash, bl, skill_get_splash(unit->group->skill_id, unit->group->skill_lv), unit->group->bl_flag, bl, tick);

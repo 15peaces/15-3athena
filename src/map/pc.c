@@ -810,10 +810,10 @@ void pc_inventory_rental_clear(struct map_session_data *sd)
 
 void pc_inventory_rentals(struct map_session_data *sd)
 {
-	int i, c = 0;
+	int c = 0;
 	int64 next_tick = INT64_MAX;
 
-	for( i = 0; i < MAX_INVENTORY; i++ )
+	for (int i = 0; i < MAX_INVENTORY; i++)
 	{ // Check for Rentals on Inventory
 		if( sd->inventory.u.items_inventory[i].nameid == 0 )
 			continue; // Nothing here
@@ -827,15 +827,15 @@ void pc_inventory_rentals(struct map_session_data *sd)
 			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_OTHER);
 		}
 		else {
-			int64 expire_tick = (int64)(sd->inventory.u.items_inventory[i].expire_time - time(NULL));
+			const int64 expire_tick = sd->inventory.u.items_inventory[i].expire_time - time(NULL);
 			clif_rental_time(sd, sd->inventory.u.items_inventory[i].nameid, (int)expire_tick);
 			next_tick = i64min(expire_tick * 1000, next_tick);
 			c++;
 		}
 	}
 
-	if( c > 0 ) // min(next_tick,3600000) 1 hour each timer to keep announcing to the owner, and to avoid a but with rental time > 15 days
-		sd->rental_timer = add_timer(gettick() + min(next_tick, 3600000LL), pc_inventory_rental_end, sd->bl.id, 0);
+	if (c > 0) // Cap timer at 1 hour (3600000ms) to periodically update the rental duration for the client.
+		sd->rental_timer = add_timer(gettick() + i64min(next_tick, 3600000LL), pc_inventory_rental_end, sd->bl.id, 0);
 	else
 		sd->rental_timer = INVALID_TIMER;
 }

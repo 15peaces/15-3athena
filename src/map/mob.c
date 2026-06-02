@@ -68,7 +68,7 @@
 #define ACTIVEPATHSEARCH
 
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
-struct mob_db *mob_db_data[MAX_MOB_DB+1];
+struct mob_db *mob_db_data[MOB_CLONE_END+1];
 
 struct mob_db *mob_db(int index) { if (index < 0 || index > MAX_MOB_DB || mob_db_data[index] == NULL) return mob_dummy; return mob_db_data[index]; }
 

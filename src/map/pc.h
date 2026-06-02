@@ -93,7 +93,7 @@ struct weapon_data {
 	int addrace[RC_MAX];
 	int addclass[CLASS_MAX];
 	int addrace2[RC2_MAX];
-	int addsize[3];
+	int addsize[SZ_MAX];
 	short hp_drain_race[RC_MAX];
 	short sp_drain_race[RC_MAX];
 	short hp_drain_class[CLASS_MAX];

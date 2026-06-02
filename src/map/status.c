@@ -707,6 +707,7 @@ void initChangeTables(void)
 	set_sc( GN_FIRE_EXPANSION_SMOKE_POWDER	, SC_FIRE_EXPANSION_SMOKE_POWDER, SI_FIRE_EXPANSION_SMOKE_POWDER, SCB_FLEE );
 	set_sc( GN_FIRE_EXPANSION_TEAR_GAS		, SC_FIRE_EXPANSION_TEAR_GAS	, SI_FIRE_EXPANSION_TEAR_GAS    , SCB_HIT|SCB_FLEE );
 	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_MANDRAGORA					, SCB_INT );
+	set_sc( GN_SPORE_EXPLOSION				, SC_SPORE_EXPLOSION			, SI_SPORE_EXPLOSION			, SCB_NONE);
 
 	set_sc(ALL_ODINS_POWER, SC_ODINS_POWER, SI_ODINS_POWER, SCB_WATK | SCB_MATK | SCB_DEF | SCB_MDEF);
 
@@ -2370,10 +2371,10 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 // Basic ASPD value
 int status_base_amotion_pc(struct map_session_data* sd, struct status_data* status)
 {
+	nullpo_retr(1000, sd);
+
 	int amotion;
 	int classidx = pc_class2idx(sd->status.class_);
-
-	nullpo_retr(1000, sd);
 	
 	// base weapon delay
 	amotion = (sd->status.weapon < MAX_WEAPON_TYPE)
@@ -13136,6 +13137,17 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
+
+	case SC_SPORE_EXPLOSION:
+		{
+			struct block_list* src = map_id2bl(sce->val3);
+			if (!src) break;
+			
+			skill_attack(BF_WEAPON, src, src, bl, GN_SPORE_EXPLOSION, sce->val1, tick, 0);
+			
+			status_change_end(bl, SC_SPORE_EXPLOSION, INVALID_TIMER);
+			break;
+		}
 
 	case SC_SOULUNITY:
 		if( --(sce->val4) >= 0 )

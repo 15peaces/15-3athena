@@ -59,6 +59,8 @@ int unit_unattackable(struct block_list *bl);
  *------------------------------------------*/
 struct unit_data* unit_bl2ud(struct block_list *bl)
 {
+	nullpo_retr(NULL, bl);
+
 	switch (bl->type)
 	{
 		case BL_PC: return &((struct map_session_data*)bl)->ud;
@@ -1328,14 +1330,13 @@ int unit_warp(struct block_list *bl,short m,short x,short y,clr_type type)
  *	&0x8: Force stop moving, even if walktimer is currently INVALID_TIMER
  * @return Success(1); Failed(0);
  *------------------------------------------*/
-int unit_stop_walking(struct block_list *bl,int type)
+int unit_stop_walking(struct block_list *bl, const int type)
 {
-	struct unit_data *ud;
-	const struct TimerData* td;
-	int64 tick;
 	nullpo_ret(bl);
 
-	ud = unit_bl2ud(bl);
+	const struct TimerData* td = NULL;
+
+	struct unit_data* ud = unit_bl2ud(bl);
 	if (!ud || (!(type & 0x08) && ud->walktimer == INVALID_TIMER))
 		return 0;
 	//NOTE: We are using timer data after deleting it because we know the 
@@ -1347,7 +1348,7 @@ int unit_stop_walking(struct block_list *bl,int type)
 		ud->walktimer = INVALID_TIMER;
 	}
 	ud->state.change_walk_target = 0;
-	tick = gettick();
+	const int64 tick = gettick();
 	if( (type&0x02 && !ud->walkpath.path_pos) //Force moving at least one cell.
 	||  (type&0x04 && td && DIFF_TICK(td->tick, tick) <= td->data/2) //Enough time has passed to cover half-cell
 	) {	

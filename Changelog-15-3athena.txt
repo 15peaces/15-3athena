@@ -5,6 +5,25 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/02/2026
+	r573 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Fix for a possible out of bounds error in battle_calc_cardfix.
+			-Fix for a possible out of bounds access in duel_create.
+			-Made the copy length calculation dynamic in the registry parser functions and made them more robust against possible overreads.
+				--This also fixes a previous possible out of bound access risk.
+			-Fix for the usage of wrong bitmask operators in intif_broadcast.
+			-Fix for trying to access a non existing cash shop tab.
+			-Fix for an out of bound access of the mob db.
+			-Cleanup and fix of a possible null pointer dereference in read_petevolve_db.
+			-Several small fixes to the script engine.
+			-Several small fixes to skill functions.
+			-Some small fixes for unit functions.
+			-Follow up on the rental infinite loop fix. Changed a missed min function to its 64-bit version.
+			-Added missing code for Spore Explosion.
+		*Updated the pet db bonus scripts to the latest state.
+			-I won't update the old (pre-renewal) pets for now since we still try to keep pre-renewal stuff untouched.
+
 05/23/2026
 	r572 [15peaces]
 		*Some fixes, thanks to @Reilaen

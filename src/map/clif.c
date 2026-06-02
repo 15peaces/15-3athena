@@ -18396,7 +18396,7 @@ void clif_parse_CashShopReqTab(int fd, struct map_session_data *sd) {
 	short tab = RFIFOW(fd, 2);
 	int j;
 
-	if (tab < 0 || tab > CASHSHOP_TAB_MAX)
+	if (tab < 0 || tab >= CASHSHOP_TAB_MAX)
 		return;
 
 	WFIFOHEAD(fd, 10 + (cash_shop_items[tab].count * 6));

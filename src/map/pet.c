@@ -1608,33 +1608,32 @@ void read_petdb()
 void read_petevolve_db()
 {
 	char* filename = "pet_evolve_db.txt";
-	FILE *fp;
 	unsigned short mobid, eggid;
-	int nameids[MAX_PETEVOLVE_ITEMS];
-	int item_amts[MAX_PETEVOLVE_ITEMS];
+	int nameids[MAX_PETEVOLVE_ITEMS] = { 0 };
+	int item_amts[MAX_PETEVOLVE_ITEMS] = { 0 };
 	int i;
 	int db_id = -1;
 
 	char line[1024];
-	int lines, entries;
+	int entries;
 
 	sprintf(line, "%s/%s", db_path, filename);
-	fp = fopen(line, "r");
+	FILE* fp = fopen(line, "r");
 	if (fp == NULL)
 	{
 		ShowError("can't read %s\n", line);
 		return;
 	}
 
-	lines = entries = 0;
+	int lines = entries = 0;
 	while (fgets(line, sizeof(line), fp))
 	{
-		char *str[23], *p;
+		char* str[23] = { 0 }, * p = NULL;
 		lines++;
 
 		if (line[0] == '/' && line[1] == '/')
 			continue;
-		memset(str, 0, sizeof(str));
+
 		p = line;
 		while (ISSPACE(*p))
 			++p;
@@ -1648,12 +1647,12 @@ void read_petevolve_db()
 				break;// comma not found
 			*p = '\0';
 			++p;
+		}
 
-			if (str[i] == NULL)
-			{
-				ShowError("read_petevolve_db: Insufficient columns in line %d, skipping...\n", lines);
-				return;
-			}
+		if (i < 3)
+		{
+			ShowError("read_petevolve_db: Insufficient columns in line %d, skipping...\n", lines);
+			return;
 		}
 
 		if ((mobid = atoi(str[0])) <= 0)
@@ -1678,12 +1677,14 @@ void read_petevolve_db()
 		pc_split_atoi(str[3], item_amts, ':', MAX_PETEVOLVE_ITEMS);
 
 		for (i = 0; i < ARRAYLENGTH(pet_db); i++) {
-			if (pet_db[i].class_ == mobid)
+			if (pet_db[i].class_ == mobid) {
 				db_id = i;
+				break;
+			}
 		}
 
 		if (db_id > -1) {
-			if(sizeof(pet_db[db_id].evolve_data) == 0)
+			if (VECTOR_CAPACITY(pet_db[db_id].evolve_data) == 0)
 				VECTOR_INIT(pet_db[db_id].evolve_data);
 
 			struct pet_evolve_data ped;
@@ -1712,8 +1713,6 @@ void read_petevolve_db()
 
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' pet evolutions in '"CL_WHITE"%s"CL_RESET"'.\n", entries, filename);
-
-	return;
 }
 
 /*==========================================

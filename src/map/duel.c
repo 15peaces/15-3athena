@@ -106,7 +106,7 @@ int duel_create(struct map_session_data* sd, const unsigned int maxpl)
 	int i=1;
 	char output[256];
 	
-	while(duel_list[i].members_count > 0 && i < MAX_DUEL) i++;
+	while (i < MAX_DUEL && duel_list[i].members_count > 0) i++;
 	if(i == MAX_DUEL) return 0;
 	
 	duel_count++;

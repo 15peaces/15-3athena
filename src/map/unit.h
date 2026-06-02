@@ -100,7 +100,7 @@ int unit_delay_walktobl_timer(int tid, int64 tick, int id, intptr_t data);
 //     1: 位置情報の送信( この関数の後に位置情報を送信する場合は不要 )
 //     2: ダメージディレイ有り
 //     4: 不明(MOBのみ？)
-int unit_stop_walking(struct block_list *bl,int type);
+int unit_stop_walking(struct block_list *bl, const int type);
 int unit_can_move(struct block_list *bl);
 int unit_is_walking(struct block_list *bl);
 int unit_set_walkdelay(struct block_list *bl, int64 tick, int delay, int type);

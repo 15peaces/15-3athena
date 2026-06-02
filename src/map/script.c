@@ -572,6 +572,7 @@ static void script_dump_stack(struct script_state* st)
 /// Reports on the console the src of a script error.
 static void script_reportsrc(struct script_state *st)
 {
+	nullpo_retv(st);
 	if( st->oid == 0 )
 		return; //Can't report source.
 
@@ -657,6 +658,7 @@ static void script_reportdata(struct script_data* data)
 /// Reports on the console information about the current built-in function.
 static void script_reportfunc(struct script_state* st)
 {
+	nullpo_retv(st);
 	int i, params, id;
 	struct script_data* data;
 
@@ -1054,10 +1056,10 @@ static const char* parse_callfunc(const char* p, int require_paren)
 	const char* p2;
 	const char* arg=NULL;
 	int func;
+	char argT = 0;
 
 	func = add_word(p);
 	if( str_data[func].type == C_FUNC ){
-		char argT = 0;
 		// buildin function
 		add_scriptl(func);
 		add_scriptc(C_ARG);
@@ -2771,9 +2773,7 @@ TBL_PC *script_rid2sd(struct script_state *st)
 {
 	if (!st) {
 		ShowError("script_rid2sd: fatal error ! missing script state!\n");
-		script_reportfunc(st);
-		script_reportsrc(st);
-		st->state = END;
+		return NULL;
 	}
 
 	TBL_PC* sd = map_id2sd(st->rid);
@@ -4115,7 +4115,6 @@ void run_script_main(struct script_state *st)
 				intif_saveregistry(sd,1);
 		}
 		script_free_state(st);
-		st = NULL;
 	}
 }
 
@@ -18752,7 +18751,7 @@ BUILDIN_FUNC(waitingroom2bg)
 	}
 
 	n = cd->users;
-	for( i = 0; i < n && i < MAX_BG_MEMBERS; i++ )
+	for (i = 0; i < cd->users; i++)
 	{
 		if( (sd = cd->usersd[i]) != NULL && bg_team_join(bg_id, sd) )
 			mapreg_setreg(reference_uid(add_str("$@arenamembers"), i), sd->bl.id);

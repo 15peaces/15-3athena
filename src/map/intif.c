@@ -162,7 +162,7 @@ int intif_rename(struct map_session_data *sd, int type, char *name)
 // GM Send a message
 int intif_broadcast(const char* mes, int len, int type)
 {
-	int lp = (type | BC_COLOR_MASK) ? 4 : 0;
+	const int lp = type & BC_COLOR_MASK ? 4 : 0;
 
 	// Send to the local players
 	clif_broadcast(NULL, mes, len, type, ALL_CLIENT);
@@ -181,9 +181,9 @@ int intif_broadcast(const char* mes, int len, int type)
 	WFIFOW(inter_fd,10) = 0; // fontSize not used with standard broadcast
 	WFIFOW(inter_fd,12) = 0; // fontAlign not used with standard broadcast
 	WFIFOW(inter_fd,14) = 0; // fontY not used with standard broadcast
-	if (type | BC_BLUE)
+	if (type & BC_BLUE)
 		WFIFOL(inter_fd,16) = 0x65756c62; //If there's "blue" at the beginning of the message, game client will display it in blue instead of yellow.
-	else if (type | BC_WOE)
+	else if (type & BC_WOE)
 		WFIFOL(inter_fd,16) = 0x73737373; //If there's "ssss", game client will recognize message as 'WoE broadcast'.
 	memcpy(WFIFOP(inter_fd,16 + lp), mes, len);
 	WFIFOSET(inter_fd, WFIFOW(inter_fd,2));
@@ -1000,24 +1000,30 @@ int intif_parse_Registers(int fd)
 			ShowError("intif_parse_Registers: Unrecognized type %d\n",RFIFOB(fd,12));
 			return 0;
 	}
-	for(j=0,p=13;j<max && p<RFIFOW(fd,2);j++){
-		int actual_len = strlen((char*)RFIFOP(fd, p));
-		int copy_len = actual_len > 32 ? 32 : actual_len;
+
+	const int packet_len = RFIFOW(fd, 2);
+	for (j = 0, p = 13; j < max && p < packet_len; j++) {
+		const char* str = (char*)RFIFOP(fd, p);
+		int str_len = strnlen(str, packet_len - p) + 1;
+		int capacity = sizeof(reg[j].str);
+		int copy_len = (str_len < capacity ? str_len : capacity) - 1;
 		
-		strncpy(reg[j].str, (char*)RFIFOP(fd, p), copy_len);
+		memcpy(reg[j].str, str, copy_len);
 		reg[j].str[copy_len] = '\0';
 		
-		p += actual_len + 1;
+		p += str_len;
 		
-		if (p >= RFIFOW(fd, 2))
+		if (p >= packet_len)
 			break;
 		
-		actual_len = strlen((char*)RFIFOP(fd, p));
-		copy_len = actual_len > 255 ? 255 : actual_len;
-		strncpy(reg[j].value, (char*)RFIFOP(fd, p), copy_len);
-		reg[j].value[copy_len] = '\0';
+		str = (char*)RFIFOP(fd, p);
+		str_len = strnlen(str, packet_len - p) + 1;
+		capacity = sizeof(reg[j].value);
+		copy_len = (str_len < capacity ? str_len : capacity) - 1;
 		
-		p += actual_len + 1;
+		memcpy(reg[j].value, str, copy_len);
+		reg[j].value[copy_len] = '\0';
+		p += str_len;
 	}
 	*qty = j;
 
