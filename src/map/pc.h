@@ -8,10 +8,9 @@
 #include "../common/ers.h"
 #include "../common/timer.h" // INVALID_TIMER
 #include "../common/strlib.h"// StringBuf
-#include "battle.h" // battle_config
+#include "../common/core.h"
 #include "battleground.h" // enum bg_queue_types
 #include "buyingstore.h"  // struct s_buyingstore
-#include "clan.h" // struct clan
 #include "itemdb.h"
 #include "map.h" // RC_MAX
 #include "script.h" // struct script_reg, struct script_regstr

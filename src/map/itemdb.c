@@ -678,7 +678,6 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 	int ln=0, entries=0;
 	t_itemid nameid;
 	int groupid,j,k;
-	uint16 idx = 0;
 	char *str[3],*p;
 	char w1[1024], w2[1024];
 	

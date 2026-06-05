@@ -9,12 +9,9 @@
 #include "path.h"
 #include "trade.h"
 #include "pc.h"
-#include "npc.h"
 #include "battle.h"
 #include "chrif.h"
-#include "storage.h"
 #include "intif.h"
-#include "atcommand.h"
 #include "log.h"
 
 #include <stdio.h>

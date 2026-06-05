@@ -12,6 +12,8 @@
 #include "../common/timer.h"
 #include "../common/utils.h"
 #include "../common/mmo.h" //NAME_LENGTH
+#include "../common/mapindex.h"
+#include "../common/msg_conf.h"
 
 #include "achievement.h"
 #include "atcommand.h" // get_atcommand_level()
@@ -26,7 +28,6 @@
 #include "intif.h"
 #include "itemdb.h"
 #include "log.h"
-#include "mail.h"
 #include "map.h"
 #include "path.h"
 #include "homunculus.h"
@@ -6837,8 +6838,6 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	if (!next || sd->status.base_exp < next || pc_is_maxbaselv(sd))
 		return 0;
 
-	uint32 base_level = sd->status.base_level;
-
 	do {
 		sd->status.base_exp -= next;
 		//Kyoki pointed out that the max overcarry exp is the exp needed for the previous level -1. [Skotlex]
@@ -6915,8 +6914,6 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 	nullpo_ret(sd);
 	if(!next || sd->status.job_exp < next || pc_is_maxjoblv(sd))
 		return 0;
-
-	uint32 job_level = sd->status.job_level;
 
 	do {
 		sd->status.job_exp -= next;

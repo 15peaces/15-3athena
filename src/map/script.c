@@ -16,6 +16,7 @@
 #include "../common/strlib.h"
 #include "../common/timer.h"
 #include "../common/utils.h"
+#include "../common/mapindex.h"
 
 #include "map.h"
 #include "path.h"

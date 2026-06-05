@@ -4,14 +4,11 @@
 #ifndef _UNIT_H_
 #define _UNIT_H_
 
-//#include "map.h"
 struct block_list;
 struct unit_data;
 struct map_session_data;
 
-#include "atcommand.h"
 #include "clif.h"  // clr_type
-#include "map.h" // struct block_list
 #include "path.h" // struct walkpath_data
 #include "skill.h" // struct skill_timerskill, struct skill_unit_group, struct skill_unit_group_tickset
 

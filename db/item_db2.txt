@@ -5632,6 +5632,9 @@
 23202,Vin_Chaud,Mulled Wine,2,0,,40,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 0,7; },{},{}
 23256,Elixir_Bandages,Elixir Bandages,2,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ pet 1041; },{},{}
 100709,All_Shadow_Cube,All Shadow Cube,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{/*getitempackage(IP_ALL_SHADOW_CUBE);*/},{},{}
+105529,Velcarde_Album_US,Velcarde MVP Card Album,2,,,,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem(groupranditem(IG_VelcardeAlbum),1); },{},{}
+105530,Card_Recycle_US,Velcarde Card Recycler,2,,,,,,,,0xFFFFFFFF,7,2,,,,,,{ if(countitem(1002433) < 20) { dispbottom("You do not have enough " + callfunc("F_GetPlural", getitemname(1002433)) + "."); getitem(105530, 1); end; } delitem(1002433, 20); getitem(groupranditem(IG_VelcardeRecycle),1); },{},{}
+1002433,Card_Fragment_US,Card Fragment,3,,,,,,,,,,,,,,,,{},{},{}
 
 // Nightmarish Jitterbug Instance & more (renewal)
 4625,Time_Holder_Card,Time Holder Card,6,10,,10,,,,,,,,2,,,,,{ bonus bMatkRate,20; bonus bUseSPrate,10; },{},{}

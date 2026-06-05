@@ -24,12 +24,10 @@
 #include "clif.h"
 #include "skill.h"
 #include "log.h"
-#include "atcommand.h"
 #include "episode.h"
 #include "trade.h"
 #include "instance.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

@@ -7,6 +7,7 @@
 #include "../common/grfio.h"
 #include "../common/malloc.h"
 
+#include "../common/mapindex.h"
 #include "../common/nullpo.h"
 #include "../common/random.h"
 #include "../common/showmsg.h"
@@ -44,6 +45,7 @@
 #include "mail.h"
 #include "quest.h"
 #include "achievement.h"
+#include "clan.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1155,8 +1157,6 @@ static void clif_set_unit_idle(struct block_list* bl, bool walking, send_target 
 
 	// npc option changed?
 	if (tbl && tbl->type == BL_PC && bl->type == BL_NPC) {
-		struct map_session_data* sd = (struct map_session_data*)tbl;
-		struct npc_data* nd = (struct npc_data*)bl;
 		int option = (sc) ? sc->option : 0;
 
 		p.effectState = option;
@@ -5308,7 +5308,7 @@ int clif_damage(struct block_list* src, struct block_list* dst, int64 tick, int 
 void clif_takeitem(struct block_list* src, struct block_list* dst)
 {
 	//clif_damage(src,dst,0,0,0,0,0,1,0);
-	unsigned char buf[32];
+	const unsigned char buf[32] = { 0 };
 
 	nullpo_retv(src);
 	nullpo_retv(dst);
@@ -8656,15 +8656,6 @@ void clif_pet_emotion(struct pet_data *pd,int param)
 
 	WBUFW(buf,0)=0x1aa;
 	WBUFL(buf,2)=pd->bl.id;
-	if(param >= 100 && pd->petDB->talk_convert_class) {
-		if(pd->petDB->talk_convert_class < 0)
-			return;
-		else if(pd->petDB->talk_convert_class > 0) {
-			// replace mob_id component of talk/act data
-			param -= (pd->pet.class_ - 100)*100;
-			param += (pd->petDB->talk_convert_class - 100)*100;
-		}
-	}
 	WBUFL(buf,6)=param;
 
 	clif_send(buf,packet_len(0x1aa),&pd->bl,AREA);
@@ -10338,7 +10329,7 @@ void clif_refresh(struct map_session_data *sd)
 void clif_name(struct block_list* src, struct block_list *bl, send_target target)
 {
 	unsigned char buf[106] = { 0 };
-	int cmd = 0x95, ps = -1;
+	int cmd = 0x95;
 
 	nullpo_retv(src);
 	nullpo_retv(bl);
@@ -12442,7 +12433,6 @@ void clif_parse_DropItem(int fd, struct map_session_data *sd)
 void clif_parse_UseItem(int fd, struct map_session_data *sd)
 {
 	int n;
-	int index = RFIFOW(fd, 2) - 2;
 
 	if (pc_isdead(sd)) {
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
@@ -13781,12 +13771,11 @@ void clif_parse_LocalBroadcast(int fd, struct map_session_data* sd)
 	char command[CHAT_SIZE_MAX + 16];
 	char* msg = (char*)RFIFOP(fd,4);
 	unsigned int len = RFIFOW(fd,2)-4;
-	int lv;
 
 	if( battle_config.atc_gmonly && !pc_isGM(sd) )
 		return;
 
-	if( pc_isGM(sd) < (lv=get_atcommand_level(atcommand_localbroadcast)) )
+	if( pc_isGM(sd) < get_atcommand_level(atcommand_localbroadcast) )
 		return;
 
 	// as the length varies depending on the command used, just block unreasonably long strings
@@ -18851,7 +18840,7 @@ void clif_parse_cz_config(int fd, struct map_session_data *sd)
 		{
 			struct pet_data *pd = sd->pd;
 			nullpo_retv(pd);
-			if (pd->petDB->autofeed == 0) {
+			if (pd->petDB->allow_autofeed == 0) {
 				clif_displaymessage(fd, msg_txt(sd,205)); // "Autofeed is disabled for this pet."
 				return;
 			}
@@ -19671,7 +19660,6 @@ void clif_bgqueue_notice_delete(struct map_session_data *sd, enum BATTLEGROUNDS_
 
 void clif_parse_bgqueue_register(int fd, struct map_session_data *sd)
 {
-	unsigned int packet_len;
 	int16 type;
 	char bg_name[NAME_LENGTH];
 	struct battleground_arena *arena = NULL;
@@ -19680,7 +19668,6 @@ void clif_parse_bgqueue_register(int fd, struct map_session_data *sd)
 
 	if( !battle_config.bg_queue ) return;
 
-	packet_len = RFIFOW(fd,p->pos[0]);
 	type = RFIFOL(fd,p->pos[1]);
 	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[2]), sizeof(bg_name));
 
@@ -19721,11 +19708,9 @@ void clif_bgqueue_pcleft(struct map_session_data *sd) {
 
 void clif_parse_bgqueue_checkstate(int fd, struct map_session_data *sd)
 {
-	unsigned int packet_len;
 	char bg_name[NAME_LENGTH];
 
 	struct s_packet_db* p = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
-	packet_len = RFIFOW(fd,p->pos[0]);
 	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[1]), sizeof(bg_name));
 
 	if (sd->bg_queue.arena && sd->bg_queue.type) {
@@ -19737,11 +19722,9 @@ void clif_parse_bgqueue_checkstate(int fd, struct map_session_data *sd)
 
 void clif_parse_bgqueue_revoke_req(int fd, struct map_session_data *sd)
 {
-	unsigned int packet_len;
 	char bg_name[NAME_LENGTH];
 
 	struct s_packet_db* p = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
-	packet_len = RFIFOW(fd,p->pos[0]);
 	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[1]), sizeof(bg_name));
 
 	if( sd->bg_queue.arena )
@@ -19753,7 +19736,6 @@ void clif_parse_bgqueue_revoke_req(int fd, struct map_session_data *sd)
 void clif_parse_bgqueue_battlebegin_ack(int fd, struct map_session_data *sd)
 {
 	struct battleground_arena *arena;
-	unsigned int packet_len;
 	uint8 result;
 	char bg_name[NAME_LENGTH], game_name[NAME_LENGTH];
 
@@ -19761,7 +19743,6 @@ void clif_parse_bgqueue_battlebegin_ack(int fd, struct map_session_data *sd)
 
 	if( !battle_config.bg_queue ) return;
 
-	packet_len = RFIFOW(fd,p->pos[0]);
 	result = RFIFOB(fd, p->pos[1]);
 	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[2]), sizeof(bg_name));
 	safestrncpy(game_name, (const char*)RFIFOP(fd,p->pos[3]), sizeof(game_name));
@@ -21283,7 +21264,6 @@ void clif_equipswitch_remove(struct map_session_data* sd, uint16 index, uint32 p
 void clif_parse_equipswitch_remove(int fd, struct map_session_data* sd) {
 #if PACKETVER >= 20170208
 	uint16 index = RFIFOW(fd, 2) - 2;
-	bool removed = false;
 
 	if (!battle_config.feature_equipswitch) {
 		return;

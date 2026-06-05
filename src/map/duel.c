@@ -7,6 +7,7 @@
 #include "clif.h"
 #include "duel.h"
 #include "pc.h"
+#include "battle.h"
 
 #include <stdio.h>
 #include <stdlib.h>

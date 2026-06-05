@@ -33,7 +33,7 @@ int inter_pet_tosql(int pet_id, struct s_pet* p)
 			"(`class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate`,`autofeed`) "
 			"VALUES ('%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
 			pet_db, p->class_, esc_name, p->account_id, p->char_id, p->level, p->egg_id,
-			p->equip, p->intimate, p->hungry, p->rename_flag, p->incuvate, p->autofeed) )
+			p->equip, p->intimate, p->hungry, p->rename_flag, p->incubate, p->autofeed) )
 		{
 			Sql_ShowDebug(sql_handle);
 			return 0;
@@ -44,7 +44,7 @@ int inter_pet_tosql(int pet_id, struct s_pet* p)
 	{// Update pet.
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `class`='%d',`name`='%s',`account_id`='%d',`char_id`='%d',`level`='%d',`egg_id`='%d',`equip`='%d',`intimate`='%d',`hungry`='%d',`rename_flag`='%d',`incuvate`='%d', `autofeed`='%d' WHERE `pet_id`='%d'",
 			pet_db, p->class_, esc_name, p->account_id, p->char_id, p->level, p->egg_id,
-			p->equip, p->intimate, p->hungry, p->rename_flag, p->incuvate, p->autofeed, p->pet_id) )
+			p->equip, p->intimate, p->hungry, p->rename_flag, p->incubate, p->autofeed, p->pet_id) )
 		{
 			Sql_ShowDebug(sql_handle);
 			return 0;
@@ -87,7 +87,7 @@ int inter_pet_fromsql(int pet_id, struct s_pet* p)
 		Sql_GetData(sql_handle,  8, &data, NULL); p->intimate = atoi(data);
 		Sql_GetData(sql_handle,  9, &data, NULL); p->hungry = atoi(data);
 		Sql_GetData(sql_handle, 10, &data, NULL); p->rename_flag = atoi(data);
-		Sql_GetData(sql_handle, 11, &data, NULL); p->incuvate = atoi(data);
+		Sql_GetData(sql_handle, 11, &data, NULL); p->incubate = atoi(data);
 		Sql_GetData(sql_handle, 12, &data, NULL); p->autofeed = atoi(data);
 
 		Sql_FreeResult(sql_handle);
@@ -199,7 +199,7 @@ int mapif_create_pet(int fd, uint32 account_id, uint32 char_id, short pet_class,
 	pet_pt->intimate = intimate;
 	pet_pt->hungry = hungry;
 	pet_pt->rename_flag = rename_flag;
-	pet_pt->incuvate = incuvate;
+	pet_pt->incubate = incuvate;
 
 	if(pet_pt->hungry < 0)
 		pet_pt->hungry = 0;
@@ -225,7 +225,7 @@ int mapif_load_pet(int fd, uint32 account_id, uint32 char_id, int pet_id){
 	inter_pet_fromsql(pet_id, pet_pt);
 
 	if(pet_pt!=NULL) {
-		if(pet_pt->incuvate == 1) {
+		if(pet_pt->incubate == 1) {
 			pet_pt->account_id = pet_pt->char_id = 0;
 			mapif_pet_info(fd, account_id, pet_pt);
 		}

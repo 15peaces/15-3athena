@@ -8,7 +8,6 @@
 #include "../common/showmsg.h"
 #include "../common/socket.h"
 #include "../common/strlib.h"
-#include "../common/timer.h"
 
 #include "battleground.h"
 #include "battle.h"
@@ -197,8 +196,8 @@ int bg_team_join(int bg_id, struct map_session_data *sd)
 
 	for( i = 0; i < MAX_BG_MEMBERS; i++ )
 	{
-		struct map_session_data *pl_sd = bg->members[i].sd;
-		if( (pl_sd = bg->members[i].sd) != NULL && pl_sd != sd )
+		const struct map_session_data* pl_sd = bg->members[i].sd;
+		if (pl_sd != NULL && pl_sd != sd)
 			clif_hpmeter_single(sd->fd, pl_sd->bl.id, pl_sd->battle_status.hp, pl_sd->battle_status.max_hp);
 	}
 
@@ -593,8 +592,6 @@ void bg_queue_check(struct battleground_arena *arena) {
 
 void bg_queue_add(struct map_session_data *sd, struct battleground_arena *arena, enum bg_queue_types type)
 {
-	struct battleground_data *bg;
-
 	enum BATTLEGROUNDS_QUEUE_ACK result = bg_can_queue(sd,arena,type);
 	struct script_queue *queue = NULL;
 	int i, count = 0;
@@ -602,7 +599,7 @@ void bg_queue_add(struct map_session_data *sd, struct battleground_arena *arena,
 	nullpo_retv(sd);
 	nullpo_retv(arena);
 
-	if((bg = bg_team_search(sd->bg_id)) == NULL)
+	if (bg_team_search(sd->bg_id) == NULL)
 		return;
 
 	if( arena->begin_timer != INVALID_TIMER || arena->ongoing ) {
@@ -686,14 +683,13 @@ void bg_queue_add(struct map_session_data *sd, struct battleground_arena *arena,
 }
 
 enum BATTLEGROUNDS_QUEUE_ACK bg_can_queue(struct map_session_data *sd, struct battleground_arena *arena, enum bg_queue_types type) {
-	struct battleground_data *bg;
 	int tick;
 	unsigned int tsec;
 
 	nullpo_retr(BGQA_FAIL_TYPE_INVALID, sd);
 	nullpo_retr(BGQA_FAIL_TYPE_INVALID, arena);
 	
-	if ((bg = bg_team_search(sd->bg_id)) == NULL)
+	if (bg_team_search(sd->bg_id) == NULL)
 		return BGQA_FAIL_TYPE_INVALID;
 	
 	if( !(arena->allowed_types & type) )

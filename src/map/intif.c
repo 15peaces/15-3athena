@@ -1,6 +1,7 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/mapindex.h"
 #include "../common/showmsg.h"
 #include "../common/socket.h"
 #include "../common/timer.h"
@@ -19,7 +20,6 @@
 #include "party.h"
 #include "guild.h"
 #include "pet.h"
-#include "atcommand.h"
 #include "mercenary.h"
 #include "elemental.h"
 #include "homunculus.h"
@@ -28,11 +28,9 @@
 #include "status.h"
 #include "achievement.h"
 
-#include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <fcntl.h>
 #include <string.h>
 
 
@@ -2707,7 +2705,7 @@ void intif_parse_StorageInfo_recv(int fd) {
 	for (i = 0; i < count; i++) {
 		char name[NAME_LENGTH + 1];
 		safestrncpy(name, (char *)RFIFOP(fd, 5 + size * i), NAME_LENGTH);
-		if (!name || name[0] == '\0')
+		if (name[0] == '\0')
 			continue;
 		RECREATE(storage_db, struct s_storage_table, storage_count + 1);
 		memcpy(&storage_db[storage_count], RFIFOP(fd, 4 + size * i), size);

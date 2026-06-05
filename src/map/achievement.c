@@ -15,6 +15,7 @@
 #include "mob.h"
 #include "pc.h"
 #include "script.h"
+#include "battle.h"
 
 /**
  * Retrieve an achievement via it's ID.
@@ -1345,7 +1346,6 @@ static bool achievement_readdb_rewards(char** str, struct achievement_data *entr
 
 	struct achievement_reward_item item = { 0 };
 	int amount = 0;
-	int val = 0;
 	unsigned short nameid;
 
 	/* Title Id */

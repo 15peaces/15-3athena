@@ -10,7 +10,7 @@
 #include "../common/utils.h"
 #include "../common/ers.h"
 #include "../common/db.h"
-#include "../common/socket.h"
+#include "../common/mapindex.h"
 #include "map.h"
 #include "log.h"
 #include "clif.h"
@@ -1801,12 +1801,10 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	// delete items
 	for( i = 0; i < n; i++ )
 	{
-		t_itemid nameid;
 		int amount, idx;
 
 		idx    = item_list[i*2]-2;
 		amount = item_list[i*2+1];
-		nameid = sd->inventory.u.items_inventory[idx].nameid;
 
 		if( sd->inventory_data[idx]->type == IT_PETEGG && sd->inventory.u.items_inventory[idx].card[0] == CARD0_PET )
 		{

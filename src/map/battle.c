@@ -4,7 +4,6 @@
 #include "../common/cbasetypes.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
-#include "../common/malloc.h"
 #include "../common/showmsg.h"
 #include "../common/random.h"
 #include "../common/ers.h"
@@ -21,9 +20,9 @@
 #include "guild.h"
 #include "party.h"
 #include "battleground.h"
+#include "battle.h"
 
 #include <stdlib.h>
-#include <math.h>
 
 int attr_fix_table[4][ELE_MAX][ELE_MAX];
 
@@ -322,11 +321,10 @@ int battle_attr_ratio(int atk_elem,int def_type, int def_lv)
  *------------------------------------------*/
 int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 damage,int atk_elem,int def_type, int def_lv)
 {
-	struct map_session_data *sd, *tsd;
+	struct map_session_data *tsd;
 	struct status_change *sc=NULL, *tsc=NULL;
 	int ratio;
 
-	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
 	
 	if (src) sc = status_get_sc(src);
@@ -825,7 +823,7 @@ bool battle_check_sc(struct block_list *src, struct block_list *target, struct s
  *------------------------------------------*/
 int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,int skill_id,int skill_lv){
 	struct map_session_data *sd = NULL, *tsd = NULL;
-	struct homun_data *hd = NULL, *thd = NULL;
+	struct homun_data *hd = NULL;
 	struct status_change *sc, *tsc;
 	struct status_change_entry *sce;
 	int div_ = d->div_, flag = d->flag, element;
@@ -859,8 +857,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 
 	if (src->type == BL_PC)
 		tsd=(struct map_session_data *)src;
-	else if ( src->type == BL_HOM )
-		thd=(struct homun_data *)src;
 
 	sc = status_get_sc(bl);
 	tsc = status_get_sc(src);
@@ -1491,9 +1487,6 @@ bool battle_can_hit_gvg_target(struct block_list *src, struct block_list *bl, ui
  *------------------------------------------*/
 int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 damage,int skill_id,int flag)
 {
-	struct mob_data* md = BL_CAST(BL_MOB, bl);
-	int class_ = status_get_class(bl);
-
 	if (!damage) //No reductions to make.
 		return 0;
 	
@@ -6517,7 +6510,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 					return 0;
 				default:
 					// Usually BCT_ALL stands for only hitting chars, but skills specifically set to hit traps also hit icewall
-					if ((flag&BCT_ALL) == BCT_ALL && !skill_get_inf2(skill_id)&INF2_HIT_TRAP)
+					if ((flag&BCT_ALL) == BCT_ALL && !(skill_get_inf2(skill_id)&INF2_HIT_TRAP))
 						return -1;
 				}
 				state |= BCT_ENEMY;

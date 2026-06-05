@@ -25,14 +25,12 @@
 #include "mercenary.h"
 #include "elemental.h"
 #include "chrif.h"
-#include "quest.h"
 #include "storage.h"
 #include "guild.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <time.h>
 
 static int check_connect_char_server(int tid, int64 tick, int id, intptr_t data);

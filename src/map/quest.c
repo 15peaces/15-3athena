@@ -2,33 +2,22 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
-#include "../common/socket.h"
-#include "../common/timer.h"
 #include "../common/malloc.h"
 
 #include "../common/nullpo.h"
 #include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
-#include "../common/utils.h"
 
 #include "itemdb.h"
 #include "map.h"
 #include "pc.h"
-#include "npc.h"
-#include "itemdb.h"
-#include "script.h"
 #include "intif.h"
-#include "battle.h"
 #include "mob.h"
-#include "party.h"
-#include "unit.h"
 #include "log.h"
 #include "clif.h"
 #include "quest.h"
-#include "intif.h"
 #include "chrif.h"
-#include "intif.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -424,7 +413,6 @@ int quest_read_db(void)
 	while(fgets(line, sizeof(line), fp))
 	{
 		char *str[19], *p;
-		uint16 quest_id = 0;
 		uint8 i;
 		
 		++ln;

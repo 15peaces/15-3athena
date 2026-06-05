@@ -4,6 +4,7 @@
 #ifndef _GUILD_H_
 #define _GUILD_H_
 
+#include "../common/core.h"
 #include "../common/cbasetypes.h" // bool
 #include "../common/mmo.h" // struct guild, struct guild_position
 struct map_session_data;

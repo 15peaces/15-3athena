@@ -16,10 +16,8 @@
 #include "pc.h"
 #include "guild.h"
 #include "battle.h"
-#include "atcommand.h"
 #include "log.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

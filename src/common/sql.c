@@ -923,7 +923,7 @@ int SqlStmt_NextRow(SqlStmt* self)
 	// MySQL 5.0/5.1 defines and returns MYSQL_DATA_TRUNCATED [FlavioJS]
 	if( err == MYSQL_DATA_TRUNCATED )
 	{
-		my_bool truncated;
+		my_bool truncated = false;
 
 		if( !self->bind_columns )
 		{

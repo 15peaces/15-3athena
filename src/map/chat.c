@@ -3,7 +3,6 @@
 
 #include "chat.h"
 
-#include "atcommand.h" // msg_sd(sd,)
 #include "battle.h" // struct battle_config
 #include "clif.h"
 #include "map.h"

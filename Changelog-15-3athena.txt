@@ -5,6 +5,29 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/05/2026
+	r574 [15peaces]
+		*Some more pet updates, thanks to @Reilaen
+			-Updated pet functions to be closer to the current rathena standard and official ragnarok behavior.
+			-Fixed some slight typos.
+			-Adopted the modern hunger system.
+			-Added some missing checks to pet capturing.
+			-Fixed some bugs along the way like mixed up struct properties.
+			-Fixed a use after free bug in status_damage when a pet got caught successfully.
+		*Some fixes, thanks to @Reilaen
+			-Initialized variable truncated in sql.c.
+			-Fixed bit operations because negation gets applied before logical AND operation.
+			-Removed redundant condition checks.
+			-Removed useless check since name is never NULL.
+			-Fixed broken comparison in if condition, that could lead to party share not giving exp.
+			-Simplified expression and removed unnecessary memset.
+		*Header cleanup.
+			-Removed unused headers.
+			-Removed header imports in .h-files that were only used to bundle header imports.
+			-Added headers that were previously bundled separately, that each .c-file only includes headers it really needs.
+		*Removed some unused variables.
+		*Added some missing items.
+
 06/02/2026
 	r573 [15peaces]
 		*Some fixes, thanks to @Reilaen

@@ -2,15 +2,14 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
-#include "../common/socket.h"
 #include "../common/timer.h"
 #include "../common/malloc.h"
 
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
-#include "../common/utils.h"
 #include "../common/db.h"
+#include "../common/mapindex.h"
 
 #include "clif.h"
 #include "instance.h"
@@ -19,6 +18,7 @@
 #include "party.h"
 #include "guild.h"
 #include "pc.h"
+#include "clan.h"
 
 #include <stdio.h>
 #include <stdlib.h>

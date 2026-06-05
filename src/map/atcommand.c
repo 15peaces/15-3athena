@@ -16,6 +16,8 @@
 #include "../common/socket.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
+#include "../common/mapindex.h"
+#include "../common/msg_conf.h"
 
 #include "atcommand.h"
 #include "battle.h"
@@ -3756,7 +3758,6 @@ ACMD_FUNC(char_ban)
 	timediff = (int)solve_time(modif_p); //discard seconds
 
 	if (timediff == 0) { //allow negative ?
-		char output[256];
 		safesnprintf(output, sizeof(output), msg_txt(sd, 85), bantype == 7 ? "charban" : "ban", timediff); // Invalid time for %s command (time=%d)
 		clif_displaymessage(fd, output);
 		clif_displaymessage(fd, msg_txt(sd, 458)); // Time parameter format is +/-<value> to alter. y/a = Year, m = Month, d/j = Day, h = Hour, n/mn = Minute, s = Second.

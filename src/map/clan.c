@@ -6,14 +6,14 @@
 #include "../common/malloc.h"
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
+#include "../common/mapindex.h"
 
 #include "clan.h"
 #include "clif.h"
 #include "intif.h"
 #include "log.h"
 #include "pc.h"
-#include "script.h"
-#include "status.h"
+#include "map.h"
 
 static DBMap* clan_db; // int clan_id -> struct clan*
 
@@ -151,11 +151,9 @@ bool clan_member_join( struct map_session_data *sd, int clan_id, uint32 account_
 }
 
 bool clan_member_leave( struct map_session_data* sd, int clan_id, uint32 account_id, uint32 char_id ){
-	struct clan *clan;
-
 	nullpo_ret(sd);
 
-	if( sd->status.account_id != account_id || sd->status.char_id != char_id || sd->status.clan_id != clan_id || ( clan = sd->clan ) == NULL ){
+	if (sd->status.account_id != account_id || sd->status.char_id != char_id || sd->status.clan_id != clan_id || sd->clan == NULL) {
 		return false;
 	}
 

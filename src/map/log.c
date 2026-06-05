@@ -5,6 +5,7 @@
 #include "../common/strlib.h"
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
+#include "../common/mapindex.h"
 #include "battle.h"
 #include "itemdb.h"
 #include "log.h"

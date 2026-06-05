@@ -10,6 +10,7 @@
 #include "../common/utils.h"
 #include "../common/ers.h"
 #include "../common/strlib.h"
+#include "../common/mapindex.h"
 
 #include "map.h"
 #include "path.h"
@@ -23,22 +24,17 @@
 #include "itemdb.h"
 #include "battle.h"
 #include "battleground.h"
-#include "chrif.h"
-#include "skill.h"
 #include "status.h"
 #include "script.h"
 #include "unit.h"
 #include "homunculus.h"
 #include "mercenary.h"
 #include "elemental.h"
-#include "vending.h"
 
-#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
 #include <string.h>
-#include <math.h>
 
 //Regen related flags.
 enum e_regen
@@ -1777,9 +1773,11 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 
 	status_change_clear(target,0);
 
-	if(flag&4) //Delete from memory. (also invokes map removal code)
+	if(flag&4){ //Delete from memory. (also invokes map removal code)
 		unit_free(target,CLR_DEAD);
-	else
+		return hp + sp;
+	}
+
 	if(flag&2) //remove from map
 		unit_remove_map(target,CLR_DEAD);
 	else
@@ -2719,7 +2717,7 @@ void status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 		memcpy(&pd->status, &pd->db->status, sizeof(struct status_data));
 		pd->status.mode = MD_CANMOVE; // pets discard all modes, except walking
 		pd->status.class_ = CLASS_NORMAL;
-		pd->status.speed = pd->petDB->speed;
+		pd->status.speed = pd->master->battle_status.speed;
 
 		if(battle_config.pet_attack_support || battle_config.pet_damage_support)
 		{// attack support requires the pet to be able to attack
@@ -2739,7 +2737,7 @@ void status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 		{
 			struct status_data *bstat = &pd->db->status, *status = &pd->status;
 			pd->pet.level = lv;
-			if (!opt&SCO_FIRST) //Lv Up animation
+			if (!(opt&SCO_FIRST)) //Lv Up animation
 				clif_misceffect(&pd->bl, 0);
 			status->rhw.atk = (bstat->rhw.atk*lv)/pd->db->lv;
 			status->rhw.atk2 = (bstat->rhw.atk2*lv)/pd->db->lv;
@@ -2761,7 +2759,7 @@ void status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 
 			status_calc_misc(&pd->bl, &pd->status, lv);
 
-			if (!opt&SCO_FIRST)	//Not done the first time because the pet is not visible yet
+			if (!(opt&SCO_FIRST))	//Not done the first time because the pet is not visible yet
 				clif_send_petstatus(sd);
 		}
 	} else if (opt&SCO_FIRST) {
@@ -3541,8 +3539,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	if (sd->pd) { // Pet Bonus
 		const struct pet_data* pd = sd->pd;
-		if (pd && pd->petDB && pd->petDB->pet_loyal_script)
-			run_script(pd->petDB->pet_loyal_script,0,sd->bl.id,0);
+		if (pd && pd->petDB && pd->petDB->pet_support_script)
+			run_script(pd->petDB->pet_support_script,0,sd->bl.id,0);
 
 		if (pd && pd->pet.intimate > PET_INTIMATE_NONE && (!battle_config.pet_equip_required || pd->pet.equip > 0) && pd->state.skillbonus == 1 && pd->bonus)
 			pc_bonus(sd,pd->bonus->type, pd->bonus->val);

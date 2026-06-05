@@ -10,9 +10,9 @@
 #include "../common/showmsg.h"
 #include "../common/utils.h"
 #include "../common/strlib.h"
+#include "../common/mapindex.h"
 
 #include "party.h"
-#include "atcommand.h"	//msg_txt(sd,)
 #include "pc.h"
 #include "map.h"
 #include "instance.h"
@@ -26,7 +26,6 @@
 #include "achievement.h"
 #include "trade.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -676,7 +675,7 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 int party_broken(int party_id)
 {
 	struct party_data* p;
-	int i, j;
+	int i,j;
 
 	p = party_search(party_id);
 	if( p == NULL )
@@ -1323,7 +1322,7 @@ void party_booking_search(struct map_session_data *sd, short level, short mapid,
 			result_list[count] = pb_ad;
 		else if (mapid == 0) {
 			for(i=0; i<PARTY_BOOKING_JOBS; i++)
-				if (pb_ad->p_detail.job[i] == job && job != -1)
+				if (pb_ad->p_detail.job[i] == job)
 					result_list[count] = pb_ad;
 		} else if (job == -1){
 			if (pb_ad->p_detail.mapid == mapid)

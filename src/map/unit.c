@@ -9,7 +9,6 @@
 #include "../common/malloc.h"
 #include "../common/socket.h"
 
-#include "achievement.h"
 #include "unit.h"
 #include "map.h"
 #include "path.h"
@@ -30,10 +29,8 @@
 #include "battleground.h"
 #include "chat.h"
 #include "trade.h"
-#include "vending.h"
 #include "party.h"
 #include "intif.h"
-#include "chrif.h"
 #include "script.h"
 #include "storage.h"
 
@@ -1208,7 +1205,6 @@ uint8 unit_blown_immune(struct block_list* bl, uint8 flag)
 
 	switch (bl->type) {
 	case BL_MOB: {
-		struct mob_data* md = BL_CAST(BL_MOB, bl);
 		// Immune can't be knocked back
 		if (((flag & 0x1) && status_bl_has_mode(bl, MD_KNOCKBACK_IMMUNE))
 			&& ((flag & 0x2) || !(battle_config.skill_trap_type & 0x2)))

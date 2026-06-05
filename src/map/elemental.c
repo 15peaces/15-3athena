@@ -3,7 +3,6 @@
 
 #include "../common/cbasetypes.h"
 #include "../common/malloc.h"
-#include "../common/socket.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/mmo.h"
@@ -12,11 +11,8 @@
 #include "../common/strlib.h"
 #include "../common/utils.h"
 
-#include "log.h"
 #include "clif.h"
-#include "chrif.h"
 #include "intif.h"
-#include "itemdb.h"
 #include "map.h"
 #include "pc.h"
 #include "status.h"
@@ -24,21 +20,14 @@
 #include "mob.h"
 #include "pet.h"
 #include "battle.h"
-#include "party.h"
-#include "guild.h"
-#include "atcommand.h"
-#include "script.h"
 #include "npc.h"
-#include "trade.h"
 #include "unit.h"
 #include "elemental.h"
 #include "homunculus.h"
 #include "mercenary.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #define ACTIVE_ELEM_AI_RANGE 2	//Distance added on top of 'AREA_SIZE' at which mobs enter active AI mode.
 
@@ -1127,9 +1116,7 @@ int elemental_offensive_skill(struct elemental_data *ed)
  *------------------------------------------*/
 int elemskill_use(struct elemental_data *ed, int64 tick, int bypass)
 {
-	struct block_list *fbl = NULL;
 	struct block_list *bl;
-	struct elemental_data *fed = NULL;
 	short skill_id;
 	int cast_time = 0;
 

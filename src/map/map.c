@@ -10,10 +10,12 @@
 #include "../common/socket.h" // WFIFO*()
 #include "../common/showmsg.h"
 
+#include "../common/mapindex.h"
 #include "../common/nullpo.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
 #include "../common/ers.h"
+#include "../common/msg_conf.h"
 
 #include "map.h"
 #include "path.h"
@@ -26,12 +28,10 @@
 #include "pc.h"
 #include "status.h"
 #include "mob.h"
-#include "npc.h" // npc_setcells(), npc_unsetcells()
 #include "chat.h"
 #include "itemdb.h"
 #include "storage.h"
 #include "skill.h"
-#include "trade.h"
 #include "party.h"
 #include "unit.h"
 #include "battle.h"
@@ -47,9 +47,6 @@
 #include "elemental.h"
 #include "atcommand.h"
 #include "log.h"
-#ifndef TXT_ONLY
-#include "mail.h"
-#endif
 #include "achievement.h"
 
 #include <stdio.h>
@@ -2926,9 +2923,7 @@ int map_mapname2mapid(const char* name)
  * Returns the map of the given mapindex. [Skotlex]
  *------------------------------------------*/
 int map_mapindex2mapid(unsigned short mapindex)
-{
-	struct map_data *md=NULL;
-	
+{	
 	if (!mapindex || mapindex >= MAX_MAPINDEX)
 		return -1;
 	
@@ -3098,6 +3093,8 @@ static int map_cell2gat(struct mapcell cell)
 int map_getcellp(struct map_data* m, int16 x, int16 y, cell_chk cellchk);
 void map_setcell(int16 m, int16 x, int16 y, cell_t cell, bool flag);
 void map_cellfromcache(struct map_data *m) {
+	nullpo_retv(m);
+
 	char decode_buffer[MAX_MAP_SIZE];
 	struct map_cache_map_info *info = NULL;
 

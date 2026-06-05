@@ -31,9 +31,6 @@
 #include "party.h"
 #include "npc.h"
 #include "log.h"
-#include "script.h"
-#include "atcommand.h"
-#include "date.h"
 #include "quest.h"
 #include "achievement.h"
 
@@ -204,7 +201,7 @@ void mvptomb_destroy(struct mob_data *md) {
 		map_delblock(&nd->bl);
 
 		ARR_FIND(0, map[m].npc_num, i, map[m].npc[i] == nd);
-		if (!(i == map[m].npc_num)) {
+		if (i != map[m].npc_num) {
 			map[m].npc_num--;
 			map[m].npc[i] = map[m].npc[map[m].npc_num];
 			map[m].npc[map[m].npc_num] = NULL;
@@ -462,9 +459,8 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target)
 
 struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m, short x, short y, const char *mobname, int class_, const char *event, unsigned int size, enum mob_ai ai)
 {
-	struct spawn_data data;
-	
-	memset(&data, 0, sizeof(struct spawn_data));
+	struct spawn_data data = { 0 };
+
 	data.m = m;
 	data.num = 1;
 	data.class_ = class_;
@@ -2461,7 +2457,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			job_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
 		}
  		
-		if((temp = tmpsd[i]->status.party_id )>0 && !md->dmglog[i].flag == MDLF_HOMUN) //Homun-done damage (flag 1) is not given to party
+		if ((temp = tmpsd[i]->status.party_id) > 0 && md->dmglog[i].flag != MDLF_HOMUN) //Homun-done damage (flag 1) is not given to party
 		{
 			int j;
 			for(j=0;j<pnum && pt[j].id!=temp;j++); //Locate party.
@@ -2594,9 +2590,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			//A Rare Drop Global Announce by Lupus
 			if( mvp_sd && drop_rate <= battle_config.rare_drop_announce )
 			{
-				struct item_data *i_data;
 				char message[128];
-				i_data = itemdb_search(ditem->item_data.nameid);
 				sprintf (message, msg_txt(NULL,541), mvp_sd->status.name, md->name, it->jname, (float)drop_rate/100);
 				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
 				intif_broadcast(message,strlen(message)+1,BC_DEFAULT);

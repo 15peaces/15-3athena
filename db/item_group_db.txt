@@ -6,3 +6,4 @@ import: db/item_findingore.txt
 import: db/item_giftbox.txt
 import: db/item_scroll.txt
 import: db/item_misc.txt
+import: db/item_velcarde.txt

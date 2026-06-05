@@ -4,7 +4,6 @@
 #include "../common/cbasetypes.h"
 #include "../common/db.h"
 #include "../common/malloc.h"
-#include "../common/nullpo.h"
 #include "../common/random.h"
 #include "../common/showmsg.h"
 #include "map.h"

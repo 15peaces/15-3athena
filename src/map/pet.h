@@ -30,20 +30,20 @@ struct s_pet_db {
 	t_itemid FoodID;
 	int fullness;
 	int hungry_delay;
+	int hunger_increase;
 	int r_hungry;
 	int r_full;
 	int intimate;
 	int die;
+	int hungry_intimacy_dec;
 	int capture;
-	int speed;
 	char s_perfor;
-	int talk_convert_class;
 	int attack_rate;
-	int defence_attack_rate;
+	int defense_attack_rate;
 	int change_target_rate;
-	int autofeed;
-	struct script_code *pet_loyal_script;
-	struct script_code *pet_script;
+	int allow_autofeed;
+	struct script_code *pet_support_script;
+	struct script_code *pet_bonus_script;
 
 	/* Pet Evolution */
 	VECTOR_DECL(struct pet_evolve_data) evolve_data;
@@ -165,7 +165,7 @@ int pet_birth_process(struct map_session_data *sd, struct s_pet *pet);
 int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag);
 int pet_select_egg(struct map_session_data *sd,short egg_index);
 int pet_catch_process1(struct map_session_data *sd,int target_class);
-int pet_catch_process2(struct map_session_data *sd,int target_id);
+int pet_catch_process2(struct map_session_data *sd,const int target_id);
 int pet_get_egg(uint32 account_id, short pet_class, int pet_id);
 int pet_menu(struct map_session_data *sd,int menunum);
 int pet_change_name(struct map_session_data *sd,char *name);

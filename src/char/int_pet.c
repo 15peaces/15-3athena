@@ -36,7 +36,7 @@ int inter_pet_tostr(char *str,struct s_pet *p)
 
 	len=sprintf(str,"%d,%d,%s\t%d,%d,%d,%d,%d,%d,%d,%d,%d",
 		p->pet_id,p->class_,p->name,p->account_id,p->char_id,p->level,p->egg_id,
-		p->equip,p->intimate,p->hungry,p->rename_flag,p->incuvate);
+		p->equip,p->intimate,p->hungry,p->rename_flag,p->incubate);
 
 	return 0;
 }
@@ -66,7 +66,7 @@ int inter_pet_fromstr(char *str,struct s_pet *p)
 	p->intimate = tmp_int[7];
 	p->hungry = tmp_int[8];
 	p->rename_flag = tmp_int[9];
-	p->incuvate = tmp_int[10];
+	p->incubate = tmp_int[10];
 
 	if(p->hungry < 0)
 		p->hungry = 0;
@@ -246,7 +246,7 @@ int mapif_create_pet(int fd,uint32 account_id,uint32 char_id,short pet_class,sho
 	p->intimate = intimate;
 	p->hungry = hungry;
 	p->rename_flag = rename_flag;
-	p->incuvate = incuvate;
+	p->incubate = incuvate;
 
 	if(p->hungry < 0)
 		p->hungry = 0;
@@ -269,7 +269,7 @@ int mapif_load_pet(int fd,uint32 account_id,uint32 char_id,int pet_id)
 	struct s_pet *p;
 	p = (struct s_pet*)idb_get(pet_db,pet_id);
 	if(p!=NULL) {
-		if(p->incuvate == 1) {
+		if(p->incubate == 1) {
 			p->account_id = p->char_id = 0;
 			mapif_pet_info(fd,account_id,p);
 		}
@@ -314,7 +314,7 @@ int mapif_save_pet(int fd,uint32 account_id,struct s_pet *data)
 		else if(data->intimate > 1000)
 			data->intimate = 1000;
 		memcpy(p,data,sizeof(struct s_pet));
-		if(p->incuvate == 1)
+		if(p->incubate == 1)
 			p->account_id = p->char_id = 0;
 
 		mapif_save_pet_ack(fd,account_id,0);

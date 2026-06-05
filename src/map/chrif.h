@@ -5,7 +5,6 @@
 #define _CHRIF_H_
 
 #include "../common/cbasetypes.h"
-#include <time.h>
 
 enum sd_state { ST_LOGIN, ST_LOGOUT, ST_MAPCHANGE };
 

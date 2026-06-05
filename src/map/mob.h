@@ -8,8 +8,6 @@
 #include "map.h" // struct status_data, struct view_data, struct mob_skill
 #include "status.h" // struct status data, struct status_change
 #include "unit.h" // unit_stop_walking(), unit_stop_attack()
-#include "npc.h"
-
 
 #define MAX_RANDOMMONSTER 5
 

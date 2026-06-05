@@ -10,6 +10,7 @@
 #include "../common/strlib.h"
 #include "../common/utils.h"
 #include "../common/ers.h"
+#include "../common/mapindex.h"
 
 #include "skill.h"
 #include "map.h"
@@ -798,8 +799,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 	struct elemental_data *ed;
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
-	int s_job_level = 50;
-	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
 
 	enum sc_type status;
 	int skill;
@@ -4154,7 +4153,6 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					break;
 				case WL_HELLINFERNO:
 					{
-						struct status_change *sc = status_get_sc(src);
 						if( !status_isdead(target) )
 							skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
 					}
@@ -5978,7 +5976,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case MH_CBC:
 	case MH_EQC:
 	{
-		TBL_HOM *hd = BL_CAST(BL_HOM, src);
 		int32 duration = max(skill_lv, (status_get_str(src) / 7 - status_get_str(bl) / 10)) * 1000; //Yommy formula
 		sc_type type = SC_NONE;
 
@@ -7619,7 +7616,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, 6);
 		if( skill_id == LG_EARTHDRIVE )
 		{
-			int dummy = 1;
 			i = skill_get_splash(skill_id,skill_lv);
 			map_foreachinarea(skill_cell_overlap, src->m, src->x-i, src->y-i, src->x+i, src->y+i, BL_SKILL, LG_EARTHDRIVE, src);
 		}
@@ -12623,7 +12619,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 
 	case GN_CRAZYWEED_ATK:
 		{
-			int dummy = 1;
 			//Enable if any unique animation gets added to this skill ID in the future. [Rytech]
 			//clif_skill_poseffect(src,skill_id,skill_lv,x,y,tick);
 			i = skill_get_splash(skill_id, skill_lv);
@@ -13080,7 +13075,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 
 	case HW_GANBANTEIN:
 		if (rnd()%100 < 80) {
-			int dummy = 1;
 			clif_skill_poseffect(src,skill_id,skill_lv,x,y,tick);
 			i = skill_get_splash(skill_id, skill_lv);
 			map_foreachinarea(skill_cell_overlap, src->m, x-i, y-i, x+i, y+i, BL_SKILL, HW_GANBANTEIN, src);
@@ -14774,7 +14768,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			else if (battle_check_target(&src->bl,bl,BCT_ENEMY)>0)
 			{ // Offensive Effect
 				int i = rnd() % 10; // Negative buff count
-				int time = skill_get_time2(sg->skill_id, sg->skill_lv);
 				switch (i)
 				{
 					case 0: // Deal 3000~7999 damage reduced by DEF

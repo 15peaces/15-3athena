@@ -14,6 +14,7 @@
 #include "log.h"
 #include "date.h" // date_get_dayofyear
 #include "intif.h"
+#include "battle.h"
 
 #include <time.h>
 #include <string.h>

@@ -3,7 +3,6 @@
 
 #include "../common/cbasetypes.h"
 #include "../common/malloc.h"
-#include "../common/socket.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/mmo.h"
@@ -14,22 +13,14 @@
 
 #include "log.h"
 #include "clif.h"
-#include "chrif.h"
 #include "intif.h"
 #include "itemdb.h"
 #include "map.h"
 #include "pc.h"
 #include "status.h"
 #include "skill.h"
-#include "mob.h"
-#include "pet.h"
 #include "battle.h"
-#include "party.h"
-#include "guild.h"
-#include "atcommand.h"
-#include "script.h"
 #include "npc.h"
-#include "trade.h"
 #include "unit.h"
 
 #include "homunculus.h"
@@ -37,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 struct s_homunculus_db homunculus_db[MAX_HOMUNCULUS_CLASS + MAX_MUTATE_HOMUNCULUS_CLASS + 31];	//[orn]
 struct homun_skill_tree_entry hskill_tree[MAX_HOMUNCULUS_CLASS + MAX_MUTATE_HOMUNCULUS_CLASS + 31][MAX_SKILL_TREE];
