@@ -3058,9 +3058,7 @@ int map_random_dir(struct block_list *bl, short *x, short *y)
 // gat system
 inline static struct mapcell map_gat2cell(int gat)
 {
-	struct mapcell cell;
-
-	memset(&cell, 0, sizeof(struct mapcell));
+	struct mapcell cell = { 0 };
 
 	switch( gat )
 	{
@@ -3812,9 +3810,8 @@ int parse_console(const char* buf)
 	int y = 0;
 	int m;
 	int n;
-	struct map_session_data sd;
+	struct map_session_data sd = { 0 };
 
-	memset(&sd, 0, sizeof(struct map_session_data));
 	strcpy(sd.status.name, "console");
 
 	if( ( n = sscanf(buf, "%63[^:]:%63[^:]:%63s %d %d[^\n]", type, command, map, &x, &y) ) < 5 )

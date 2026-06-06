@@ -2802,8 +2802,7 @@ static void clif_inventoryStart(struct map_session_data *sd, enum e_inventory_ty
 	nullpo_retv(sd);
 	nullpo_retv(name);
 
-	char buf[29];
-	memset(buf, 0, sizeof(buf));
+	char buf[29] = { 0 };
 
 	int strLen = (int)safestrnlen(name, 24) + 1;
 	if (strLen > 24)
@@ -11369,7 +11368,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		else if (sd->sc.option&OPTION_WUGRIDER)
 			clif_status_load(&sd->bl, SI_WUGRIDER, 1);
 
-		else if (&sd->sc && sd->sc.data[SC_ALL_RIDING])
+		else if (sd->sc.data[SC_ALL_RIDING])
 			clif_status_load(&sd->bl, SI_ALL_RIDING, 1);
 
 		if(sd->status.manner < 0)

@@ -2390,7 +2390,6 @@ static int pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max_va
 static void pc_bonus_item_drop(struct s_add_drop *drop, const short max_value, t_itemid nameid, uint16 group, int class_, short race, int rate)
 {
 	uint8 i;
-	struct item_group *group_ = NULL;
 
 	if (!nameid && !group) {
 		ShowWarning("pc_bonus_item_drop: No Item ID nor Item Group ID specified.\n");
@@ -2400,7 +2399,7 @@ static void pc_bonus_item_drop(struct s_add_drop *drop, const short max_value, t
 		ShowWarning("pc_bonus_item_drop: Invalid item id\n", nameid);
 		return;
 	}
-	if (group && (group_ = itemdb_group_exists(group)) == NULL) {
+	if (group && itemdb_group_exists(group) == NULL) {
 		ShowWarning("pc_bonus_item_drop: Invalid Item Group %hu\n", group);
 		return;
 	}
@@ -6972,7 +6971,7 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 			bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]
 	}
 
-	if (&sd->sc && sd->sc.data[SC_EXPBOOST])
+	if (sd->sc.data[SC_EXPBOOST])
 		bonus += sd->sc.data[SC_EXPBOOST]->val1;
 
 	if (*base_exp) {
@@ -6980,7 +6979,7 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 		*base_exp =  cap_value(exp, 1, UINT_MAX);
 	}
 
-	if (&sd->sc && sd->sc.data[SC_JEXPBOOST])
+	if (sd->sc.data[SC_JEXPBOOST])
 		bonus += sd->sc.data[SC_JEXPBOOST]->val1;
 
 	if (*job_exp) {
@@ -8096,7 +8095,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		// Super Novices have no kill or die functions attached when saved by their angel
 	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag) {
 		unsigned int next = pc_nextbaseexp(sd);
-		if (exp && get_percentage(sd->status.base_exp, next) >= 99) {
+		if (get_percentage(sd->status.base_exp, next) >= 99) {
 			sd->state.snovice_dead_flag = 1;
 			pc_setrestartvalue(sd, 1);
 			status_percent_heal(&sd->bl, 100, 100);
@@ -8342,8 +8341,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		|| (battle_config.bone_drop==1 && map[sd->bl.m].flag.pvp || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) && sd->state.pvp) )	// Cell PVP [Napster]
 
 	{
-		struct item item_tmp;
-		memset(&item_tmp,0,sizeof(item_tmp));
+		struct item item_tmp = { 0 };
 		item_tmp.nameid=ITEMID_SKULL_;
 		item_tmp.identify=1;
 		item_tmp.card[0]=CARD0_CREATE;
@@ -8427,8 +8425,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			if(id == 0)
 				continue;
 			if(id == -1){
-				int eq_num=0,eq_n[MAX_INVENTORY];
-				memset(eq_n,0,sizeof(eq_n));
+				int eq_num = 0, eq_n[MAX_INVENTORY] = { 0 };
 				for(i=0;i<MAX_INVENTORY;i++){
 					if( (type == 1 && !sd->inventory.u.items_inventory[i].equip)
 						|| (type == 2 && sd->inventory.u.items_inventory[i].equip)
@@ -9767,9 +9764,6 @@ bool pc_can_attack(struct map_session_data *sd, int target_id) {
 
 	if (sd->state.block_action & PCBLOCK_ATTACK)
 		return false;
-	
-	if (!&sd->sc)
-		return true;
 
 	if (sd->sc.data[SC_BASILICA] ||
 		sd->sc.data[SC__SHADOWFORM] ||

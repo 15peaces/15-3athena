@@ -31,17 +31,13 @@
 #include "script.h"
 #include "intif.h"
 #include "log.h"
-#include "chrif.h"
 #include "guild.h"
-#include "date.h"
 #include "unit.h"
-#include "achievement.h"
 #include "episode.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <math.h>
 
 
@@ -572,7 +568,7 @@ static short skill_isCopyable(struct map_session_data *sd, uint16 skill_id) {
 		return 1;
 
 	//Reproduce can copy skill if SC__REPRODUCE is active and the skill is copyable by Reproduce
-	if (skill_db[idx].copyable.option&2 && pc_checkskill(sd, SC_REPRODUCE) && (&sd->sc && sd->sc.data[SC__REPRODUCE]))
+	if (skill_db[idx].copyable.option & 2 && pc_checkskill(sd, SC_REPRODUCE) && sd->sc.data[SC__REPRODUCE])
 		return 2;
 
 	return 0;
@@ -2778,7 +2774,7 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
 	if (!tsd || (!pc_checkskill(tsd, RG_PLAGIARISM) && !pc_checkskill(tsd, SC_REPRODUCE)))
 		return;
 	//If SC_PRESERVE is active and SC__REPRODUCE is not active, nothing to do
-	if (&tsd->sc && tsd->sc.data[SC_PRESERVE] && !tsd->sc.data[SC__REPRODUCE])
+	if (tsd->sc.data[SC_PRESERVE] && !tsd->sc.data[SC__REPRODUCE])
 		return;
 
 	short idx;
@@ -3043,7 +3039,7 @@ void skill_combo(struct block_list* src, struct block_list *dsrc, struct block_l
 int64 skill_attack (int attack_type, struct block_list* src, struct block_list *dsrc, struct block_list *bl, int skill_id, int skill_lv, int64 tick, int flag)
 {
 	struct Damage dmg;
-	struct status_data *sstatus, *tstatus;
+	struct status_data* tstatus;
 	struct status_change *sc, *ssc;
 	struct map_session_data *sd, *tsd;
 	int type=0;
@@ -3073,7 +3069,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, bl);
 
-	sstatus = status_get_status_data(src);
 	tstatus = status_get_status_data(bl);
 	ssc = status_get_sc(src);
 	sc= status_get_sc(bl);
@@ -3787,13 +3782,12 @@ static int skill_check_unit_range2 (struct block_list *bl, int x, int y, int ski
 
 static int skill_check_condition_mob_master_mer_sub (struct block_list *bl, va_list ap)
 {
-	int *c,src_id,mob_class,skill;
+	int* c, src_id, mob_class;
 	struct mob_data *md;
 
 	md=(struct mob_data*)bl;
 	src_id=va_arg(ap,int);
 	mob_class=va_arg(ap,int);
-	skill=va_arg(ap,int);
 	c=va_arg(ap,int *);
 
 	if( md->master_id != src_id || md->special_state.ai != 3)
@@ -5846,8 +5840,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			{
 				if( sd && !(sg->unit_id == UNT_USED_TRAPS || (sg->unit_id == UNT_ANKLESNARE && sg->val2 != 0 )) )
 				{
-					struct item item_tmp;
-					memset(&item_tmp,0,sizeof(item_tmp));
+					struct item item_tmp = { 0 };
 					item_tmp.nameid = sg->item_id ? sg->item_id : ITEMID_TRAP;
 					item_tmp.identify = 1;
 					if( item_tmp.nameid )
@@ -9116,8 +9109,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 							if(skill_get_itemid(su->group->skill_id, i + 1) > 0 )
 							{
 								int flag;
-								struct item item_tmp;
-								memset(&item_tmp,0,sizeof(item_tmp));
+								struct item item_tmp = { 0 };
 								item_tmp.nameid = skill_get_itemid(su->group->skill_id, i + 1);
 								item_tmp.amount = skill_get_itemqty(su->group->skill_id, i + 1);
 								if (item_tmp.nameid && (flag = pc_additem(sd, &item_tmp, item_tmp.amount, LOG_TYPE_OTHER)))
@@ -9130,8 +9122,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					}
 					else
 					{ // get back 1 trap
-						struct item item_tmp;
-						memset(&item_tmp,0,sizeof(item_tmp));
+						struct item item_tmp = { 0 };
 						item_tmp.nameid = su->group->item_id ? su->group->item_id : ITEMID_TRAP;
 						item_tmp.identify = 1;
 						if( item_tmp.nameid && (flag=pc_additem(sd,&item_tmp,1,LOG_TYPE_OTHER)) )
@@ -9637,7 +9628,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if(rnd()%100 < (20+10*skill_lv))
 				pc_addspiritball(sd,skill_get_time(skill_id,skill_lv),10);
 			//If player knows Rich's Coin, failure will not remove a coin sphere.
-			else if(sd->spiritball > 0 && !(pc_checkskill(sd,RL_RICHS_COIN) > 0))
+			else if (sd->spiritball > 0 && pc_checkskill(sd, RL_RICHS_COIN) <= 0)
 				pc_delspiritball(sd,1,0);
 		}
 		break;
@@ -14032,7 +14023,6 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	struct skill_unit_group *sg;
 	struct block_list *ss;
 	struct status_change *sc;
-	struct status_change *ssc;
 	struct status_change_entry *sce;
 	enum sc_type type;
 	int skill_id;
@@ -14053,7 +14043,6 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 		return 0; //Songs don't work in Basilica
 
 	sc = status_get_sc(bl);
-	ssc = status_get_sc(ss);
 
 	if (sc && sc->option&OPTION_HIDE && sg->skill_id != WZ_HEAVENDRIVE && sg->skill_id != HW_GRAVITATION && sg->skill_id != WL_EARTHSTRAIN && sg->skill_id != SO_EARTHGRAVE)
 		return 0; //Hidden characters are immune to AoE skills except Heaven's Drive, Gravitation Field, Earth Strain, and Earth Grave. [Skotlex]
@@ -14352,7 +14341,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 	TBL_PC* sd;
 	TBL_PC* tsd;
 	struct status_data *tstatus;
-	struct status_change *tsc, *ssc;
+	struct status_change *tsc;
 	struct skill_unit_group_tickset *ts;
 	enum sc_type type;
 	int skill_id;
@@ -14369,7 +14358,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 	sd = BL_CAST(BL_PC, ss);
 	tsd = BL_CAST(BL_PC, bl);
 	tsc = status_get_sc(bl);
-	ssc = status_get_sc(ss); // Status Effects for Unit caster.
 	tstatus = status_get_status_data(bl);
 	type = status_skill2sc(sg->skill_id);
 	skill_id = sg->skill_id;
@@ -15820,7 +15808,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 	case SR_DRAGONCOMBO:
 		//Dragon Combo can be used normally, but can also be used in a combo.
 		//If used in a combo, it must only work if comboed after Triple Attack.
-		if(sc && sc->data[SC_COMBO] && !(sc->data[SC_COMBO]->val1 == MO_TRIPLEATTACK))
+		if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 != MO_TRIPLEATTACK)
 			return 0;
 		break;
 	case SR_FALLENEMPIRE:
@@ -16731,17 +16719,17 @@ int skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id, 
 				sd->state.no_gemstone = 1; // No need to consume 2 Red Gemstones if there are partners near by.
 			break;
 		case NC_PILEBUNKER:// As of 2018 there's only 5 pile bunkers in existance.
-			if ( !((pc_search_inventory(sd,ITEMID_PILE_BUNKER) + pc_search_inventory(sd,ITEMID_PILE_BUNKER_S) + 
+			if ((pc_search_inventory(sd, ITEMID_PILE_BUNKER) + pc_search_inventory(sd, ITEMID_PILE_BUNKER_S) +
 				pc_search_inventory(sd, ITEMID_PILE_BUNKER_T) + pc_search_inventory(sd, ITEMID_PILE_BUNKER_P) +
-				pc_search_inventory(sd, ITEMID_ENGINE_PILE_BUNKER)) >= 1))
+				pc_search_inventory(sd, ITEMID_ENGINE_PILE_BUNKER)) < 1)
 			{
 				clif_skill_fail(sd, skill_id,USESKILL_FAIL_NEED_ITEM,0,ITEMID_PILE_BUNKER);
 				return 0;
 			}
 			break;
 		case NC_EMERGENCYCOOL:
-			if ( !((pc_search_inventory(sd,ITEMID_COOLING_DEVICE) + pc_search_inventory(sd,ITEMID_HIGH_QUALITY_COOLER) + 
-				pc_search_inventory(sd,ITEMID_SPECIAL_COOLER)) >= 1) )
+			if ((pc_search_inventory(sd, ITEMID_COOLING_DEVICE) + pc_search_inventory(sd, ITEMID_HIGH_QUALITY_COOLER) +
+				pc_search_inventory(sd, ITEMID_SPECIAL_COOLER)) < 1)
 			{
 				clif_skill_fail(sd, skill_id,USESKILL_FAIL_NEED_ITEM,0,ITEMID_COOLING_DEVICE);
 				return 0;
@@ -19122,8 +19110,7 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 					struct block_list* src;
 					if( unit->val1 > 0 && (src = map_id2bl(group->src_id)) != NULL && src->type == BL_PC )
 					{ // revert unit back into a trap
-						struct item item_tmp;
-						memset(&item_tmp,0,sizeof(item_tmp));
+						struct item item_tmp = { 0 };
 						item_tmp.nameid = ( group->unit_id >= UNT_MAGENTATRAP && group->unit_id <= UNT_CLUSTERBOMB ) ? ITEMID_SPECIAL_ALLOY_TRAP:ITEMID_TRAP;
 						item_tmp.identify = 1;
 						map_addflooritem(&item_tmp,1,bl->m,bl->x,bl->y,0,0,0,4,0,false);
@@ -19994,8 +19981,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, t_itemid namei
 
 
 	if(rnd()%10000 < make_per || qty > 1){ //Success, or crafting multiple items.
-		struct item tmp_item;
-		memset(&tmp_item,0,sizeof(tmp_item));
+		struct item tmp_item = { 0 };
 		tmp_item.nameid=nameid;
 		tmp_item.amount=1;
 		tmp_item.identify=1;

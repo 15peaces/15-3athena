@@ -2601,8 +2601,7 @@ ACMD_FUNC(go)
 	if( !ISDIGIT(input[0]) )
 	{ // input is a name
 		int startswith_count = 0;
-		int startswith_arr[ARRAYLENGTH(names)];
-		memset(&startswith_arr, 0, sizeof(startswith_arr));
+		int startswith_arr[ARRAYLENGTH(names)] = { 0 };
 
 		// try to match the input
 		for( i = 0; i < ARRAYLENGTH(names); ++i )
@@ -5139,7 +5138,7 @@ ACMD_FUNC(mount)
 	}
 
 	//Players with the Groomy status or riding a rental mount can not mount on regular mounts.
-	if (&sd->sc && (sd->sc.data[SC__GROOMY] || sd->sc.data[SC_ALL_RIDING]))
+	if (sd->sc.data[SC__GROOMY] || sd->sc.data[SC_ALL_RIDING])
 		return -1;
 
 	// Checks for Knight, Crusader, Lord Knight, Paladin, Baby Knight, and Baby Crusader.
@@ -7394,11 +7393,9 @@ ACMD_FUNC(clearweather)
  *---------------------------------------------------------------*/
 ACMD_FUNC(sound)
 {
-	char sound_file[100];
+	char sound_file[100] = { 0 };
 
-	memset(sound_file, '\0', sizeof(sound_file));
-
-		if(!message || !*message || sscanf(message, "%99[^\n]", sound_file) < 1) {
+	if(!message || !*message || sscanf(message, "%99[^\n]", sound_file) < 1) {
 		clif_displaymessage(fd, "Please, enter a sound filename. (usage: @sound <filename>)");
 		return -1;
 	}

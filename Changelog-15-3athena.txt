@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/06/2026
+	r575 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Replaced memset with zero initialization in go atcommand.
+			-Removed redundant if conditions.
+			-Fixed small if statement inconsistencies in pc.c.
+			-Removed more unused headers and variables.
+			-Replaced several memsets with simple zero initilizations.
+		*WM_METALICSOUND
+			-Fixed maxlevel in skill trees.
+
 06/05/2026
 	r574 [15peaces]
 		*Some more pet updates, thanks to @Reilaen

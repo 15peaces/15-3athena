@@ -37,7 +37,7 @@ const char *storage_getName(uint8 id) {
 	if (storage_db && storage_count) {
 		int i;
 		for (i = 0; i < storage_count; i++) {
-			if (&storage_db[i] && storage_db[i].id == id && storage_db[i].name && storage_db[i].name[0] != '\0')
+			if (&storage_db[i] && storage_db[i].id == id && storage_db[i].name[0] != '\0')
 				return storage_db[i].name;
 		}
 	}
@@ -1047,8 +1047,7 @@ void storage_storage2_save(struct map_session_data *sd) {
  * @param sd Player who has the storage
  **/
 void storage_storage2_saved(struct map_session_data *sd) {
-	if (!sd)
-		return;
+	nullpo_retv(sd);
 
 	if (&sd->storage2) {
 		sd->storage2.dirty = 0;

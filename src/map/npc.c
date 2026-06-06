@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include <time.h>
 #include <errno.h>
 
@@ -1190,8 +1189,7 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 		} break;
 		case NPCTYPE_POINTSHOP:
 		{
-			char output[CHAT_SIZE_MAX];
-			memset(output, '\0', sizeof(output));
+			char output[CHAT_SIZE_MAX] = { 0 };
 			sprintf(output, msg_txt(sd, 766), nd->u.shop.pointshop_str); // Point Shop List: '%s'
 			clif_broadcast(&sd->bl, output, strlen(output) + 1, 0x10, SELF);
 			clif_npcbuysell(sd, nd->bl.id);
@@ -1371,8 +1369,7 @@ int npc_cashshop_buy(struct map_session_data *sd, t_itemid nameid, int amount, i
 
 	if( !pet_create_egg(sd, nameid) )
 	{
-		struct item item_tmp;
-		memset(&item_tmp, 0, sizeof(struct item));
+		struct item item_tmp = { 0 };
 		item_tmp.nameid = nameid;
 		item_tmp.identify = 1;
 
@@ -1479,9 +1476,8 @@ int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_li
 	{
 		int nameid = item_list[i].nameid;
 		int amount = item_list[i].qty;
-		struct item item_tmp;
+		struct item item_tmp = { 0 };
 
-		memset(&item_tmp,0,sizeof(item_tmp));
 		item_tmp.nameid = nameid;
 		item_tmp.identify = 1;
 
@@ -1679,8 +1675,7 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 				get_amt = 1;
 
 			for (k = 0; k < amount; k += get_amt) {
-				struct item item_tmp;
-				memset(&item_tmp, 0, sizeof(item_tmp));
+				struct item item_tmp = { 0 };
 				item_tmp.nameid = nameid;
 				item_tmp.identify = 1;
 
