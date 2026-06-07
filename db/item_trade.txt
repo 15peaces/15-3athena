@@ -440,7 +440,7 @@
 5583,499,100	// Para_Team_Hat
 5596,507,100	// 4Leaf Clover In Mouth
 5597,507,100	// Bubble Gum In Mouth
-5746,507,100		// Rune_Circlet
+5746,467,100		// Rune_Circlet
 5747,507,100		// Mitra
 5748,507,100		// Sniper_Goggle
 5749,507,100		// Driver_Band
@@ -503,8 +503,8 @@
 6076,507,100	// Portable_Toolbox
 6077,507,100	// Rough_Mineral
 6079,507,100	// Flower_Of_Alfheim
-6080,507,100		// Manuk_Coin
-6081,507,100		// Splendide_Coin
+6080,467,100		// Manuk_Coin
+6081,467,100		// Splendide_Coin
 6082,507,100	// Spirit_Of_Alfheim
 6084,507,100	// Bradium_Fragments
 6085,507,100	// Shaggy_Muffler
@@ -535,11 +535,6 @@
 6402,499,100	// Palm Oil Fruit
 6415,507,100	// Strange Embryo
 6417,499,100	// Silvervine Fruit
-6418,499,100	// A Grade Coin
-6419,499,100	// B Grade Coin
-6420,499,100	// C Grade Coin
-6421,499,100	// D Grade Coin
-6422,499,100	// E Grade Coin
 6426,499,100	// Bad Canned Food
 6427,507,100	// Bad Canned Food Sack
 6428,507,100	// Adventure Card A
@@ -975,7 +970,6 @@
 12343,507,100	// Manuk's_Courage
 12344,507,100	// Pinguicula's_fruit_Jam
 12345,507,100	// Luciola's_Honey_Jam
-12346,499,100	// Unripe Acorn
 12348,507,100	// Manuk's_Faith
 12349,507,100	// Cornus'_Tears
 12350,457,100	// Angeling Potion

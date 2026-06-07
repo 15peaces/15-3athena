@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/07/2026
+	r576 [15peaces]
+		*Added missing items & some cleaning.
+		*Fixed some trading restrictions.
+		*Fixed getring function to make it work with int card values.
+			-Fixed wrong/outdated separation of partner id.
+
 06/06/2026
 	r575 [15peaces]
 		*Some fixes, thanks to @Reilaen

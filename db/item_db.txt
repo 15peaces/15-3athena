@@ -3128,9 +3128,9 @@
 5573,Bogy_Horn,Dokebi Horn,5,20,,100,,1,,1,0xFFFFFFFF,63,2,256,,75,1,554,{ bonus2 bAddMonsterDropItemGroup,IG_Jewel,100; bonus3 bAutoSpell,"MC_MAMMONITE",5,70; },{},{}
 5574,Pencil_In_Mouth,Well-Chewed Pencil,5,20,,100,,0,,0,0xFFFFFFFF,63,2,1,,10,0,555,{ bonus bHit,3; },{},{}
 5575,Onigiri_Hat,Rice Ball Hat,5,20,,100,,6,,1,0xFFFFFFFF,63,2,256,,30,0,556,{},{},{}
-//5576,Japan_Winecup,Wine Cup,5,20,,100,,1,,0,0xFFFFFFFF,7,2,1,,0,0,557,{},{},{}
-5577,Dark_Knight_Mask_,Dark Knight Mask,5,,,3000,,5,,0,0xFFFFFFFF,7,2,769,,80,1,479,{ bonus bStr,3; if(isequipped(2779,2780)) { bonus bMatkRate,10; bonus bInt,5; bonus2 bSubRace,RC_Angel,10; } },{},{}
-5578,Voyage_Hat,Voyage_Hat,5,200,,10,,1,,0,0xFFFFFFFF,7,2,256,,0,1,236,{ bonus bAgi,2; },{},{}
+5576,Japan_Winecup,Wine Cup,5,20,,100,,1,,0,0xFFFFFFFF,63,2,1,,0,0,557,{},{},{}
+5577,Dark_Knight_Mask_,Dark Knight Mask,5,,,3000,,5,,0,0xFFFFFFFF,63,2,769,,80,1,479,{ bonus bStr,3; if(isequipped(2779,2780)) { bonus bMatkRate,10; bonus bInt,5; bonus2 bSubRace,RC_Angel,10; } },{},{}
+5578,Voyage_Hat,Voyage Hat,5,200,,10,,1,,0,0xFFFFFFFF,63,2,256,,0,1,236,{ bonus bAgi,2; },{},{}
 5579,Wanderer's_Sakkat,Wanderer's Sakkat,5,20,,300,,2,,1,0xFFFFFFFF,7,2,768,,70,1,558,{ bonus bAgi,2; },{},{}
 5580,Red_Beret,Red Beret,5,20,,100,,1,,0,0xFFFFFFFF,7,2,256,,0,0,559,{ bonus bAllStats,3; bonus bMdef,3; },{},{}
 5581,Cancer_Diadem,Cancer Diadem,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,70,1,560,{ bonus bInt, 2; bonus2 bSubEle, Ele_water, 5; if(getrefine() > 6) { bonus bMdef, 1; bonus bHealPower, 3; bonus bMatkRate, 2; } },{},{}
@@ -3317,7 +3317,7 @@
 //5762,Duneyrr_Helm,Duneyrr Helm,5,20,,100,,5,,0,0xFFFFFFFF,7,2,256,,1,1,639,{ bonus bAllStats,1; bonus bMdef,5; },{},{}
 //5763,Red_Bunny_Band,Red Bunny Band,5,0,,200,,4,,0,0xFFFFFFFF,7,2,256,,1,1,640,{ bonus bAgi,2; bonus bMdef,3; },{},{}
 //
-//5765,Black_Tail_Ribbon,
+5765,Black_Tail_Ribbon,Black Tail Ribbon,5,20,,100,,0,,1,0xFFFFFFFF,63,2,256,,10,1,642,{ bonus bMdef,5; bonus bLongAtkDef,10; bonus2 bSubEle,Ele_Neutral,5; },{},{}
 5766,Amistr_Cap,Amistr Cap,5,20,,500,,4,,1,0xFFFFFFFF,7,2,256,,50,1,643,{ bonus bVit,5; },{},{}
 //5767,Samurai_Mask,Samurai Mask,5,20,,300,,1,,0,0xFFFFFFFF,7,2,1,,50,0,644,{},{},{}
 //5768,Sakura_Coronet,Sakura Coronet,5,20,,800,,1,,1,0xFFFFFFFF,7,2,256,,1,1,645,{ bonus bMdef,3; },{},{}
@@ -3855,7 +3855,12 @@
 6428,Bravery_Card_A,Adventure Card A,3,0,,0,,,,,,,,,,,,,{},{},{}
 6429,Bravery_Card_B,Adventure Card B,3,0,,0,,,,,,,,,,,,,{},{},{}
 6430,Picture_Piece,Picture Fragment,3,0,,0,,,,,,,,,,,,,{},{},{}
-
+//
+6442,Octopus_Hunt_Stick,Octopus Hunting Skewer,3,0,,0,,,,,,,,,,,,,{},{},{}
+6443,Sillit_Pong_Bottle,Sillit Pong Bottle,3,20,,0,,,,,,,,,,,,,{},{},{}
+6444,Emperium_G,Emperium G,3,2,,1000,,,,,,,,,,,,,{},{},{}
+6445,Blue_Card_X,Blue Card X,3,0,,10,,,,,,,,,,,,,{},{},{}
+//
 6490,Magic_Clay_Fragment,Magic Clay Fragment,3,0,,10,,,,,,,,,,,,,{},{},{}
 6491,Magic_Clay,Magic Clay,3,0,,10,,,,,,,,,,,,,{},{},{}
 6492,Magic_Clay_Lump,Magic Clay Lump,3,0,,10,,,,,,,,,,,,,{},{},{}

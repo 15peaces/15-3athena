@@ -86,14 +86,6 @@
 
 
 //Other new Items
-5576,Japan_Winecup,Wine Cup,5,20,,100,,1,,0,0xFFFFFFFF,63,2,1,,0,0,557,{},{},{}
-5577,Dark_Knight_MaskB,Dark Knight Mask,5,,,3000,,5,,0,0xFFFFFFFF,63,2,769,,80,1,479,{ bonus bStr,3; },{},{}
-5578,Voyage_Hat,Voyage Hat,5,200,,10,,1,,0,0xFFFFFFFF,63,2,256,,0,1,236,{ bonus bAgi,2; },{},{}
-5765,Black_Tail_Ribbon,Black Tail Ribbon,5,20,,100,,0,,1,0xFFFFFFFF,63,2,256,,10,1,642,{ bonus bMdef,5; bonus bLongAtkDef,10; bonus2 bSubEle,Ele_Neutral,5; },{},{}
-6442,Octopus_Hunt_Stick,Octopus Hunting Skewer,3,0,,0,,,,,,,,,,,,,{},{},{}
-6443,Sillit_Pong_Bottle,Sillit Pong Bottle,3,20,,0,,,,,,,,,,,,,{},{},{}
-6444,Emperium_G,Emperium G,3,2,,1000,,,,,,,,,,,,,{},{},{}
-6445,Blue_Card_X,Blue Card X,3,0,,10,,,,,,,,,,,,,{},{},{}
 6446,Green_Paper,Green Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
 6447,Red_Paper,Red Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
 6448,White_Paper,White Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
@@ -5637,6 +5629,7 @@
 1002433,Card_Fragment_US,Card Fragment,3,,,,,,,,,,,,,,,,{},{},{}
 
 // Nightmarish Jitterbug Instance & more (renewal)
+4538,Sealed_Bacsojin_Card,Sealed White Lady Card,6,20,,10,,,,,,,,769,,,,,{ .@r = getrefine(); bonus bHealPower,(.@r>14?25:15); bonus bUseSPrate,(.@r>14?20:30); },{},{}
 4625,Time_Holder_Card,Time Holder Card,6,10,,10,,,,,,,,2,,,,,{ bonus bMatkRate,20; bonus bUseSPrate,10; },{},{}
 4626,Big_Ben_Card,Big Ben Card,6,10,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_Formless,5; bonus2 bMagicAddRace,RC_Demon,5; },{},{}
 4627,Big_Bell_Card,Big Bell Card,6,10,,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_Formless,10; bonus2 bAddRace,RC_Demon,10; },{},{}
@@ -5662,5 +5655,20 @@
 27110,Furious_Gazeti_Card,Furious Gazeti Card,6,20,,10,,,,,,,,16,,,,,{ bonus bLongAtkDef,20; },{},{}
 27111,Furious_Snowier_Card,Furious Snowier Card,6,20,,10,,,,,,,,136,,,,,{ bonus2 bAddItemHealRate,11522,50; bonus2 bAddItemHealRate,11523,50; bonus2 bAddItemHealRate,11524,50; },{},{}
 27112,Furious_Ice Titan_Card,Furious Ice Titan Card,6,20,,10,,,,,,,,16,,,,,{ bonus bDef,(5*(1+getrefine())); },{},{}
+27209,SLD_Q_Scaraba_Card,Sealed Queen Scaraba Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddMonsterDropItem,12806,30; if (getrefine()>=15) { bonus2 bAddRace2,RC2_SCARABA,25; } else { bonus2 bAddRace2,RC2_SCARABA,15; } },{},{}
+27211,SLD_Baphomet_Card,Sealed Baphomet Card,6,20,,10,,,,,,,,2,,,,,{ bonus bSplashRange,1; if (getrefine()>=15) { bonus bHit,-20; } else { bonus bHit,-30; } },{},{}
+27212,SLD_Maya_Card,Sealed Maya Card,6,20,,10,,,,,,,,32,,,,,{ if(getrefine()>=15) { bonus bMagicDamageReturn,30; } else { bonus bMagicDamageReturn,15; } },{},{}
+27213,SLD_Clown_Card,Sealed Clown Card,6,20,,10,,,,,,,,16,,,,,{ if (getrefine()>=15) { .@a = 7; .@b = 15; } else { .@a = 5; .@b = 10; } if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_MUSICAL || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_WHIP) { skill "BA_POEMBRAGI2",.@a; } bonus bFlee,(readparam(bVit)>=110) ? (.@b*2) : .@b; },{},{}
+27214,SLD_Professor_Card,Sealed Professor Card,6,20,,10,,,,,,,,16,,,,,{ if (getrefine()<15) { bonus5 bAutoSpellWhenHit,"SA_LANDPROTECTOR",1,1,BF_MAGIC,0; bonus bMatkRate,(readparam(bDex)>=110) ? 6 : 3; } else { bonus5 bAutoSpellWhenHit,"SA_LANDPROTECTOR",3,1,BF_MAGIC,0; bonus bMatkRate,(readparam(bDex)>=110) ? 10 : 5; } },{},{}
+27215,SLD_Champion_Card,Sealed Champion Card,6,20,,10,,,,,,,,16,,,,,{ if (getrefine()<15) { bonus5 bAutoSpellWhenHit,"MO_INVESTIGATE",1,1,BF_WEAPON,1; bonus bAtkRate,(readparam(bAgi)>=110) ? 6 : 3; } else { bonus5 bAutoSpellWhenHit,"MO_INVESTIGATE",3,1,BF_WEAPON,1; bonus bAtkRate,(readparam(bAgi)>=110) ? 10 : 5; } },{},{}
+27216,SLD_Creator_Card,Sealed Creator Card,6,20,,10,,,,,,,,16,,,,,{ if (getrefine()<15) { bonus5 bAutoSpellWhenHit,"AM_ACIDTERROR",1,1,BF_WEAPON,1; bonus bCritical,(readparam(bStr)>=110) ? 20 : 10; } else { bonus5 bAutoSpellWhenHit,"AM_ACIDTERROR",3,1,BF_WEAPON,1; bonus bCritical,(readparam(bStr)>=110) ? 30 : 20; } },{},{}
+27217,SLD_Stalker_Card,Sealed Stalker Card,6,20,,10,,,,,,,,16,,,,,{ if (getrefine()<15) { bonus5 bAutoSpellWhenHit,"ST_FULLSTRIP",1,1,BF_WEAPON,1; bonus bHit,(readparam(bLuk)>=110) ? 20 : 10; } else { bonus bHit,(readparam(bLuk)>=110) ? 30 : 15; } },{},{}
+27218,SLD_Paladin_Card,Sealed Paladin Card,6,20,,10,,,,,,,,16,,,,,{ if (getrefine()<15) { bonus5 bAutoSpellWhenHit,"CR_GRANDCROSS",5,1,BF_WEAPON,0; bonus bMaxHPrate,(readparam(bInt)>=110) ? 10 : 5; } else { bonus5 bAutoSpellWhenHit,"CR_GRANDCROSS",7,1,BF_WEAPON,0; bonus bMaxHPrate,(readparam(bInt)>=110) ? 14 : 7; } },{},{}
+27219,SLD_Gypsy_Card,Sealed Gypsy Card,6,20,,10,,,,,,,,16,,,,,{ if (getrefine()<15) { if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_MUSICAL || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_WHIP) { skill "DC_FORTUNEKISS2",5; } bonus bFlee,(readparam(bVit)>=110) ? 20 : 10; } else { if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_MUSICAL || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_WHIP) { skill "DC_FORTUNEKISS2",7; } bonus bFlee,(readparam(bVit)>=110) ? 30 : 15; } },{},{}
+27220,SLD_Daehyon_Card,Sealed General Daehyon Card,6,20,,10,,,,,,,,2,,,,,{ if (getrefine()<15) { if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_1HSWORD || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSWORD) { bonus bBaseAtk,50; } } else { if (getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_1HSWORD || getiteminfo(getequipid(EQI_HAND_R), ITEMINFO_VIEW) == W_2HSWORD) { bonus bBaseAtk,75; } } },{},{}
+27221,SLD_Gioia_Card,Sealed Gioia Card,6,20,,10,,,,,,,,4,,,,,{ if (getrefine()<15) { bonus2 bMagicAtkEle,Ele_Ghost,50; bonus2 bMagicAtkEle,Ele_Wind,50; bonus2 bSubEle,Ele_All,-60; } else { bonus2 bMagicAtkEle,Ele_Ghost,75; bonus2 bMagicAtkEle,Ele_Wind,75; bonus2 bSubEle,Ele_All,-40; } },{},{}
+27222,SLD_Pyuriel_Card,Sealed Fallen Pyuriel Card,6,20,,10,,,,,,,,2,,,,,{ if (getrefine()<15) { bonus bCritAtkRate,20; bonus2 bSubRace,RC_All,-20; } else { bonus bCritAtkRate,25; bonus2 bSubRace,RC_All,-15; } },{},{}
+27224,SLD_Kades_Card,Sealed Guardian Kades Card,6,20,,10,,,,,,,,4,,,,,{ bonus2 bSubEle,Ele_Holy,-100; bonus2 bSubEle,Ele_Ghost,-100; if (getrefine()<15) { bonus2 bSubEle,Ele_Water,20; bonus2 bSubEle,Ele_Earth,20; bonus2 bSubEle,Ele_Fire,20; bonus2 bSubEle,Ele_Wind,20; bonus2 bSubEle,Ele_Dark,20; bonus2 bSubEle,Ele_Undead,20; } else { bonus2 bSubEle,Ele_Water,20; bonus2 bSubEle,Ele_Earth,20; bonus2 bSubEle,Ele_Fire,20; bonus2 bSubEle,Ele_Wind,20; bonus2 bSubEle,Ele_Dark,20; bonus2 bSubEle,Ele_Undead,20; } },{},{}
+27225,SLD_Timeholder_Card,Sealed Time Holder Card,6,20,,10,,,,,,,,2,,,,,{ if (getrefine()<15) { bonus bMatkRate,10; bonus bUseSPrate,20; } else { bonus bMatkRate,15; bonus bUseSPrate,15; } },{},{}
 470084,Rune_Greave_JP,Rune Greaves,5,0,,400,,12,,0,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}
 470085,Rune_Greave_JP_,Rune Greaves,5,0,,400,,12,,1,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}
