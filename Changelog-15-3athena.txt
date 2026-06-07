@@ -6,6 +6,11 @@
 //			--More Details.
 //========================================
 06/07/2026
+	r577 [15peaces]
+		*Reordered the pet db parameters when read from the file.
+		*Updated the current pets to the updated mechanics and database order.
+
+06/07/2026
 	r576 [15peaces]
 		*Added missing items & some cleaning.
 		*Fixed some trading restrictions.
