@@ -911,7 +911,7 @@
 12211,507,100	// Kafra_Card
 12212,507,100	// Giant_Fly_Wing
 12213,507,100	// Neuralizer
-12214,507,100	// Convex_Mirror
+12214,479,100	// Convex_Mirror
 12215,507,100	// Blessing_10_Scroll
 12216,507,100	// Inc_Agi_10_Scroll
 12217,507,100	// Aspersio_5_Scroll

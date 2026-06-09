@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/09/2026
+	r578 [15peaces]
+		*Re-Added LITTLE_ISIS pet.
+		*Fixed Convex_Mirror to be storable.
+
 06/07/2026
 	r577 [15peaces]
 		*Reordered the pet db parameters when read from the file.
