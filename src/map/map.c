@@ -1618,47 +1618,44 @@ int map_pickrandominrange(int (*func)(struct block_list*,va_list), struct block_
 }
 
 // Copy of map_foreachinmap, but applied to all maps in a instance id. [Ind/Hercules]
-int map_foreachininstance(int(*func)(struct block_list*, va_list), int16 instance_id, int type, ...) {
-	int b, bsize;
+int map_foreachininstance(int(*func)(struct block_list*, va_list), const int16 instance_id, const int type, ...) {
+	int b;
 	int returnCount = 0;  //total sum of returned values of func() [Skotlex]
 	struct block_list *bl;
-	int blockcount = bl_list_count, i, j;
-	int16 m;
+	int blockcount = bl_list_count;
 	va_list ap;
 
-	for (j = 0; j < instances[instance_id].num_map; j++) {
+	for (int j = 0; j < instances[instance_id].num_map; j++) {
+		const int16 m = instances[instance_id].map[j];
+		const int bsize = map[m].bxs * map[m].bys;
 
-		m = instances[instance_id].map[j];
-
-		bsize = map[m].bxs * map[m].bys;
-
-		if (type&~BL_MOB)
+		if (type & ~BL_MOB)
 			for (b = 0; b < bsize; b++)
 				for (bl = map[m].block[b]; bl != NULL; bl = bl->next)
-					if (bl->type&type && bl_list_count < BL_LIST_MAX)
+					if (bl->type & type && bl_list_count < BL_LIST_MAX)
 						bl_list[bl_list_count++] = bl;
 
-		if (type&BL_MOB)
+		if (type & BL_MOB)
 			for (b = 0; b < bsize; b++)
 				for (bl = map[m].block_mob[b]; bl != NULL; bl = bl->next)
 					if (bl_list_count < BL_LIST_MAX)
 						bl_list[bl_list_count++] = bl;
-
-		if (bl_list_count >= BL_LIST_MAX)
-			ShowWarning("map_foreachininstance: block count too many!\n");
-
-		map_freeblock_lock();
-
-		for (i = blockcount; i < bl_list_count; i++)
-			if (bl_list[i]->prev) { //func() may delete this bl_list[] slot, checking for prev ensures it wasnt queued for deletion.
-				va_start(ap, type);
-				returnCount += func(bl_list[i], ap);
-				va_end(ap);
-			}
-
-		map_freeblock_unlock();
-
 	}
+
+	if (bl_list_count >= BL_LIST_MAX)
+		ShowWarning("map_foreachininstance: block count too many!\n");
+	
+	map_freeblock_lock();
+
+	for (int i = blockcount; i < bl_list_count; i++) {
+		if (bl_list[i]->prev) { //func() may delete this bl_list[] slot, checking for prev ensures it wasnt queued for deletion.
+			va_start(ap, type);
+			returnCount += func(bl_list[i], ap);
+			va_end(ap);
+		}
+	}
+
+	map_freeblock_unlock();
 
 	bl_list_count = blockcount;
 	return returnCount;

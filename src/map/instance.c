@@ -341,18 +341,16 @@ int instance_init_npc(struct block_list* bl, va_list args) {
  *--------------------------------------*/
 void instance_init(int instance_id)
 {
-	int i;
-
 	if( !instance_is_valid(instance_id) )
 		return; // nothing to do
 
-	for (i = 0; i < instances[instance_id].num_map; i++)
+	instances[instance_id].state = INSTANCE_BUSY;
+
+	for (int i = 0; i < instances[instance_id].num_map; i++)
 		map_foreachinmap(instance_map_npcsub, map[instances[instance_id].map[i]].instance_src_map, BL_NPC, instances[instance_id].map[i]);
 
 	/* cant be together with the previous because it will rely on all of them being up */
 	map_foreachininstance(instance_init_npc, instance_id, BL_NPC);
-
-	instances[instance_id].state = INSTANCE_BUSY;
 }
 
 /*--------------------------------------

@@ -980,7 +980,7 @@ prt_church,95,127,3	script	Crusader	745,{
 
 // Moved on EP 16.1
 prt_castle,35,151,5	duplicate(Patron Knight_)	Patron Knight	1,0,152,751
-prt_cas,238,94,5	duplicate(Patron Knight_)	Patron Knight	1,161,-1,751
+prt_cas,261,101,5	duplicate(Patron Knight_)	Patron Knight	1,161,-1,751
 
 
 //=== Actual tests ========================================

@@ -4679,7 +4679,7 @@ ACMD_FUNC(reloadmobdb)
 {
 	nullpo_retr(-1, sd);
 	mob_reload();
-	read_petdb();
+	read_pet_db();
 	hom_reload();
 	mercenary_readdb();
 	mercenary_read_skilldb();

@@ -3539,8 +3539,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	if (sd->pd) { // Pet Bonus
 		const struct pet_data* pd = sd->pd;
-		if (pd && pd->petDB && pd->petDB->pet_support_script)
-			run_script(pd->petDB->pet_support_script,0,sd->bl.id,0);
+		if (pd && pd->petDB && pd->petDB->pet_bonus_script)
+			run_script(pd->petDB->pet_bonus_script,0,sd->bl.id,0);
 
 		if (pd && pd->pet.intimate > PET_INTIMATE_NONE && (!battle_config.pet_equip_required || pd->pet.equip > 0) && pd->state.skillbonus == 1 && pd->bonus)
 			pc_bonus(sd,pd->bonus->type, pd->bonus->val);

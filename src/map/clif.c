@@ -15376,7 +15376,7 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 {
 	int i = 0, idx, petIndex;
 
-	int16 EvolvedPetEggID = RFIFOW(fd,4);
+	const int16 EvolvedPetEggID = RFIFOW(fd,4);
 
 	if (sd->status.pet_id == 0) {
 		clif_pet_evolution_result(fd, PET_EVOL_NO_CALLPET);
@@ -15407,19 +15407,18 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 
 	// Client side validation is not done as it is insecure.
 	for (i = 0; i < VECTOR_LENGTH(pet_db[petIndex].evolve_data); i++) {
-		struct pet_evolve_data *ped = &VECTOR_INDEX(pet_db[petIndex].evolve_data, i);
+		const struct pet_evolve_data* ped = &VECTOR_INDEX(pet_db[petIndex].evolve_data, i);
 
 		if (ped->petEggId == EvolvedPetEggID) {
 			int j;
-			int pet_id;
 
 			if (VECTOR_LENGTH(ped->items) == 0) {
 				clif_pet_evolution_result(fd, PET_EVOL_NO_RECIPE);
 				return;
 			}
 			for (j = 0; j < VECTOR_LENGTH(ped->items); j++) {
-				struct pet_itemlist_entry *list = &VECTOR_INDEX(ped->items, j);
-				int n = pc_search_inventory(sd, list->id);
+				const struct pet_itemlist_entry* list = &VECTOR_INDEX(ped->items, j);
+				const int n = pc_search_inventory(sd, list->id);
 
 				if (n == -1) {
 					clif_pet_evolution_result(fd, PET_EVOL_NO_MATERIAL);
@@ -15445,7 +15444,7 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 				return;
 			}
 
-			pet_id = search_petDB_index(ped->petEggId, PET_EGG);
+			const int pet_id = search_petDB_index(ped->petEggId, PET_EGG);
 			if (pet_id >= 0) {
 				sd->catch_target_class = pet_db[pet_id].class_;
 
@@ -15464,7 +15463,7 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 	}
 
 	clif_pet_evolution_result(fd, PET_EVOL_UNKNOWN);
-	ShowDebug("clif_pet_evolution_result: No evolution data found...\n");
+	ShowDebug("clif_pet_evolution_result: No evolution data found for pet class %d...\n", sd->pd->pet.class_);
 }
 
 /**

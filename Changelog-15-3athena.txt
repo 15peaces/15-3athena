@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/18/2026
+	r579 [15peaces]
+		*Some fixes, thanks to @Reilaen
+			-Fixed instance state was set to busy to late.
+			-Fixed map_foreachininstance function.
+			-Fixed the new position of Patron Knight.
+			-Fix for dispbottom2 using the color argument where the username argument should be used.
+			-Corrected wrong pet script naming in status_calc_pc_.
+			-Added missing validation checks in pet_select_egg.
+			-Combined reading pet_db and pet_evolve_db in read_pet_db.
+			-Fixed a wrong struct name in skill.c.
+			-Added pet id to an error message for easier debugging.
+
 06/09/2026
 	r578 [15peaces]
 		*Re-Added LITTLE_ISIS pet.

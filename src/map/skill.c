@@ -10441,7 +10441,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		case WL_SUMMONWB:
 		case WL_SUMMONSTONE:
 		{
-			enum e_wl_spheres element = 0;
+			enum wl_spheres element = 0;
 			struct status_change *sc = status_get_sc(src);
 			if( !sc ) 
 				break;

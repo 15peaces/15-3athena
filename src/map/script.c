@@ -14015,7 +14015,7 @@ BUILDIN_FUNC(dispbottom2)
 	if(script_hasdata(st,4)){
 		const char* player;
 		TBL_PC *tsd;
-		player = script_getstr(st,2);
+		player = script_getstr(st,4);
 		tsd=map_nick2sd((char *) player);
 		if (tsd)
 			clif_displaymessagecolor(tsd,message,color);
