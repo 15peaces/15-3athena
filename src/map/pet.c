@@ -710,7 +710,6 @@ int pet_catch_process2(struct map_session_data* sd, const int target_id)
  **/
 int pet_get_egg(const int account_id, const short pet_class, const int pet_id)
 {	//This function is invoked when a new pet has been created, and at no other time!
-	struct map_session_data *sd;
 	struct item tmp_item;
 	int i=0,ret=0;
 
@@ -966,7 +965,7 @@ static int pet_randomwalk(struct pet_data *pd,const int64 tick)
 
 	if(DIFF_TICK(pd->next_walktime,tick) < 0 && unit_can_move(&pd->bl)) {
 		const int retrycount = 20;
-		int i,x,y,c,d=12-pd->move_fail_count;
+		int i,c,d=12-pd->move_fail_count;
 		if(d<5) d=5;
 		for (i = 0; i < retrycount; i++) {
 			const int x = pd->bl.x + rnd() % (d * 2 + 1) - d;

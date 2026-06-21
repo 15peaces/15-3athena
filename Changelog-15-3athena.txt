@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/21/2026
+	r580 [15peaces]
+		*Fixed Victorious_Coronet to be storable.
+		*LG_RAYOFGENESIS
+			-Updated to set magic element to neutral under SC_INSPIRATION.
+			-Updated Casttimes.
+			-Updated damage formular to 2022 version.
+		*LG_HESPERUSLIT
+			-Updated to latest official version.
+			-Removed Banding requirement.
+		*Added some missing cards.
+
 06/18/2026
 	r579 [15peaces]
 		*Some fixes, thanks to @Reilaen

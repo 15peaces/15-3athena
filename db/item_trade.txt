@@ -456,7 +456,7 @@
 5760,507,100		// Driver_Band_
 5800,73,100		// Blush_Of_Groom
 5801,73,100		// Ribbon_Of_Bride
-5805,507,100		// Victorious_Coronet
+5805,479,100		// Victorious_Coronet
 5806,507,100		// Poem_Natalia_Hat
 5812,507,100	// Hat_Of_Expert
 5817,507,100	// Valentine_Pledge

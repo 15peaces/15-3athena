@@ -1413,10 +1413,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		sc_start(bl, SC_EARTHDRIVE, 100, skill_lv, skill_get_time(skill_id, skill_lv));
 		break;
 	case LG_HESPERUSLIT:
-		if (sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 4 || sc->data[SC_BANDING]->val2 == 4))
-			status_change_start(src, bl, SC_STUN, 10000, skill_lv, 0, 0, 0, rnd_value( 4000, 8000), 2);
-		if ((sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5) > 0 && sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 6 || sc->data[SC_BANDING]->val2 == 6))
-			skill_castend_damage_id(src, bl, LG_PINPOINTATTACK, rnd_value(1, (sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5)), tick, 0);
+		if (pc_checkskill(sd, LG_PINPOINTATTACK) > 0 && sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 5)
+			skill_castend_damage_id(src, bl, LG_PINPOINTATTACK, rnd_value(1, pc_checkskill(sd, LG_PINPOINTATTACK)), tick, 0);
 		break;
 	case SR_DRAGONCOMBO:
 		sc_start(bl, SC_STUN, 1 + skill_lv, skill_lv, skill_get_time(skill_id, skill_lv));
@@ -2469,10 +2467,16 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	case NPC_GRANDDARKNESS:
 		attack_type |= BF_WEAPON;
 		break;
-	case LG_HESPERUSLIT:// Generates rage spheres for all Royal Guards in banding that has Force of Vanguard active.
-		if (sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 7 || sc->data[SC_BANDING]->val2 == 7))
-			party_foreachsamemap(party_sub_count_banding, sd, 3, 2);
-		break;
+	case LG_HESPERUSLIT:
+	{
+		struct status_change* sc = status_get_sc(src);
+
+		if (sc && sc->data[SC_FORCEOFVANGUARD]) {
+			for (int32 i = 0; i < sc->data[SC_FORCEOFVANGUARD]->val3; i++)
+				pc_addspiritball(sd, skill_get_time(LG_FORCEOFVANGUARD, 1), sc->data[SC_FORCEOFVANGUARD]->val3);
+		}
+	}
+	break;
 	case SP_SPA:
 		sc_start(src, SC_USE_SKILL_SP_SPA, 100, skill_lv, skill_get_time(skill_id, skill_lv));
 		break;
@@ -16245,13 +16249,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 		if (sc && sc->data[SC_INSPIRATION])
 			return 1;	// Don't check for partner.
 		break;
-	case LG_HESPERUSLIT:
-		if (!sc || !sc->data[SC_BANDING])
-		{
-			clif_skill_fail(sd, skill_id, 0, 0, 0);
-			return 0;
-		}
- 		break;
 	case SR_CRESCENTELBOW:
 		if( sc && sc->data[SC_CRESCENTELBOW] ){
 			clif_skill_fail(sd, skill_id,0,0,0);

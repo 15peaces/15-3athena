@@ -2276,6 +2276,10 @@ static int battle_get_weapon_element(struct Damage wd, struct block_list *src, s
 				element = ELE_GHOST;
 		}
 		break;
+	case LG_HESPERUSLIT:
+		if (sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 4)
+			element = ELE_HOLY;
+		break;
 	case GN_CARTCANNON:
 	case NC_ARMSCANNON:
 		if (sd && sd->state.arrow_atk > 0)
@@ -3247,12 +3251,6 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
-	case LG_RAYOFGENESIS:
-		skillratio += -100 + 350 * skill_lv;
-		skillratio += sstatus->int_ * 3;
-		if (level_effect_bonus == 1)
-			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
-		break;
 	case LG_EARTHDRIVE:
 		if (sd)
 		{
@@ -4143,12 +4141,6 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 		status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
 	}
 	switch (skill_id) {
-		case LG_RAYOFGENESIS:
-		{
-			struct Damage md = battle_calc_magic_attack(src, target, skill_id, skill_lv, wd.miscflag);
-			wd.damage += md.damage;
-		}
-		break;
 		case ASC_BREAKER:
 		{	//Breaker's int-based damage (a misc attack?)
 			struct Damage md = battle_calc_misc_attack(src, target, skill_id, skill_lv, wd.miscflag);
@@ -4592,6 +4584,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					s_ele = ELE_EARTH;
 			}
 			break;
+
+		case LG_RAYOFGENESIS:
+			if (sc && sc->data[SC_INSPIRATION])
+				s_ele = ELE_NEUTRAL;
+			break;
 	}
 	
 	//Set miscellaneous data that needs be filled
@@ -4943,11 +4940,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio = skillratio * (200 + status_get_base_lv_effect(src) - 100) / 200;
 						break;
 					case LG_RAYOFGENESIS:
-						skillratio = 300 * skill_lv;
-						if (sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)
-							skillratio += 200 * sc->data[SC_BANDING]->val2;
-						if (sc && sc->data[SC_INSPIRATION])
-							skillratio += 600;
+						skillratio += -100 + 350 * skill_lv;
+						skillratio += sstatus->int_ * 3;
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * status_get_job_lv_effect(src) / 25;
 						break;

@@ -3860,6 +3860,10 @@
 6443,Sillit_Pong_Bottle,Sillit Pong Bottle,3,20,,0,,,,,,,,,,,,,{},{},{}
 6444,Emperium_G,Emperium G,3,2,,1000,,,,,,,,,,,,,{},{},{}
 6445,Blue_Card_X,Blue Card X,3,0,,10,,,,,,,,,,,,,{},{},{}
+6446,Green_Paper,Green Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
+6447,Red_Paper,Red Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
+6448,White_Paper,White Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
+6449,Casual_Diary,Casual Diary,3,0,,0,,,,,,,,,,,,,{},{},{}
 //
 6490,Magic_Clay_Fragment,Magic Clay Fragment,3,0,,10,,,,,,,,,,,,,{},{},{}
 6491,Magic_Clay,Magic Clay,3,0,,10,,,,,,,,,,,,,{},{},{}
