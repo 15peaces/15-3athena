@@ -3864,6 +3864,8 @@
 6447,Red_Paper,Red Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
 6448,White_Paper,White Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
 6449,Casual_Diary,Casual Diary,3,0,,0,,,,,,,,,,,,,{},{},{}
+6450,Honest_Diary,Honest Diary,3,0,,0,,,,,,,,,,,,,{},{},{}
+6451,Unknown_Fish,Unknown Fish,3,20,,0,,,,,,,,,,,,,{},{},{}
 //
 6490,Magic_Clay_Fragment,Magic Clay Fragment,3,0,,10,,,,,,,,,,,,,{},{},{}
 6491,Magic_Clay,Magic Clay,3,0,,10,,,,,,,,,,,,,{},{},{}

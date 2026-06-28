@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/28/2026
+	r581 [15peaces]
+		*Some item updates.
+			-Added missing Sealed cards.
+			-Added missing costume items.
+			-Some cleaning.
+		*Fixed a bug that led to cooldowns just getting inserted but never removed.
+			-Thanks to @Reilaen
+
 06/21/2026
 	r580 [15peaces]
 		*Fixed Victorious_Coronet to be storable.
