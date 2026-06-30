@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/30/2026
+	r582 [15peaces]
+		*Small update to ZC_HOSKILLINFO_LIST packet.
+			-Added an unknown value (zeroed) to send buffer.
+		*Fixed & cleaned RA_WUGDASH.
+			-Removed duplicated code.
+			-SC_RUN & SC_WUGDASH now share most of their code, since they are almost the same.
+
 06/28/2026
 	r581 [15peaces]
 		*Some item updates.

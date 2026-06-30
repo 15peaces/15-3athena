@@ -1902,6 +1902,7 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 			j = id - HM_SKILLBASE;
 			WFIFOW(fd,len  ) = id;
 			WFIFOL(fd,len+2) = ((combo) ? INF_SELF_SKILL : skill_get_inf(id));
+			WFIFOL(fd,len+4) = 0; //unknown
 			WFIFOW(fd,len+6) = hd->homunculus.hskill[j].lv;
 			WFIFOW(fd,len+8) = skill_get_sp(id,hd->homunculus.hskill[j].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->hd->bl, id,hd->homunculus.hskill[j].lv,false);

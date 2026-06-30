@@ -9512,9 +9512,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				// Note: this int64 value is stored in two separate int32 variables (FIXME)
 				val3 = (int)(currenttick&0x00000000ffffffffLL);
 				val4 = (int)((currenttick&0xffffffff00000000LL)>>32);
+				tick = -1;
+				break;
 			}
-			tick = -1;
-			break;
 		case SC_KAAHI:
 			val2 = 200*val1; //HP heal
 			val3 = 5*val1; //SP cost 
@@ -11138,7 +11138,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			{
 				struct unit_data *ud = unit_bl2ud(bl);
 				if( ud )
-					ud->state.running = unit_run(bl);
+					ud->state.running = unit_run(bl, NULL, SC_RUN);
 			}
 			break;
 		case SC_BOSSMAPINFO:
@@ -11159,7 +11159,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			{
 				struct unit_data *ud = unit_bl2ud(bl);
 				if( ud )
-					ud->state.running = unit_wugdash(bl, sd);
+					ud->state.running = unit_run(bl, sd, SC_WUGDASH);
 			}
 			break;
 		case SC_RAISINGDRAGON:

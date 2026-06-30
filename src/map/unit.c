@@ -514,7 +514,7 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 		ud->walktimer = add_timer(tick+i,unit_walktoxy_timer,id,i);
 	else if(ud->state.running) {
 		//Keep trying to run.
-		if (!unit_run(bl) || unit_wugdash(bl, sd))
+		if (!(unit_run(bl, NULL, SC_RUN) || unit_run(bl, sd, SC_WUGDASH)))
 			ud->state.running = 0;
 	}
 	else if (!ud->stepaction && ud->target_to) {
@@ -805,29 +805,54 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int 
 }
 #undef set_mobstate
 
+/**
+ * Called by unit_run when an object is hit.
+ * @param sd Required only when using SC_WUGDASH
+ */
+void unit_run_hit(struct block_list* bl, struct status_change* sc, struct map_session_data* sd, enum sc_type type)
+{
+	int32 lv = sc->data[type]->val1;
+
+	// If you can't run forward, you must be next to a wall, so bounce back. [Skotlex]
+	if (type == SC_RUN)
+		clif_status_change(bl, SI_BUMP, 1, 0, 0, 0, 0);
+
+	// Set running to 0 beforehand so status_change_end knows not to enable spurt [Kevin]
+	unit_bl2ud(bl)->state.running = 0;
+	status_change_end(bl, type, INVALID_TIMER);
+
+	if (type == SC_RUN) {
+		skill_blown(bl, bl, skill_get_blewcount(TK_RUN, lv), unit_getdir(bl), 0);
+		clif_status_change(bl, SI_BUMP, 0, 0, 0, 0, 0);
+	}
+	else if (sd) {
+		clif_fixpos(bl);
+		skill_castend_damage_id(bl, &sd->bl, RA_WUGDASH, lv, gettick(), SD_LEVEL);
+	}
+	return;
+}
+
 /*==========================================
  * Set a unit to run, checking for obstacles
  * @param bl: Object that is running
  * @return 1: Success 0: Fail
  *------------------------------------------*/
-int unit_run(struct block_list *bl)
+int unit_run(struct block_list *bl, struct map_session_data* sd, enum sc_type type)
 {
 	struct status_change *sc = status_get_sc(bl);
 	short to_x,to_y,dir_x,dir_y;
-	int lv;
 	int i;
 
-	if (!(sc && sc->data[SC_RUN]))
+	if (!(sc && sc->data[type]))
 		return 0;
-	
+
 	if (!unit_can_move(bl)) {
-		status_change_end(bl, SC_RUN, INVALID_TIMER);
+		status_change_end(bl, type, INVALID_TIMER);
 		return 0;
 	}
 	
-	lv = sc->data[SC_RUN]->val1;
-	dir_x = dirx[sc->data[SC_RUN]->val2];
-	dir_y = diry[sc->data[SC_RUN]->val2];
+	dir_x = dirx[sc->data[type]->val2];
+	dir_y = diry[sc->data[type]->val2];
 
 	// determine destination cell
 	to_x = bl->x;
@@ -838,7 +863,7 @@ int unit_run(struct block_list *bl)
 			break;
 
 		//if sprinting and there's a PC/Mob/NPC, block the path [Kevin]
-		if(sc->data[SC_RUN] && map_count_oncell(bl->m, to_x+dir_x, to_y+dir_y, BL_PC|BL_MOB|BL_NPC,0))
+		if(map_count_oncell(bl->m, to_x+dir_x, to_y+dir_y, BL_PC|BL_MOB|BL_NPC,0))
 			break;
 			
 		to_x += dir_x;
@@ -846,34 +871,19 @@ int unit_run(struct block_list *bl)
 	}
 
 	if ((to_x == bl->x && to_y == bl->y) || (to_x == (bl->x + 1) || to_y == (bl->y + 1)) || (to_x == (bl->x - 1) || to_y == (bl->y - 1))) {
-		//If you can't run forward, you must be next to a wall, so bounce back. [Skotlex]
-		clif_status_change(bl, SI_BUMP, 1, 0, 0, 0, 0);
-
-		//Set running to 0 beforehand so status_change_end knows not to enable spurt [Kevin]
-		unit_bl2ud(bl)->state.running = 0;
-		status_change_end(bl, SC_RUN, INVALID_TIMER);
-
-		skill_blown(bl,bl,skill_get_blewcount(TK_RUN,lv),unit_getdir(bl),0);
-		clif_status_change(bl, SI_BUMP, 0, 0, 0, 0, 0);
+		unit_run_hit(bl, sc, sd, type);
 		return 0;
 	}
 	if (unit_walktoxy(bl, to_x, to_y, 1))
 		return 1;
+
 	//There must be an obstacle nearby. Attempt walking one cell at a time.
 	do {
 		to_x -= dir_x;
 		to_y -= dir_y;
 	} while (--i > 0 && !unit_walktoxy(bl, to_x, to_y, 1));
 	if (i==0) {
-		// copy-paste from above
-		clif_status_change(bl, SI_BUMP, 1, 0, 0, 0, 0);
-
-		//Set running to 0 beforehand so status_change_end knows not to enable spurt [Kevin]
-		unit_bl2ud(bl)->state.running = 0;
-		status_change_end(bl, SC_RUN, INVALID_TIMER);
-
-		skill_blown(bl,bl,skill_get_blewcount(TK_RUN,lv),unit_getdir(bl),0);
-		clif_status_change(bl, SI_BUMP, 0, 0, 0, 0, 0);
+		unit_run_hit(bl, sc, sd, type);
 		return 0;
 	}
 	return 1;
@@ -899,74 +909,6 @@ int64 unit_get_walkpath_time(struct block_list *bl)
 	}
 
 	return time;
-}
-
-/*==========================================
- * Char movement with wugdash
- * @author [Jobbie/3CeAM]
- * @param bl: Object that is dashing
- * @param sd: Player
- * @return 1: Success 0: Fail
- *------------------------------------------*/
-int unit_wugdash(struct block_list *bl, struct map_session_data *sd)
-{
-	struct status_change *sc = status_get_sc(bl);
-	short to_x,to_y,dir_x,dir_y;
-	int lv;
-	int i;
-
-	if (!(sc && sc->data[SC_WUGDASH]))
-		return 0;
-
-	nullpo_retr(0, sd);
-	nullpo_retr(0, bl);
-
-	if (!unit_can_move(bl)) {
-		status_change_end(bl,SC_WUGDASH,-1);
-		return 0;
-	}
-
-	lv = sc->data[SC_WUGDASH]->val1;
-	dir_x = dirx[sc->data[SC_WUGDASH]->val2];
-	dir_y = diry[sc->data[SC_WUGDASH]->val2];
-	to_x = bl->x;
-	to_y = bl->y;
-	for(i=0;i<AREA_SIZE;i++)
-	{
-		if(!map_getcell(bl->m,to_x+dir_x,to_y+dir_y,CELL_CHKPASS))
-			break;
-		if(sc->data[SC_WUGDASH] && map_count_oncell(bl->m, to_x+dir_x, to_y+dir_y, BL_PC|BL_MOB|BL_NPC, 0))
-			break;
-		to_x += dir_x;
-		to_y += dir_y;
-	}
-
-	if(to_x == bl->x && to_y == bl->y) {
-		unit_bl2ud(bl)->state.running = 0;
-		status_change_end(bl,SC_WUGDASH,-1);
-		if( sd ){
-			clif_fixpos(bl);
-			skill_castend_damage_id(bl, &sd->bl, RA_WUGDASH, lv, gettick(), SD_LEVEL);
-		}
-		return 0;
-	}
-
-	if (unit_walktoxy(bl, to_x, to_y, 1))
-		return 1;
-	do {
-		to_x -= dir_x;
-		to_y -= dir_y;
-	} while (--i > 0 && !unit_walktoxy(bl, to_x, to_y, 1));
-	if (i==0) {
-		unit_bl2ud(bl)->state.running = 0;
-		status_change_end(bl,SC_WUGDASH,-1);
-		if( sd ){
-			clif_fixpos(bl);
-			skill_castend_damage_id(bl, &sd->bl, RA_WUGDASH, lv, gettick(), SD_LEVEL);
-		}
-		return 0;
-	}
-	return 1;
 }
 
 /*==========================================
@@ -1534,7 +1476,7 @@ int unit_resume_running(int tid, int64 tick, int id, intptr_t data)
 
 	if(sd && pc_iswugrider(sd))
 		clif_skill_nodamage(ud->bl,ud->bl,RA_WUGDASH,ud->skill_lv,
-			sc_start4(ud->bl,status_skill2sc(RA_WUGDASH),100,ud->skill_lv,unit_getdir(ud->bl),0,0,1));
+			sc_start4(ud->bl,status_skill2sc(RA_WUGDASH),100,ud->skill_lv,unit_getdir(ud->bl),0,0,0));
 	else
 		clif_skill_nodamage(ud->bl,ud->bl,TK_RUN,ud->skill_lv,
 			sc_start4(ud->bl,status_skill2sc(TK_RUN),100,ud->skill_lv,unit_getdir(ud->bl),0,0,0));

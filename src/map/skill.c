@@ -10547,8 +10547,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			map_freeblock_unlock();
 			return 0;
 		}
-		if( sd && pc_isriding(sd) ){
-			clif_skill_nodamage(src,bl,skill_id,skill_lv,sc_start4(bl,type,100,skill_lv,unit_getdir(bl),0,0,1));
+		if( sd && pc_iswugrider(sd) ){
+			clif_skill_nodamage(src,bl,skill_id,skill_lv,sc_start4(bl,type,100,skill_lv,unit_getdir(bl),0,0,0));
 			clif_walkok(sd);
 		}
 		break;
