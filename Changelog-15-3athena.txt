@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/05/2026
+	r583 [15peaces]
+		*ALL_FULL_THROTTLE
+			-Fixed cooldown.
+		*Added missing cards.
+		*Added support for itemshops to callshop.
+			-Thanks to @Reilaen
+
 06/30/2026
 	r582 [15peaces]
 		*Small update to ZC_HOSKILLINFO_LIST packet.

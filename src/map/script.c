@@ -16324,6 +16324,14 @@ BUILDIN_FUNC(callshop)
 		return 0;
 	}
 #endif
+	else if (nd->subtype == NPCTYPE_ITEMSHOP) {
+		char output[CHAT_SIZE_MAX];
+		struct item_data* id = itemdb_exists(nd->u.shop.itemshop_nameid);
+		memset(output, '\0', sizeof(output));
+		sprintf(output, msg_txt(sd, 765), id->jname, id->nameid); // Item Shop List: %s (%d)
+		clif_broadcast(&sd->bl, output, strlen(output) + 1, 0x10, SELF);
+		clif_npcbuysell(sd, nd->bl.id);
+	}
 	else
 		clif_cashshop_show(sd, nd);
 
