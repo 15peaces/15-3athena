@@ -5692,5 +5692,11 @@
 31054,C_Sting_Hat,Costume Sting Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,504,{},{},{}
 31055,C_Poring_Soap_Pipe,Costume Poring Soap Pipe,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1499,{},{},{}
 31090,C_Angelring_Hat,Costume Angelring Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,348,{},{},{}
+400480,C_Cat_Straw_Hat,Costume Cat Straw Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,2413,{},{},{}
+410083,C_Scuba_Mask,Costume Scuba Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,400,{},{},{}
+410170,C_Star_Eyepatch,Costume Star Eyepatch,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,800,{},{},{}
 470084,Rune_Greave_JP,Rune Greaves,5,0,,400,,12,,0,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}
 470085,Rune_Greave_JP_,Rune Greaves,5,0,,400,,12,,1,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}
+480223,C_Muranyasa,Costume Oriental Sword,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,1,0,147,{},{},{}
+480335,C_Surf_Board_Poring,Costume Poring Surfboard,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,1,0,186,{},{},{}
+480462,aegis_480462,Costume Hanwha X RO Poring Tube,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,1,0,229,{},{},{}

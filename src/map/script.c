@@ -3273,6 +3273,46 @@ void pop_stack(struct script_state* st, int start, int end)
 	stack->sp -= end - start;
 }
 
+const char* get_val2_str(struct script_state* st, int64 uid, DBMap** ref) {
+	push_val2(st->stack, C_NAME, uid, ref);
+
+	struct script_data* data = script_getdatatop(st, -1);
+
+	get_val(st, data);
+
+	const char* value = "";
+
+	if (data->type == C_INT) {
+		ShowError("get_val2_num: Invalid call. Variable %s is a numeric type.\n", reference_getname(data));
+	}
+	else {
+		value = data->u.str;
+	}
+
+	return value;
+}
+
+int64 get_val2_num(struct script_state* st, int64 uid, DBMap** ref) {
+	push_val2(st->stack, C_NAME, uid, ref);
+
+	struct script_data* data = script_getdatatop(st, -1);
+
+	get_val(st, data);
+
+	int64 value = 0;
+
+	if (data->type == C_INT) {
+		value = data->u.num;
+	}
+	else {
+		ShowError("get_val2_num: Invalid call. Variable %s is not a numeric type.\n", reference_getname(data));
+	}
+
+	script_removetop(st, -1, 0);
+
+	return value;
+}
+
 ///
 ///
 ///
@@ -4472,6 +4512,26 @@ BUILDIN_FUNC(next)
 
 	st->state = STOP;
 	clif_scriptnext(sd, st->oid);
+	return 0;
+}
+
+/// Clears the dialog and continues the script without a next button.
+///
+/// clear;
+BUILDIN_FUNC(clear)
+{
+	TBL_PC* sd;
+
+	if (!st->mes_active) {
+		ShowWarning("buildin_clear: There is no mes active.\n");
+		return 1;
+	}
+
+	sd = script_rid2sd(st);
+	if (!sd)
+		return 1;
+
+	clif_scriptclear(sd, st->oid);
 	return 0;
 }
 
@@ -5991,6 +6051,78 @@ BUILDIN_FUNC(getelementofarray)
 	}
 
 	push_val2(st->stack, C_NAME, reference_uid(id, i), reference_getref(data));
+	return 0;
+}
+
+/// Return the index number of the first matching value in an array.
+/// ex: inarray arr,1;
+///
+/// inarray <array variable>,<value>;
+BUILDIN_FUNC(inarray) {
+	struct map_session_data* sd = NULL;
+	DBMap** ref = NULL;
+	struct script_data* data = script_getdata(st, 2);
+
+	if (!data_isreference(data)) {
+		ShowError("buildin_inarray: not a variable\n");
+		script_reportdata(data);
+		st->state = END;
+		return 1;
+	}
+
+	const char* name = reference_getname(data);
+	ref = reference_getref(data);
+
+	if (not_server_variable(*name) && !script_rid2sd(st))
+		return 1;
+
+	const unsigned int array_size = getarraysize(st, reference_getid(data), 0, is_string_variable(name), ref);
+
+	if (array_size == 0) {
+		script_pushint(st, -1);
+		return 0;
+	}
+
+	if (array_size >= SCRIPT_MAX_ARRAYSIZE) {
+		ShowError("buildin_inarray: The array is too large.\n");
+		script_reportdata(data);
+		st->state = END;
+		return 1;
+	}
+
+	const int id = reference_getid(data);
+
+	if (is_string_variable(name)) {
+		const char* value = script_getstr(st, 3);
+
+		for (uint32 i = 0; i < array_size; ++i) {
+			const char* temp = get_val2_str(st, reference_uid(id, i), ref);
+
+			if (!strcmp(temp, value)) {
+				// Remove stack entry from get_val2_str
+				script_removetop(st, -1, 0);
+				script_pushint(st, i);
+				return 0;
+			}
+
+			// Remove stack entry from get_val2_str
+			script_removetop(st, -1, 0);
+		}
+	}
+	else {
+		const int64 value = script_getnum(st, 3);
+
+		for (uint32 i = 0; i < array_size; ++i) {
+			const int64 temp = get_val2_num(st, reference_uid(id, i), ref);
+
+			if (temp == value) {
+				script_pushint(st, i);
+				return 0;
+			}
+		}
+	}
+
+	script_pushint(st, -1);
 	return 0;
 }
 
@@ -21516,6 +21648,7 @@ struct script_function buildin_func[] = {
 	// NPC interaction
 	BUILDIN_DEF(mes,"s"),
 	BUILDIN_DEF(next,""),
+	BUILDIN_DEF(clear,""),
 	BUILDIN_DEF(close,""),
 	BUILDIN_DEF(close2,""),
 	BUILDIN_DEF(menu,"sl*"),
@@ -21545,6 +21678,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getarraysize,"r"),
 	BUILDIN_DEF(deletearray,"r?"),
 	BUILDIN_DEF(getelementofarray,"ri"),
+	BUILDIN_DEF(inarray,"rv"),
 	BUILDIN_DEF(getitem,"vi?"),
 	BUILDIN_DEF(rentitem,"vi"),
 	BUILDIN_DEF(getitem2,"viiiiiiii?"),

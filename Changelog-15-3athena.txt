@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/11/2026
+	r584 [15peaces]
+		*Added some costume items.
+		*Added inarray and clear script commands.
+			-Thanks to @Reilaen
+
 07/05/2026
 	r583 [15peaces]
 		*ALL_FULL_THROTTLE
