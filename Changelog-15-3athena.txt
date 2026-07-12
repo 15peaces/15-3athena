@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/12/2026
+	r585 [15peaces]
+		*Fixed an nullpo error in skill_counter_additional_effect.
+		*Added some missing items.
+		*Added countinarray and mail script commands.
+			-Thanks to @Reilaen
+		*SR_DRAGONCOMBO
+			-Fixed to also be usable without MO_TRIPLEATTACK.
+
 07/11/2026
 	r584 [15peaces]
 		*Added some costume items.

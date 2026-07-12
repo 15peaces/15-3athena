@@ -1580,10 +1580,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			target_id = src->id;
 		combo = 1;
 	}
-	else if (target_id == src->id &&
-		skill_get_inf(skill_id)&INF_SELF_SKILL &&
-		skill_get_inf2(skill_id)&INF2_NO_TARGET_SELF ||
-	skill_id == SR_DRAGONCOMBO)
+	else if (target_id == src->id && skill_get_inf(skill_id)&INF_SELF_SKILL && skill_get_inf2(skill_id)&INF2_NO_TARGET_SELF)
 	{
 		target_id = ud->target; //Auto-select target. [Skotlex]
 		combo = 1;
@@ -1775,7 +1772,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			return 0; // Arrow-path check failed.
 	}
 
-	if (!combo && skill_id != SR_DRAGONCOMBO) //Stop attack on non-combo skills [Skotlex]
+	if (!combo) //Stop attack on non-combo skills [Skotlex]
 		unit_stop_attack(src);
 	else if(ud->attacktimer != INVALID_TIMER) //Elsewise, delay current attack sequence
 		ud->attackabletime = tick + status_get_adelay(src);

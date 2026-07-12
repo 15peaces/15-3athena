@@ -2335,8 +2335,8 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 					if (battle_config.display_status_timers)
 						clif_status_change(bl, SI_ACTIONDELAY, 1, rate, 0, 0, 0);
 			}
-				if (skill_get_cooldown(skill_id, skill_lv))
-					skill_blockpc_start(sd, skill_id, skill_get_cooldown(skill_id, skill_lv));
+				//if (skill_get_cooldown(skill_id, skill_lv)) // unsafe, sd can be null here...
+					//skill_blockpc_start(sd, skill_id, skill_get_cooldown(skill_id, skill_lv));
 			}
 		}
 	}
@@ -4071,8 +4071,17 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 				break; // Target not on Map
 			if( src->m != target->m )
 				break; // Different Maps
-			if( status_isdead(src) )
-				break; // Caster is Dead
+			if (status_isdead(src)) {
+				switch (skl->skill_id) {
+					// For SR_FLASHCOMBO
+					case SR_DRAGONCOMBO:
+						if (src->type != BL_PC)
+							continue;
+						break; // Exceptions
+					default:
+						continue; // Caster is Dead
+				}
+			}
 			if( status_isdead(target) && skl->skill_id != RG_INTIMIDATE && skl->skill_id != WZ_WATERBALL )
 				break; // Target Killed
 			flag = false;
@@ -4234,6 +4243,18 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
 					break;
 				*/
+
+				// For SR_FLASHCOMBO
+				case SR_DRAGONCOMBO:
+				//case SR_FALLENEMPIRE:
+				//case SR_TIGERCANNON:
+					if (src->type == BL_PC) {
+						if (distance_xy(src->x, src->y, target->x, target->y) >= 3)
+							break;
+						skill_castend_damage_id(src, target, skl->skill_id, pc_checkskill(((TBL_PC*)src), skl->skill_id), tick, 0);
+					}
+					break;
+
 				case CH_PALMSTRIKE:
 				{
 					struct status_change* tsc = status_get_sc(target);
@@ -4338,6 +4359,13 @@ int skill_cleartimerskill (struct block_list *src)
 
 	for(i=0;i<MAX_SKILLTIMERSKILL;i++) {
 		if(ud->skilltimerskill[i]) {
+			switch (ud->skilltimerskill[i]->skill_id) {
+				// For SR_FLASHCOMBO
+				case SR_DRAGONCOMBO:
+					if (src->type != BL_PC)
+						break;
+					continue;
+			}
 			delete_timer(ud->skilltimerskill[i]->timer, skill_timerskill);
 			ers_free(skill_timer_ers, ud->skilltimerskill[i]);
 			ud->skilltimerskill[i]=NULL;
@@ -15807,12 +15835,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 		if(!(sc && sc->data[SC_COMBO]))
 			return 0;
 		if(sc->data[SC_COMBO]->val1 != MO_COMBOFINISH && sc->data[SC_COMBO]->val1 != CH_TIGERFIST)
-			return 0;
-		break;
-	case SR_DRAGONCOMBO:
-		//Dragon Combo can be used normally, but can also be used in a combo.
-		//If used in a combo, it must only work if comboed after Triple Attack.
-		if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 != MO_TRIPLEATTACK)
 			return 0;
 		break;
 	case SR_FALLENEMPIRE:
