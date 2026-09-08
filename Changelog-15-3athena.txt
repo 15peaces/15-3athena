@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+09/08/2026
+	r594 [15peaces]
+		*Renamed "Royal Errand Boy" to "Royal Messenger" in quests_16_1.txt.
+		*Added High Orc Pet.
+			-Also added Orc Warrior -> High Orc evolution.
+
 09/06/2026
 	r593 [15peaces]
 		*Fixed element bonuses getting cleared in the wrong place.
