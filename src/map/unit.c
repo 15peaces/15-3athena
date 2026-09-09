@@ -2121,9 +2121,6 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 
 	if( casttime > 0 )
 	{
-		// SC_MAGICPOWER needs to switch states at start of cast
-		skill_toggle_magicpower(src, skill_id);
-
 		ud->skilltimer = add_timer( tick+casttime, skill_castend_pos, src->id, 0 );
 		if( (sd && pc_checkskill(sd,SA_FREECAST) > 0) || skill_id == LG_EXEEDBREAK )
 			status_calc_bl(&sd->bl, SCB_SPEED);

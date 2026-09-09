@@ -1157,7 +1157,7 @@
 //2157,Insecticide
 //2158,Ramor_Shield_Undead
 //2159,Sharel_Shield
-//2160,Giant_Shield
+2160,Giant_Shield,Giant Shield,5,56000,,2800,,22,,1,0x00004082,63,2,32,,100,1,3,{ bonus2 bSubSize,Size_Large,5; if(getrefine()>=9){ bonus2 bSubSize,Size_Large,5; } },{},{}
 2161,Geffenia_Book_Water,Geffenia Tomb of Water,5,56000,,1000,,6,,1,0x00000200,63,2,32,,100,1,5,{ bonus bMdef,2; bonus bInt,1; if(readparam(bInt)>=120){ bonus bMatk,10; bonus bMaxHP,800; } if(isequipped(1646)){set .@r, getequiprefinerycnt(EQI_HAND_L)*4; bonus2 bCastrate,"WZ_STORMGUST",-.@r; bonus2 bCastrate,"WL_FROSTMISTY",-.@r; bonus2 bCastrate,"WL_JACKFROST",-.@r; } },{},{}
 2162,Bible_Of_Promise2,Bible Of Promise Vol2,5,56000,,500,,4,,1,0x00000100,8,2,32,,140,1,5,{ bonus bMdef,4; bonus bHealPower,5; skill "ALL_ODINS_POWER",2; },{},{}
 //2163,Flow_Shield
@@ -1182,7 +1182,7 @@
 //2182,Hervor_Alvitr
 //2185,Magic_Reflector
 //2186,Encyclopedia_Revision
-//2187,Shield_Of_Gray
+2187,Shield_Of_Gray,Shield of Gray,5,10,,2000,,14,,1,0xFFFFFFFF,56,2,32,,120,1,3,{ set .@r, getrefine(); bonus2 bSubEle,Ele_Holy,30+.@r; bonus bMdef,7+.@r/3; },{},{}
 //2188,Svalinn_J
 2190,Ancient_Shield_Of_Aeon,Ancient Shield Of Aeon,5,0,,200,,1,,1,0x000FDF80,63,2,32,,130,1,2,{ bonus2 bSubEle,Ele_Neutral,10; bonus2 bSubEle,Ele_Fire,10; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Dark,10; bonus2 bSubEle,Ele_Holy,10; bonus2 bSubEle,Ele_Ghost,10; bonus bMaxHP,500; bonus bMaxSP,50; if(getrefine()>=14) skill "MG_STONECURSE",5; },{},{}
 //2194,Rouban_Shield
@@ -7022,7 +7022,7 @@
 //15034,Tutorial_Mattle_,
 //15035,2010Love_Daddy,
 15036,Ur_Plate,Ur's Plate,5,20,,3000,,19,,0,0x00000080,56,2,16,,100,1,0,{ bonus bMdef,8; bonus bMaxHPrate,getrefine(); bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubEle,Ele_Neutral,5; },{},{}
-//15037,Peuz_Plate,
+15037,Peuz_Plate,Peuz's Plate,5,20,,3000,,19,,0,0x00000080,56,2,16,,100,1,0,{ bonus bMdef,8; bonus bBaseAtk,20; bonus bFlee,17; },{},{}
 //15038,Sabah_Cloth,
 15039,Nab_Cloth,Nab's Cloth,5,20,,100,,9,,1,0x00001000,63,2,16,,100,1,0,{ bonus bStr,2; bonus bInt,2; },{},{}
 //15040,Prison_Uniform,
@@ -7050,7 +7050,7 @@
 //15062,TE_Woe_Coat,
 //15063,TE_Woe_Chain_Mail,
 //15064,TE_Woe_Mage_Coat,
-//15066,Engraved_Armor,
+15066,Engraved_Armor,Engraved Plate Armor,5,100000,,3000,,21,,1,0x00004082,63,2,16,,150,1,,{ bonus bMdef,18; },{},{}
 //15067,Rune_Suit,
 //15069,Suit_Of_Sid,
 //15073,Anti_Magic_Suit,

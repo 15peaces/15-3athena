@@ -6,6 +6,11 @@
 //			--More Details.
 //========================================
 
+09/09/2026
+	r595 [15peaces]
+		*Removed an misplaced skill_toggle_magicpower call in unit_skilluse_pos2.
+		*Changed some items to fit pre-renewal caclulations.
+
 09/08/2026
 	r594 [15peaces]
 		*Renamed "Royal Errand Boy" to "Royal Messenger" in quests_16_1.txt.
