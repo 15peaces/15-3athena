@@ -6,10 +6,25 @@
 //			--More Details.
 //========================================
 
+09/14/2026
+	r596 [15peaces]
+		*Added more support for item random options.
+			-added getitem3, getitembound3, makeitem3 and countitem3 script commands.
+			-added random options to getinventorylist.
+			-Thanks to @Reilaen
+		*Exported some src constants.
+		*Some item updates
+			-Added missing Faceworm Card combo.
+			-Added some missing etc items.
+			-Some cleaning.
+		*Added missing F_IsCharm function.
+
 09/09/2026
 	r595 [15peaces]
 		*Removed an misplaced skill_toggle_magicpower call in unit_skilluse_pos2.
 		*Changed some items to fit pre-renewal caclulations.
+		*Added Angeling Pet.
+			-Also added Mastering -> Angeling evolution.
 
 09/08/2026
 	r594 [15peaces]

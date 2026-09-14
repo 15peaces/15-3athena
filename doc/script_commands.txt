@@ -2847,20 +2847,23 @@ This command sets a bunch of arrays with a complete list of whatever the
 invoking character has in their inventory, including all the data needed to 
 recreate these items perfectly if they are destroyed. Here's what you get:
 
-@inventorylist_id[]        - array of item ids.
-@inventorylist_amount[]    - their corresponding item amounts.
-@inventorylist_equip[]     - whether the item is equipped or not.
-@inventorylist_refine[]    - for how much it is refined.
-@inventorylist_identify[]  - whether it is identified.
-@inventorylist_attribute[] - whether it is broken.
-@inventorylist_card1[]     - These four arrays contain card data for the items.
-@inventorylist_card2[]       These data slots are also used to store names
-@inventorylist_card3[]       inscribed on the items, so you can explicitly check
-@inventorylist_card4[]       if the character owns an item made by a specific 
-                             craftsman.
-@inventorylist_expire[]    - expire time (Unix time stamp). 0 means never expires.
-@inventorylist_bound[]     - whether it is bound to the character
-@inventorylist_count       - the number of items in these lists.
+@inventorylist_id[]        			- array of item ids.
+@inventorylist_amount[]    			- their corresponding item amounts.
+@inventorylist_equip[]     			- whether the item is equipped or not.
+@inventorylist_refine[]    			- for how much it is refined.
+@inventorylist_identify[]  			- whether it is identified.
+@inventorylist_attribute[] 			- whether it is broken.
+@inventorylist_card1[]     			- These four arrays contain card data for the items.
+@inventorylist_card2[]     			  These data slots are also used to store names
+@inventorylist_card3[]     			  inscribed on the items, so you can explicitly check
+@inventorylist_card4[]     			  if the character owns an item made by a specific 
+									craftsman.
+@inventorylist_expire[]    			- expire time (Unix time stamp). 0 means never expires.
+@inventorylist_bound[]     			- whether it is bound to the character
+@inventorylist_count       			- the number of items in these lists.
+@inventorylist_option_id1[] 		- Conatins random option IDs. (id1 - id5)
+@inventorylist_option_value1[]		- Conatins random option values. (value1 - value5)
+@inventorylist_option_parameter1[]	- Conatins random option parameters. (parameter1 - parameter5)
 
 This could be handy to save/restore a character's inventory, since no other 
 command returns such a complete set of data, and could also be the only way to 
@@ -4574,6 +4577,8 @@ quite a few item scripts. For more examples check just about any official script
 
 *getitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
 *getitem2 "<Item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+*getitem3 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
+*getitem3 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
 
 This command will give an amount of specified items to the invoking character. 
 If an optional account ID is specified, and the target character is currently 
@@ -4729,20 +4734,19 @@ it also accepts an 'english name' field from the database and creates apples if
 the name isn't found.
 If the map name is given as "this", the map the invoking character is on will be used.
 
-
 ---------------------------------------
 
 *makeitem2 <item id>,<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
 *makeitem2 "<item name>",<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
+*makeitem3 <item id>,<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<option_ids[]>,<option_values[]>,<option_parameters[]>;
+*makeitem3 "<item name>",<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<option_ids[]>,<option_values[]>,<option_parameters[]>;
 
 This command will create an item on the specified cell of a map. See 'makeitem' for
 further details.
 
 See 'getitem2' for an explanation of the expanded parameters.
 
-
 ---------------------------------------
-
 
 *searchitem <array name>,"<item name>";
 
@@ -4856,6 +4860,8 @@ If player is not in a guild or storage is open, 'guildstoragecountitem' will ret
 
 *countitem2(<item id>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>)
 *countitem2("<item name>",<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>)
+*countitem3(<item id>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<accountID>})
+*countitem3("<item name>",<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<accountID>})
 
 Expanded version of 'countitem' function, used for created/carded/forged items.
 
@@ -5173,15 +5179,17 @@ Bound Types:
  
 --------------------------------------- 
 
-*getitembound2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound_type>{,<account ID>}; 
-*getitembound2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound_type>{,<account ID>}; 
+*getitembound2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound_type>{,<account ID>};
+*getitembound2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound_type>{,<account ID>};
+*getitembound3 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
+*getitembound3 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
 
 This command will give an amount of specified items to the invoking character.  
 If an optional account ID is specified, and the target character is currently  
 online, items will be created in their inventory instead. If they are not  
 online, nothing will happen.  
  
-It works essentially the same as 'getitem2', except that items created using 
+It works essentially the same as 'getitem2' / 'getitem3', except that items created using 
 this command will bound the item to the player's account. Depending on the bound type issued, 
 the character may not be able to trade or store these items, however all bounded types 
 cannot be sold, vended, auctioned, or mailed. 

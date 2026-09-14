@@ -2459,6 +2459,15 @@ void script_hardcoded_constants(void)
 	script_set_constant("MAX_DORAM_HAIR_STYLE", MAX_DORAM_HAIR_STYLE, false);
 	script_set_constant("MAX_DORAM_CLOTH_COLOR", MAX_DORAM_CLOTH_COLOR, false);
 
+	/* auto trigger flags */
+	export_constant(ATF_SELF);
+	export_constant(ATF_TARGET);
+	export_constant(ATF_SHORT);
+	export_constant(ATF_LONG);
+	export_constant(ATF_WEAPON);
+	export_constant(ATF_MAGIC);
+	export_constant(ATF_MISC);
+
 	/* equip positions */
 	export_constant(EQI_HEAD_TOP);
 	export_constant(EQI_ARMOR);
@@ -2481,6 +2490,32 @@ void script_hardcoded_constants(void)
 	export_constant(EQI_SHADOW_SHOES);
 	export_constant(EQI_SHADOW_ACC_R);
 	export_constant(EQI_SHADOW_ACC_L);
+
+	export_constant(EQP_HEAD_TOP);
+	export_constant(EQP_ARMOR);
+	export_constant(EQP_HAND_L);
+	export_constant(EQP_HAND_R);
+	export_constant(EQP_GARMENT);
+	export_constant(EQP_SHOES);
+	export_constant(EQP_ACC_L);
+	export_constant(EQP_ACC_R);
+	export_constant(EQP_HEAD_MID);
+	export_constant(EQP_HEAD_LOW);
+	export_constant(EQP_COSTUME_HEAD_LOW);
+	export_constant(EQP_COSTUME_HEAD_MID);
+	export_constant(EQP_COSTUME_HEAD_TOP);
+	export_constant(EQP_COSTUME_GARMENT);
+	export_constant(EQP_AMMO);
+	export_constant(EQP_SHADOW_ARMOR);
+	export_constant(EQP_SHADOW_WEAPON);
+	export_constant(EQP_SHADOW_SHIELD);
+	export_constant(EQP_SHADOW_SHOES);
+	export_constant(EQP_SHADOW_ACC_R);
+	export_constant(EQP_SHADOW_ACC_L);
+
+	export_constant(ROA_ID);
+	export_constant(ROA_VALUE);
+	export_constant(ROA_PARAM);
 
 	/* refine cost types */
 	export_constant(REFINE_COST_NORMAL);
@@ -6306,13 +6341,109 @@ BUILDIN_FUNC(viewpoint)
 	return 0;
 }
 
+/**
+ * Set random options for new item
+ * @param st Script state
+ * @param it Temporary item data
+ * @param funcname Function name
+ * @param x First position of random option id array from the script
+ **/
+static bool script_getitem_randomoption(struct script_state* st, struct map_session_data* sd, struct item* it, const char* funcname, int32 x) {
+	const struct script_data* opt_id = script_getdata(st, x);
+	const struct script_data* opt_val = script_getdata(st, x + 1);
+	const struct script_data* opt_param = script_getdata(st, x + 2);
+	const char* opt_id_var = reference_getname(opt_id);
+	const char* opt_val_var = reference_getname(opt_val);
+	const char* opt_param_var = reference_getname(opt_param);
+
+	// Check if the variable requires a player
+	if (not_server_variable(opt_id_var[0]) && sd == NULL) {
+		// If no player is attached
+		if (!script_rid2sd(st)) {
+			ShowError("buildin_%s: variable \"%s\" was not a server variable, but no player was attached.\n", funcname, opt_id_var);
+			return false;
+		}
+	}
+
+	if (!data_isreference(opt_id) || not_array_variable(*opt_id_var)) {
+		ShowError("buildin_%s: The option id parameter is not an array.\n", funcname);
+		return false;
+	}
+
+	if (is_string_variable(opt_id_var)) {
+		ShowError("buildin_%s: The array %s is not numeric type.\n", funcname, opt_id_var);
+		return false;
+	}
+
+	// Check if the variable requires a player
+	if (not_server_variable(opt_val_var[0]) && sd == NULL) {
+		// If no player is attached
+		if (!script_rid2sd(st)) {
+			ShowError("buildin_%s: variable \"%s\" was not a server variable, but no player was attached.\n", funcname, opt_val_var);
+			return false;
+		}
+	}
+
+	if (!data_isreference(opt_val) || not_array_variable(*opt_val_var)) {
+		ShowError("buildin_%s: The option value parameter is not an array.\n", funcname);
+		return false;
+	}
+
+	if (is_string_variable(opt_val_var)) {
+		ShowError("buildin_%s: The array %s is not numeric type.\n", funcname, opt_val_var);
+		return false;
+	}
+
+	// Check if the variable requires a player
+	if (not_server_variable(opt_param_var[0]) && sd == NULL) {
+		// If no player is attached
+		if (!script_rid2sd(st)) {
+			ShowError("buildin_%s: variable \"%s\" was not a server variable, but no player was attached.\n", funcname, opt_param_var);
+			return false;
+		}
+	}
+
+	if (!data_isreference(opt_param) || not_array_variable(*opt_param_var)) {
+		ShowError("buildin_%s: The option param parameter is not an array.\n", funcname);
+		return false;
+	}
+
+	if (is_string_variable(opt_param_var)) {
+		ShowError("buildin_%s: The array %s is not numeric type.\n", funcname, opt_param_var);
+		return false;
+	}
+
+	DBMap** opt_id_ref = reference_getref(opt_id);
+	DBMap** opt_val_ref = reference_getref(opt_val);
+	DBMap** opt_param_ref = reference_getref(opt_param);
+
+	const int32 opt_id_n = getarraysize(st, reference_getid(opt_id), reference_getindex(opt_id), is_string_variable(opt_id_var), opt_id_ref);
+
+	const int32 opt_id_id = reference_getid(opt_id);
+	const int32 opt_val_id = reference_getid(opt_val);
+	const int32 opt_param_id = reference_getid(opt_param);
+
+	const int32 opt_id_idx = reference_getindex(opt_id);
+	const int32 opt_val_idx = reference_getindex(opt_val);
+	const int32 opt_param_idx = reference_getindex(opt_param);
+
+	for (int32 i = 0; i < opt_id_n && i < MAX_ITEM_RDM_OPT; i++) {
+		it->option[i].id = (int16)get_val2_num(st, reference_uid(opt_id_id, opt_id_idx + i), opt_id_ref);
+		it->option[i].value = (int16)get_val2_num(st, reference_uid(opt_val_id, opt_val_idx + i), opt_val_ref);
+		it->option[i].param = (char)get_val2_num(st, reference_uid(opt_param_id, opt_param_idx + i), opt_param_ref);
+	}
+
+	return true;
+}
+
 /// Returns number of items in inventory/cart/storage
-/// countitem <nameID>{,<accountID>});
-/// countitem2 <nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>}) [Lupus]
-/// cartcountitem <nameID>{,<accountID>});
-/// cartcountitem2 <nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>})
-/// storagecountitem <nameID>{,<accountID>});
-/// storagecountitem2 <nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>})
+/// countitem (<nameID>{,<accountID>});
+/// countitem2 (<nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>}) [Lupus]
+/// countitem3 (<nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<accountID>})
+/// cartcountitem (<nameID>{,<accountID>});
+/// cartcountitem2 (<nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>})
+/// storagecountitem (<nameID>{,<accountID>});
+/// storagecountitem2 (<nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>})
 BUILDIN_FUNC(countitem)
 {
 	int i = 0, aid = 3;
@@ -6408,7 +6539,7 @@ BUILDIN_FUNC(countitem)
 	}
 	else { // For count/cart/storagecountitem2 function
 		struct item it;
-		//bool check_randomopt = false;
+		bool check_randomopt = false;
 		memset(&it, 0, sizeof(it));
 
 		it.nameid = id->nameid;
@@ -6420,12 +6551,12 @@ BUILDIN_FUNC(countitem)
 		it.card[2] = script_getnum(st,8);
 		it.card[3] = script_getnum(st,9);
 
-		/*if (command[strlen(command)-1] == '3') {
-			int res = script_getitem_randomoption(st, &it, command, 10);
+		if (command[strlen(command) - 1] == '3') {
+			const int res = script_getitem_randomoption(st, sd, &it, command, 10);
 			if (res != 0)
 				return 1;
 			check_randomopt = true;
-		}*/
+		}
 
 		for( i = 0; i < size; i++ ) {
 			struct item *itm = &items[i];
@@ -6435,7 +6566,7 @@ BUILDIN_FUNC(countitem)
 				continue;
 			if (memcmp(it.card, itm->card, sizeof(it.card)))
 				continue;
-			/*if (check_randomopt) {
+			if (check_randomopt) {
 				uint8 j;
 				for (j = 0; j < MAX_ITEM_RDM_OPT; j++) {
 					if (itm->option[j].id != it.option[j].id || itm->option[j].value != it.option[j].value || itm->option[j].param != it.option[j].param)
@@ -6443,7 +6574,7 @@ BUILDIN_FUNC(countitem)
 				}
 				if (j != MAX_ITEM_RDM_OPT)
 					continue;
-			}*/
+			}
 			count += items[i].amount;
 		}
 	}
@@ -6739,9 +6870,13 @@ BUILDIN_FUNC(getitem) {
 /*==========================================
  * getitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
  * getitem2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+ * getitem3 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
+ * getitem3 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
  *
  * getitembound2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>{,<account ID>};
  * getitembound2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>{,<account ID>};
+ * getitembound3 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
+ * getitembound3 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>,<option_ids[]>,<option_values[]>,<option_parameters[]>{,<account ID>};
  * Type:
  *	0 - No bound
  *	1 - Account Bound
@@ -6752,30 +6887,39 @@ BUILDIN_FUNC(getitem) {
 BUILDIN_FUNC(getitem2)
 {
 	t_itemid nameid;
-	unsigned short amount;
-	int iden, ref, attr;
-	t_itemid c1, c2, c3, c4;
 	char bound = BOUND_NONE;
 	struct item_data *item_data = NULL;
 	struct item item_tmp;
 	TBL_PC *sd;
 	const char* command = script_getfuncname(st);
+	int32 offset = 0;
+	int32 aid_pos = 0;
 
 	if (!strncmp(command, "getitembound", 12)) {
+		aid_pos = 12;
 		bound = script_getnum(st, 11);
 		if (bound < BOUND_NONE || bound >= BOUND_MAX) {
 			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n", bound);
 			return 1;
 		}
-		if (script_hasdata(st, 12))
-			sd = map_id2sd(script_getnum(st, 12));
-		else
-			sd = script_rid2sd(st); // Attached player
+		if (command[strlen(command) - 1] == '3') {
+			offset = 12;
+			aid_pos = 15;
+		}
 	}
-	else if (script_hasdata(st, 11))
-		sd = map_id2sd(script_getnum(st, 11)); // <Account ID>
-	else
+	else {
+		aid_pos = 11;
+		if (strcmpi(command, "getitem3") == 0) {
+			offset = 11;
+			aid_pos = 14;
+		}
+	}
+	if (script_hasdata(st, aid_pos)) {
+		sd = map_id2sd(script_getnum(st, aid_pos)); // <Account ID>
+	}
+	else {
 		sd = script_rid2sd(st); // Attached player
+	}
 
 	if (sd == NULL) // no target
 		return 0;
@@ -6797,17 +6941,17 @@ BUILDIN_FUNC(getitem2)
 		}
 	}
 
-	amount = script_getnum(st, 3);
-	iden = script_getnum(st, 4);
-	ref = script_getnum(st, 5);
-	attr = script_getnum(st, 6);
-	c1 = script_getnum(st, 7);
-	c2 = script_getnum(st, 8);
-	c3 = script_getnum(st, 9);
-	c4 = script_getnum(st, 10);
+	const unsigned short amount = script_getnum(st, 3);
+	int iden = script_getnum(st, 4);
+	int ref = script_getnum(st, 5);
+	int attr = script_getnum(st, 6);
+	const t_itemid c1 = script_getnum(st, 7);
+	const t_itemid c2 = script_getnum(st, 8);
+	const t_itemid c3 = script_getnum(st, 9);
+	const t_itemid c4 = script_getnum(st, 10);
 
 	if (item_data) {
-		int get_count = 0, i;
+		int get_count = 0;
 		memset(&item_tmp, 0, sizeof(item_tmp));
 		if (item_data->type == IT_WEAPON || item_data->type == IT_ARMOR || item_data->type == IT_SHADOWGEAR) {
 			if (ref > MAX_REFINE)
@@ -6832,13 +6976,19 @@ BUILDIN_FUNC(getitem2)
 		item_tmp.card[3] = c4;
 		item_tmp.bound = bound;
 
+		if (offset != 0) {
+			bool res = script_getitem_randomoption(st, sd, &item_tmp, command, offset);
+			if (!res)
+				return 1;
+		}
+
 		//Check if it's stackable.
 		if (!itemdb_isstackable2(item_data))
 			get_count = 1;
 		else
 			get_count = amount;
 
-		for (i = 0; i < amount; i += get_count)
+		for (int i = 0; i < amount; i += get_count)
 		{
 			// if not pet egg
 			if (!pet_create_egg(sd, nameid))
@@ -7087,11 +7237,10 @@ BUILDIN_FUNC(makeitem)
 /**
 * makeitem2 <item id>,<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
 * makeitem2 "<item name>",<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
+* makeitem3 "<item name>",<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<option_ids[]>,<option_values[]>,<option_parameters[]>;
 */
 BUILDIN_FUNC(makeitem2) {
 	t_itemid nameid;
-	uint16 amount, x, y;
-	const char *mapname;
 	int m;
 	struct item item_tmp;
 	struct item_data *id;
@@ -7099,7 +7248,7 @@ BUILDIN_FUNC(makeitem2) {
 
 	if (script_isstring(st, 2)){
 		const char *name = script_getstr(st, 2);
-		struct item_data *item_data = itemdb_searchname(name);
+		const struct item_data* item_data = itemdb_searchname(name);
 
 		if (item_data){
 			nameid = item_data->nameid;
@@ -7118,53 +7267,57 @@ BUILDIN_FUNC(makeitem2) {
 		}
 	}
 
-	amount = script_getnum(st, 3);
-	mapname = script_getstr(st, 4);
-	x = script_getnum(st, 5);
-	y = script_getnum(st, 6);
+	const uint16 amount = script_getnum(st, 3);
+	const char* mapname = script_getstr(st, 4);
+	const uint16 x = script_getnum(st, 5);
+	const uint16 y = script_getnum(st, 6);
 
 	if (strcmp(mapname, "this") == 0) {
-		TBL_PC *sd;
-		sd = script_rid2sd(st);
+		TBL_PC* sd = script_rid2sd(st);
 		if (!sd) return 0; //Failed...
 		m = sd->bl.m;
 	}
-	else
+	else {
 		m = map_mapname2mapid(mapname);
-
-	if ((id = itemdb_search(nameid))) {
-		char iden, ref, attr;
-		memset(&item_tmp, 0, sizeof(item_tmp));
-		item_tmp.nameid = nameid;
-
-		iden = (char)script_getnum(st, 7);
-		ref = (char)script_getnum(st, 8);
-		attr = (char)script_getnum(st, 9);
-
-		if (id->type == IT_WEAPON || id->type == IT_ARMOR) {
-			if (ref > MAX_REFINE) ref = MAX_REFINE;
-		}
-		else if (id->type == IT_PETEGG) {
-			iden = 1;
-			ref = 0;
-		}
-		else {
-			iden = 1;
-			ref = attr = 0;
-		}
-
-		item_tmp.identify = iden;
-		item_tmp.refine = ref;
-		item_tmp.attribute = attr;
-		item_tmp.card[0] = script_getnum(st, 10);
-		item_tmp.card[1] = script_getnum(st, 11);
-		item_tmp.card[2] = script_getnum(st, 12);
-		item_tmp.card[3] = script_getnum(st, 13);
-
-		map_addflooritem(&item_tmp, amount, m, x, y, 0, 0, 0, 4, 0, false);
 	}
-	else
+
+	if ((id = itemdb_exists(nameid)) == NULL) {
 		return 1;
+	}
+
+	memset(&item_tmp, 0, sizeof(item_tmp));
+	item_tmp.nameid = nameid;
+
+	char iden = (char)script_getnum(st, 7);
+	char ref = (char)script_getnum(st, 8);
+	char attr = (char)script_getnum(st, 9);
+
+	if (id->type == IT_WEAPON || id->type == IT_ARMOR) {
+		if (ref > MAX_REFINE) ref = MAX_REFINE;
+	}
+	else if (id->type == IT_PETEGG) {
+		iden = 1;
+		ref = 0;
+	}
+	else {
+		iden = 1;
+		ref = attr = 0;
+	}
+
+	item_tmp.identify = iden;
+	item_tmp.refine = ref;
+	item_tmp.attribute = attr;
+	item_tmp.card[0] = script_getnum(st, 10);
+	item_tmp.card[1] = script_getnum(st, 11);
+	item_tmp.card[2] = script_getnum(st, 12);
+	item_tmp.card[3] = script_getnum(st, 13);
+
+	if (funcname[strlen(funcname) - 1] == '3' || funcname[strlen(funcname) - 1]) {
+		if (!script_getitem_randomoption(st, NULL, &item_tmp, funcname, 14))
+			return 1;
+	}
+	
+	map_addflooritem(&item_tmp, amount, m, x, y, 0, 0, 0, 4, 0, false);
 	return 0;
 }
 
@@ -13547,7 +13700,7 @@ BUILDIN_FUNC(petloot)
 BUILDIN_FUNC(getinventorylist)
 {
 	TBL_PC *sd=script_rid2sd(st);
-	char card_var[NAME_LENGTH];
+	char card_var[NAME_LENGTH],randopt_var[50];
 	
 	int i,j=0,k;
 	if(!sd) return 0;
@@ -13566,6 +13719,15 @@ BUILDIN_FUNC(getinventorylist)
 			}
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->inventory.u.items_inventory[i].expire_time);
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->inventory.u.items_inventory[i].bound);
+			for (k = 0; k < MAX_ITEM_RDM_OPT; k++)
+			{
+				sprintf(randopt_var, "@inventorylist_option_id%d", k + 1);
+				pc_setreg(sd, reference_uid(add_str(randopt_var), j), sd->inventory.u.items_inventory[i].option[k].id);
+				sprintf(randopt_var, "@inventorylist_option_value%d", k + 1);
+				pc_setreg(sd, reference_uid(add_str(randopt_var), j), sd->inventory.u.items_inventory[i].option[k].value);
+				sprintf(randopt_var, "@inventorylist_option_parameter%d", k + 1);
+				pc_setreg(sd, reference_uid(add_str(randopt_var), j), sd->inventory.u.items_inventory[i].option[k].param);
+			}
 			j++;
 		}
 	}
@@ -22690,5 +22852,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(identifyall, "??"),
 	BUILDIN_DEF(openlapineddukddakboxui, "i"),
 	BUILDIN_DEF(openlapineupgradeui, "i"),
+	// Item Random Option Extension
+	BUILDIN_DEF2(getitem2, "getitem3", "viiiiiiiirrr?"),
+	BUILDIN_DEF2(getitem2, "getitembound3", "viiiiiiiiirrr?"),
+	BUILDIN_DEF2(makeitem2, "makeitem3", "visiiiiiiiiirrr?"),
+	BUILDIN_DEF2(countitem, "countitem3", "viiiiiiirrr?"),
 	{NULL,NULL,NULL},
 };
