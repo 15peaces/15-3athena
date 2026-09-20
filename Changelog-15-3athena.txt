@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/20/2026
+	r597 [15peaces]
+		*Some monster updates/fixes.
+			-Corrected several monster mode entries to match the official ones.
+				--Thanks to @Reilaen
+			-Fixed typo in Sweet Slaughter's DEF.
+			-Fixed Mercenary Antler Scaraba having Renewal Def and MDef.
 
 09/14/2026
 	r596 [15peaces]
