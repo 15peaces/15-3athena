@@ -404,7 +404,7 @@ void skill_getareachar_skillunit_visibilty_single(struct skill_unit *su, struct 
 int skill_castfix( struct block_list *bl, int skill_id, int skill_lv);
 //int skill_castfix_sc( struct block_list *bl, int time);
 int skill_delayfix( struct block_list *bl, int skill_id, int skill_lv);
-int skill_cooldownfix(struct block_list *bl, int skill_id, int skill_lv);
+int skill_cooldownfix(struct block_list *bl, const int skill_id, const int skill_lv);
 void skill_toggle_magicpower(struct block_list *bl, short skill_id);
 
 // Skill conditions check and remove [Inkfish]

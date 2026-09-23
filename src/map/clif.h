@@ -546,13 +546,18 @@ enum CASH_SHOP_TABS {
 
 enum CASH_SHOP_BUY_RESULT {
 	CSBR_SUCCESS = 0x0,
+	CSBR_SYSTEM_ERROR = 0x1,
 	CSBR_SHORTTAGE_CASH = 0x2,
 	CSBR_UNKONWN_ITEM = 0x3,
 	CSBR_INVENTORY_WEIGHT = 0x4,
 	CSBR_INVENTORY_ITEMCNT = 0x5,
+	CSBR_PC_STATE_ERROR = 0x6,
+	CSBR_OVER_PRODUCT_TOTAL_CNT = 0x7,
+	CSBR_SOME_BUY_FAILURE = 0x8,
 	CSBR_RUNE_OVERCOUNT = 0x9,
 	CSBR_EACHITEM_OVERCOUNT = 0xa,
 	CSBR_UNKNOWN = 0xb,
+	CSBR_ERROR_BUSY = 0xc,
 };
 
 enum BATTLEGROUNDS_QUEUE_ACK {
@@ -1191,7 +1196,7 @@ void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);
 void clif_parse_CashShopOpen(int fd, struct map_session_data *sd);
 void clif_parse_CashShopClose(int fd, struct map_session_data *sd);
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd);
-void clif_cashshop_result(struct map_session_data *sd, t_itemid item_id, uint16 result);
+void clif_cashshop_result(struct map_session_data* sd, const t_itemid item_id, const uint16 result);
 void do_final_cashshop(void);
 
 /// Roulette

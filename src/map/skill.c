@@ -12251,19 +12251,19 @@ int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 			ShowInfo("Type %d, ID %d skill castend pos [id =%d, lv=%d, (%d,%d)]\n",
 				src->type, src->id, ud->skill_id, ud->skill_lv, ud->skillx, ud->skilly);
 
+		if (sd) { //Cooldown application
+			const int32 cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv);
+			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
+		}
+
 		if (ud->walktimer != INVALID_TIMER)
 			unit_stop_walking(src,1);
 
-		if (sd && skill_get_cooldown(ud->skill_id, ud->skill_lv) > 0) // Skill cooldown. [LimitLine]
-			skill_blockpc_start(sd, ud->skill_id, skill_cooldownfix(src, ud->skill_id, ud->skill_lv));
 		if (hd && skill_get_cooldown(ud->skill_id, ud->skill_lv))
 			skill_blockhomun_start(hd, ud->skill_id, skill_get_cooldown(ud->skill_id, ud->skill_lv));
 		if( !sd || sd->skillitem != ud->skill_id || skill_get_delay(ud->skill_id,ud->skill_lv) )
 			ud->canact_tick = max(tick + skill_delayfix(src, ud->skill_id, ud->skill_lv), ud->canact_tick - SECURITY_CASTTIME);
-		if (sd) { //Cooldown application
-			int32 cooldown = pc_get_skillcooldown(sd, ud->skill_id, ud->skill_lv);
-			if (cooldown) skill_blockpc_start(sd, ud->skill_id, cooldown);
-		}
+
 		if (battle_config.display_status_timers && sd)
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skill_id, ud->skill_lv), 0, 0, 0);
 
@@ -17602,14 +17602,13 @@ int skill_delayfix (struct block_list *bl, int skill_id, int skill_lv)
 	return max(time, battle_config.min_skill_delay_limit);
 }
 
-int skill_cooldownfix (struct block_list *bl, int skill_id, int skill_lv)
+int skill_cooldownfix (struct block_list *bl, const int skill_id, const int skill_lv)
 {
 	int time = skill_get_cooldown(skill_id, skill_lv);
-	struct map_session_data *sd;
-	struct status_change *sc = status_get_sc(bl);
+	const struct status_change* sc = status_get_sc(bl);
 
 	nullpo_ret(bl);
-	sd = BL_CAST(BL_PC, bl);
+	const struct map_session_data* sd = BL_CAST(BL_PC, bl);
 
 	if (bl->type&battle_config.no_skill_cooldown)
 		return battle_config.min_skill_cooldown_limit;

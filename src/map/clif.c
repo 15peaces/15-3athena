@@ -18460,101 +18460,141 @@ void clif_cashshop_list(int fd, struct map_session_data* sd) {
 	}
 }
 
-void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
+ static struct cash_item_data* findInItemTab(const uint16 tab, const uint32 id) {
+	for (uint32 i = 0; i < cash_shop_items[tab].count; ++i) {
+		if (cash_shop_items[tab].item[i]->id == id)
+			return cash_shop_items[tab].item[i];
+	}
+	return NULL;
+}
+
+void clif_parse_CashShopBuy(const int fd, struct map_session_data* sd) {
+	if (sd == NULL) {
+		clif_cashshop_result(sd, 0, CSBR_UNKNOWN);
+		return;
+	}
+
 	if (map[sd->bl.m].flag.nocashshop) {
 		clif_displaymessagecolor(sd, msg_txt(sd, 860), COLOR_RED); //Cash Shop is disabled in this map
 		return;
 	}
 
-	struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST* p = (struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST*)RFIFOP(fd, 0);
+	if (sd->state.trading) {
+		clif_cashshop_result(sd, 0, CSBR_PC_STATE_ERROR);
+		return;
+	}
+	
+	const struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST* p = (struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST*)RFIFOP(fd, 0);
 
-	uint32 j;
-	for (unsigned short i = 0; i < p->count; i++) {
+	uint32 totalcash = 0;
+	uint32 totalweight = 0;
+	int32 i = 0, new_ = 0;
+
+	for (; i < p->count; ++i) {
 		const int qty = p->items[i].amount;
-		const int id = p->items[i].itemId;
+		const int nameid = p->items[i].itemId;
 		const short tab = p->items[i].tab;
-		enum CASH_SHOP_BUY_RESULT result = CSBR_UNKNOWN;
 
-		if( tab < 0 || tab >= CASHSHOP_TAB_MAX )
+		if (tab < 0 || tab >= CASHSHOP_TAB_MAX) {
+			clif_cashshop_result(sd, nameid, CSBR_UNKNOWN);
+			return;
+		}
+		
+		const struct cash_item_data* cash_item = findInItemTab(tab, nameid);
+		if (cash_item == NULL) {
+			clif_cashshop_result(sd, nameid, CSBR_UNKONWN_ITEM);
+			return;
+		}
+		
+		struct item_data* item_data = itemdb_exists(cash_item->id);
+		if (!item_data) {
+			clif_cashshop_result(sd, nameid, CSBR_UNKONWN_ITEM);
+			return;
+		}
+
+		if (qty > 99) {
+			// Client blocks buying more than 99 items of the same type at the same time, this means someone forged a packet with a higher quantity
+			clif_cashshop_result(sd, nameid, CSBR_UNKNOWN);
+			return;
+		}
+
+		switch (pc_checkadditem(sd, nameid, qty)) {
+			case CHKADDITEM_EXIST:
+				break;
+			case CHKADDITEM_NEW:
+				new_ += item_data->flag.guid || !itemdb_isstackable2(item_data) ? qty : 1;
+				break;
+			case CHKADDITEM_OVERAMOUNT:
+				clif_cashshop_result(sd, nameid, CSBR_OVER_PRODUCT_TOTAL_CNT);
+				return;
+		}
+		
+		totalcash += cash_item->price * qty;
+		totalweight += itemdb_weight(nameid) * qty;
+	}
+	
+	if (totalweight + sd->weight > sd->max_weight) {
+		clif_cashshop_result(sd, 0, CSBR_INVENTORY_WEIGHT);
+		return;
+	}
+
+	if (pc_inventoryblank(sd) < new_) {
+		clif_cashshop_result(sd, 0, CSBR_INVENTORY_ITEMCNT);
+		return;
+	}
+
+	if (pc_paycash(sd, totalcash, 0, LOG_TYPE_CASH) <= 0) {
+		clif_cashshop_result(sd, 0, CSBR_SHORTTAGE_CASH);
+		return;
+	}
+
+	for (i = 0; i < p->count; ++i) {
+		const int qty = p->items[i].amount;
+		const int nameid = p->items[i].itemId;
+
+		struct item_data* item_data = itemdb_exists(nameid);
+		if (!item_data)
 			continue;
 
-		for( j = 0; j < cash_shop_items[tab].count; j++ ) {
-			if( cash_shop_items[tab].item[j]->id == id )
-				break;
-		}
-		if( j < cash_shop_items[tab].count ) {
-			struct item_data *data;
-			if (sd->cashPoints < (cash_shop_items[tab].item[j]->price * qty)) {
-				clif_cashshop_result(sd, id, CSBR_SHORTTAGE_CASH);
-			}
+		uint16 get_amt = qty;
+		if (item_data->flag.guid || !itemdb_isstackable2(item_data))
+			get_amt = 1;
 
-			if (!(data = itemdb_exists(cash_shop_items[tab].item[j]->id))) {
-				result = CSBR_UNKONWN_ITEM;
-			} else {
-				int get_count = qty;
+		for (uint32 j = 0; j < qty; j += get_amt) {
+			if (!pet_create_egg(sd, nameid)) {
+				struct item item_tmp = { 0 };
 
-				if (!itemdb_isstackable2(data))
-					get_count = 1;
+				item_tmp.nameid = nameid;
+				item_tmp.identify = 1;
 
-				pc_paycash(sd, cash_shop_items[tab].item[j]->price * qty, 0, LOG_TYPE_CASH);/* kafra point support is missing */
-				for (int k = 0; k < qty; k += get_count) {
-					unsigned short nameid = data->nameid;
-
-					if (!pet_create_egg(sd, nameid)) {
-						unsigned short get_amt = get_count;
-
-						if (data->flag.guid)
-							get_amt = 1;
-
-						for (int y = 0; y < get_count; y += get_amt) {
-							struct item item_tmp = { 0 };
-
-							item_tmp.nameid = nameid;
-							item_tmp.identify = 1;
-
-							switch (pc_additem(sd, &item_tmp, get_amt, LOG_TYPE_CASH)) {
-								case 0:
-									result = CSBR_SUCCESS;
-									break;
-								case 1:
-									result = CSBR_EACHITEM_OVERCOUNT;
-									break;
-								case 2:
-									result = CSBR_INVENTORY_WEIGHT;
-									break;
-								case 4:
-									result = CSBR_INVENTORY_ITEMCNT;
-									break;
-								case 5:
-									result = CSBR_EACHITEM_OVERCOUNT;
-									break;
-								case 7:
-									result = CSBR_RUNE_OVERCOUNT;
-									break;
-							}
-
-							if (result != CSBR_SUCCESS)
-								pc_getcash(sd, cash_shop_items[tab].item[j]->price * get_amt, 0, LOG_TYPE_CASH);/* kafra point support is missing */
-						}
-					}
+				switch (pc_additem(sd, &item_tmp, get_amt, LOG_TYPE_CASH)) {
+					case ADDITEM_OVERWEIGHT:
+						clif_cashshop_result(sd, nameid, CSBR_INVENTORY_WEIGHT);
+						return;
+					case ADDITEM_OVERITEM:
+						clif_cashshop_result(sd, nameid, CSBR_INVENTORY_ITEMCNT);
+						return;
+					case ADDITEM_OVERAMOUNT:
+						clif_cashshop_result(sd, nameid, CSBR_OVER_PRODUCT_TOTAL_CNT);
+						return;
+					case ADDITEM_STACKLIMIT:
+						clif_cashshop_result(sd, nameid, CSBR_RUNE_OVERCOUNT);
+						return;
 				}
 			}
-		} else {
-			result = CSBR_UNKONWN_ITEM;
+			clif_cashshop_result(sd, nameid, CSBR_SUCCESS);
 		}
-
-		clif_cashshop_result(sd, id, result);
 	}
 }
 
-void clif_cashshop_result(struct map_session_data *sd, t_itemid item_id, uint16 result) {
+void clif_cashshop_result(struct map_session_data* sd, const t_itemid item_id, const uint16 result) {
 #if PACKETVER >= 20101123
 	nullpo_retv(sd);
 
-	struct PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT packet;
+	struct PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT packet = { 0 };
 
 	packet.packetType = 0x849;
-	packet.itemId = client_nameid(item_id);
+	packet.itemId = item_id != 0 ? client_nameid(item_id) : 0;
 	packet.result = result;
 	packet.cashPoints = sd->cashPoints;
 	packet.kafraPoints = sd->kafraPoints;

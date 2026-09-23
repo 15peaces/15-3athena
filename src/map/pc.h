@@ -909,7 +909,7 @@ int pc_equippoint_sub(struct map_session_data *sd, struct item_data* id);
 int pc_equippoint(struct map_session_data *sd,int n);
 int pc_setinventorydata(struct map_session_data *sd);
 
-int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
+int pc_get_skillcooldown(struct map_session_data *sd, const uint16 skill_id, const uint16 skill_lv);
 int pc_checkskill(struct map_session_data *sd, uint16 skill_id);
 short pc_checkequip(struct map_session_data *sd,int pos, bool checkall);
 bool pc_checkequip2(struct map_session_data *sd, t_itemid nameid);

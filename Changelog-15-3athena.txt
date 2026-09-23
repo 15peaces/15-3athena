@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/23/2026
+	r598 [15peaces]
+		*Fixed pc_get_skillcooldown to respect the configuration and specific state induced cooldown changes directly.
+			-Removed a duplicate sending of the wrong cooldown to the client.
+			-Minor code cleanups.
+			-Thanks to @Reilaen
+		*Fixed min and max to return the proper return value for a successful execution. This fixes a weird debug output, triggered by returning an error state even though the command ran successfully.
+			-Thanks to @Reilaen
+		*Fixed a severe bug that lead to people being able to buy infinite items, if they kept the shop window open.
+			-Added more security checks.
+			-Made the code more readable.
+			-Thanks to @Reilaen
+
 09/20/2026
 	r597 [15peaces]
 		*Some monster updates/fixes.
