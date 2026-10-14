@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/14/2026
+	r601 [15peaces]
+		*Changed some monsters to fit pre-renewal caclulations.
+		*Fixed SC_ITEMBOOST increase % message.
+		*Added support for latest hat effects.
+		*Added some new items.
+			-Note: HAT_EF_AURA_OF_GHOST_S is not supported by our latest supported client by default...
+
 10/04/2026
 	r600 [15peaces]
 		*Changed some monsters to fit pre-renewal caclulations.

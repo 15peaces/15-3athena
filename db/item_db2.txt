@@ -73,8 +73,6 @@
 
 
 //LHZ 4 and more (renewal versions)
-1288,Bloody_Fear_C,Bloody Fear,4,1,,0,145,,1,0,0x00001000,63,2,34,4,1,0,16,{ bonus bIgnoreDefRace,RC_DemiHuman; bonus bIgnoreDefRace,RC_DemiHuman; bonus2 bAddEff,Eff_Bleeding,100; },{},{}
-1289,P_Katar1,Eden Katar I,4,0,,0,155,,1,0,0x00001000,63,2,34,3,60,0,16,{},{},{}
 1290,Agent_Katar,Agent Katar,4,41000,,1200,170,,1,1,0x00001000,63,2,34,3,100,1,16,{ bonus bHit,readparam(bLuk)/2; },{},{}
 1291,Guillotine_Katar,Guillotine Katar,4,56000,,1500,200,,1,1,0x00001000,63,2,34,4,140,1,16,{ bonus bDex,2; bonus bFlee,-30; bonus2 bAddRace,RC_DemiHuman,50; bonus2 bAddRace,RC_DemiHuman,50; bonus2 bSkillAtk,"GC_CROSSIMPACT",30; },{},{}
 1292,Upg_Katar,Upg Katar,4,20,,1000,80,,1,1,0x00001000,63,2,34,3,1,1,16,{ set .@r,getrefine(); bonus bBaseAtk,(.@r*10); bonus bCritAtkRate,(.@r*2); if(BaseLevel>70) bonus bBaseAtk,(((BaseLevel-70)/10)*10); },{},{}
@@ -5677,6 +5675,10 @@
 400480,C_Cat_Straw_Hat,Costume Cat Straw Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,2413,{},{},{}
 410083,C_Scuba_Mask,Costume Scuba Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,400,{},{},{}
 410170,C_Star_Eyepatch,Costume Star Eyepatch,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,800,{},{},{}
+410363,C_Aura_Of_Ghost_S,Costume Aura of Ghost Ship,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,0,{ hateffect HAT_EF_AURA_OF_GHOST_S,true; },{},{ hateffect HAT_EF_AURA_OF_GHOST_S,false; }
+410364,aegis_410364,Costume: Wisdom Core Headphones,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,2503,{},{},{}
+420078,C_Ghost_Bat_J,Costume Ghost Bat(Lower),5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,2093,{},{},{}
+420079,C_Inner_Color_Long,Costume Inner Color Long,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,2155,{},{},{}
 470084,Rune_Greave_JP,Rune Greaves,5,0,,400,,12,,0,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}
 470085,Rune_Greave_JP_,Rune Greaves,5,0,,400,,12,,1,0xFFFFFFFF,56,2,64,1,100,1,,{ .@r = getrefine(); bonus bMdef,10; bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bSpeedRate,25; bonus bAllStats,3*(getskilllv("RK_DRAGONBREATH")+getskilllv("RK_DRAGONBREATH_WATER")/2); bonus2 bSkillAtk,"RK_HUNDREDSPEAR",getskilllv("RK_DRAGONHOWLING")*40; bonus2 bSkillAtk,"LK_SPIRALPIERCE",getskilllv("RK_DRAGONHOWLING")*40; if (getskilllv("RK_DRAGONTRAINING") == 5) bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; if (getskilllv("RK_PHANTOMTHRUST") == 5) bonus bFixedCastrate,-50; if (.@r>=5) { bonus bMaxHPrate,7; bonus bMaxSPrate,7; bonus bDelayrate,-10; } if (.@r>=7) { bonus bMaxHPrate,10; bonus bMaxSPrate,10; bonus bDelayrate,-10; } },{},{}
 480223,C_Muranyasa,Costume Oriental Sword,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,1,0,147,{},{},{}

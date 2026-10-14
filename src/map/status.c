@@ -9716,6 +9716,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if (val1 < 0)
 				val1 = 0;
 			break;
+		case SC_ITEMBOOST:
+			val_flag |= 1;
+			break;
 		case SC_INCFLEE2:
 		case SC_INCCRI:
 			val2 = val1*10; //Actual boost (since 100% = 1000)
@@ -11095,7 +11098,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		calc_flag&=~SCB_BODY;
 	}*/
 
-	if (!(flag & 16) && !(flag & 4 && StatusDisplayType[type]))
+	if (!(flag&SCSTART_NOICON) && !(flag&SCSTART_LOADED && StatusDisplayType[type]))
 		clif_status_change(bl, StatusIconChangeTable[type], 1, tick, (val_flag & 1) ? val1 : 1, (val_flag & 2) ? val2 : 0, (val_flag & 4) ? val3 : 0);
 
 	/**

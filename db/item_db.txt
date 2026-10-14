@@ -636,7 +636,8 @@
 1285,Cakram,Chakram,4,20,,1000,130,,1,2,0x00001000,2,2,34,3,50,1,16,{ if(getskilllv("AS_KATAR")==10) { bonus bHit,10; } bonus2 bSkillAtk,"ASC_METEORASSAULT",20; if(isequipped(2892)){bonus bCritical,4; bonus bCritAtkRate,40; bonus bMaxHPRate,-10;} },{},{}
 1286,Jamadhar_C,Jamadhar,4,0,,0,200,,1,0,0x00001000,7,2,34,3,1,0,16,{ bonus bUnbreakableWeapon,0; bonus2 bAddSize,0,40; bonus2 bAddSize,1,40; bonus2 bAddSize,2,40; },{},{}
 1287,Durga,Durga,4,20,,1200,190,,1,1,0x00001000,63,2,34,3,100,1,16,{},{},{}
-1288,Bloody_Fear_C,Bloody Fear,4,1,,0,145,,1,0,0x00001000,7,2,34,4,1,0,16,{},{},{}
+1288,Bloody_Fear_C,Bloody Fear,4,1,,0,145,,1,0,0x00001000,63,2,34,4,1,0,16,{ bonus bIgnoreDefRace,RC_DemiHuman; bonus bIgnoreDefRace,RC_DemiHuman; bonus2 bAddEff,Eff_Bleeding,100; },{},{}
+1289,P_Katar1,Eden Katar I,4,0,,0,155,,1,0,0x00001000,63,2,34,3,60,0,16,{},{},{}
 // 1-Handed Axes
 1301,Axe,Axe,4,500,,800,38,,1,3,0x000654E3,7,2,2,1,3,1,6,{},{},{}
 1302,Axe_,Axe,4,500,,800,38,,1,4,0x000654E3,7,2,2,1,3,1,6,{},{},{}
