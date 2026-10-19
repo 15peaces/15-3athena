@@ -5705,38 +5705,28 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 			if (rdamage < 1) rdamage = 1;
 		}
 		else if (status_reflect && sc && sc->count) {
-			if (sc->data[SC_LG_REFLECTDAMAGE] && !(skill_get_inf2(skill_id)&INF2_TRAP)) {
-				if (rnd() % 100 <= sc->data[SC_LG_REFLECTDAMAGE]->val1 * 10 + 30) {
-					max_damage = (int64)max_damage * status_get_base_lv_effect(bl) / 100;
-					rdamage = (*dmg) * sc->data[SC_LG_REFLECTDAMAGE]->val2 / 100;
-					if (--(sc->data[SC_LG_REFLECTDAMAGE]->val3) < 1)
-						status_change_end(bl, SC_LG_REFLECTDAMAGE, INVALID_TIMER);
+			if (sc->data[SC_REFLECTSHIELD] && skill_id != WS_CARTTERMINATION) {
+				// Don't reflect non-skill attack if has SC_REFLECTSHIELD from Devotion bonus inheritance
+				if (!skill_id && battle_config.devotion_rdamage_skill_only && sc->data[SC_REFLECTSHIELD]->val4)
+					rdamage = 0;
+				else {
+					rdamage += damage * sc->data[SC_REFLECTSHIELD]->val2 / 100;
+					if (rdamage < 1)
+						rdamage = 1;
 				}
 			}
-			else {
-				if (sc->data[SC_REFLECTSHIELD] && skill_id != WS_CARTTERMINATION) {
-					// Don't reflect non-skill attack if has SC_REFLECTSHIELD from Devotion bonus inheritance
-					if (!skill_id && battle_config.devotion_rdamage_skill_only && sc->data[SC_REFLECTSHIELD]->val4)
-						rdamage = 0;
-					else {
-						rdamage += damage * sc->data[SC_REFLECTSHIELD]->val2 / 100;
-						if (rdamage < 1)
-							rdamage = 1;
-					}
-				}
-
-				if (sc->data[SC_DEATHBOUND] && skill_id != WS_CARTTERMINATION && !(src->type == BL_MOB && status_bl_has_mode(src, MD_STATUS_IMMUNE))) {
-					uint8 dir = map_calc_dir(bl, src->x, src->y),
-						t_dir = unit_getdir(bl);
-
-					if (distance_bl(src, bl) <= 0 || !map_check_dir(dir, t_dir)) {
-						int64 rd1 = 0;
-						rd1 = min(damage, status_get_max_hp(bl)) * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
-						*dmg = rd1 * 30 / 100; // Received damage = 30% of amplifly damage.
-						clif_skill_damage(src, bl, gettick(), status_get_amotion(src), 0, -30000, 1, RK_DEATHBOUND, sc->data[SC_DEATHBOUND]->val1, 6);
-						status_change_end(bl, SC_DEATHBOUND, INVALID_TIMER);
-						rdamage += rd1 * 70 / 100; // Target receives 70% of the amplified damage. [Rytech]
-					}
+			
+			if (sc->data[SC_DEATHBOUND] && skill_id != WS_CARTTERMINATION && !(src->type == BL_MOB && status_bl_has_mode(src, MD_STATUS_IMMUNE))) {
+				uint8 dir = map_calc_dir(bl, src->x, src->y),
+					t_dir = unit_getdir(bl);
+				
+				if (distance_bl(src, bl) <= 0 || !map_check_dir(dir, t_dir)) {
+					int64 rd1 = 0;
+					rd1 = min(damage, status_get_max_hp(bl)) * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
+					*dmg = rd1 * 30 / 100; // Received damage = 30% of amplifly damage.
+					clif_skill_damage(src, bl, gettick(), status_get_amotion(src), 0, -30000, 1, RK_DEATHBOUND, sc->data[SC_DEATHBOUND]->val1, 6);
+					status_change_end(bl, SC_DEATHBOUND, INVALID_TIMER);
+					rdamage += rd1 * 70 / 100; // Target receives 70% of the amplified damage. [Rytech]
 				}
 			}
 		}
@@ -5748,14 +5738,29 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 		}
 	}
 
-	if (sc && sc->data[SC_KYOMU]) // Nullify reflecting ability
-		rdamage = 0;
+	int64 reduce = 0;
 
-	if (sc && sc->data[SC_MAXPAIN]) {
-		rdamage = damage * sc->data[SC_MAXPAIN]->val1 * 10 / 100;
+	if (sc) {
+		if (status_reflect && sc->data[SC_LG_REFLECTDAMAGE]) {
+			reduce += sc->data[SC_LG_REFLECTDAMAGE]->val2;
+		}
+		if (sc->data[SC_KYOMU]) { // Nullify reflecting ability
+			rdamage = 0;
+		}
+		if (sc->data[SC_MAXPAIN]) {
+			rdamage = damage * sc->data[SC_MAXPAIN]->val1 * 10 / 100;
+		}
 	}
 
-	return cap_value(min(rdamage, max_damage), INT_MIN, INT_MAX);
+	if (rdamage > 0) {
+		rdamage -= rdamage * i64min(100, reduce) / 100;
+		rdamage = i64max(rdamage, 1);
+	}
+
+	if (rdamage == 0)
+		return 0; // No reflecting damage calculated.
+	else
+		return cap_value(rdamage, 1, status_get_max_hp(bl));
 }
 
 /**
@@ -5873,7 +5878,7 @@ int battle_damage_area( struct block_list *bl, va_list ap)
 		if (amotion)
 			battle_delay_damage(tick, amotion, src, bl, 0, CR_REFLECTSHIELD, 0, damage, ATK_DEF, 0, true, false);
 		else
-			status_fix_damage(src, bl, damage, 0);
+			battle_damage(src, bl, damage, 0, 0, LG_REFLECTDAMAGE, ATK_DEF, BF_MISC, false, gettick(), false);
 		clif_damage(bl, bl, tick, amotion, dmotion, damage, 1, ATK_BLOCK, 0, false);
 		skill_additional_effect(src, bl, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF, tick);
 		map_freeblock_unlock();

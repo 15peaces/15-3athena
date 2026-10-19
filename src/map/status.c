@@ -1617,16 +1617,6 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	if( hp && battle_config.invincible_nodamage && src && sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 		hp = 1;
 
-	if( hp && flag&32 ){
-		if( sc && sc->data[SC_LG_REFLECTDAMAGE] ){
-			int64 thp = (int64)hp;
-			int64 rdamage = battle_calc_return_damage(src,target,&thp,BF_SHORT,0,1);
-			hp = (int)cap_value(thp, INT32_MIN, INT32_MAX);
-			if( src != target )
-				map_foreachinrange(battle_damage_area,target,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,gettick(),target,status_get_amotion(src),status_get_dmotion(src),rdamage,status->race);
-		}
-	}
-
 	if( hp && !(flag&1) ) {
 		if( sc ) {
 			struct status_change_entry *sce;
@@ -10122,10 +10112,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			}
 			break;
 		case SC_LG_REFLECTDAMAGE:
-			val2 = 15 + 5 * val1;//Reflect Amount
-			val3 = 25 + 5 * val1; //Number of Reflects
-			val4 = tick/ 10000;
-			tick_time = 10000;
+			val2 = 10 * val1; // Reflect reduction amount
+			val4 = tick / 1000; // Number of SP cycles (duration)
+			tick_time = 1000; // [GodLesZ] tick time
 			break;
 		case SC_FORCEOFVANGUARD:// This is not the official way to handle it but I think we should use it. [pakpil]
 			val2 = 8 + 12 * val1;//Chance Of Getting A Rage Counter
@@ -12947,10 +12936,10 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_LG_REFLECTDAMAGE:
-		if( --(sce->val4) > 0 ) {
-			if (!status_charge(bl, 0, 20 + 10 * sce->val1))
+		if (--(sce->val4) > 0) {
+			if (!status_charge(bl, 0, 10))
 				break;
-			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

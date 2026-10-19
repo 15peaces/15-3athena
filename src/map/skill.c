@@ -3148,6 +3148,17 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			}
 			else if (type != 2) /* Kaite bypasses */
 				additional_effects = false;
+
+			if (dmg.dmg_lv != ATK_MISS) { //Wiz SL cancelled and consumed fragment
+				int64 reduce = 0;
+				if (sc && sc->data[SC_LG_REFLECTDAMAGE]) {
+					reduce += (sc->data[SC_LG_REFLECTDAMAGE]->val2);
+				}
+				if (dmg.damage > 0) {
+					dmg.damage -= dmg.damage * i64min(100, reduce) / 100;
+					dmg.damage = i64max(dmg.damage, dmg.div_);
+				}
+			}
 		}
 
 		if( sc )

@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/19/2026
+	r602 [15peaces]
+		*Updated LG_REFLECTDAMAGE skill to latest official version.
+		*Added some missing headgears.
+	
 10/14/2026
 	r601 [15peaces]
 		*Changed some monsters to fit pre-renewal caclulations.
