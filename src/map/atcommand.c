@@ -4140,7 +4140,7 @@ ACMD_FUNC(spiritball)
 	return 0;
 }
 
-ACMD_FUNC(shieldball)
+/*ACMD_FUNC(shieldball)
 {
 	int max_shieldballs = min(ARRAYLENGTH(sd->shield_timer), 0x7FFF);
 	int number, health;
@@ -4164,7 +4164,7 @@ ACMD_FUNC(shieldball)
 	// no message, player can look the difference
 
 	return 0;
-}
+}*/
 
 ACMD_FUNC(rageball)
 {
@@ -10699,7 +10699,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "questskill",        40,40,     atcommand_questskill },
 	{ "lostskill",         40,40,     atcommand_lostskill },
 	{ "spiritball",        40,40,     atcommand_spiritball },
-	{ "shieldball",        40,40,     atcommand_shieldball },
+	//{ "shieldball",        40,40,     atcommand_shieldball },
 	{ "rageball",          40,40,     atcommand_rageball },
 	{ "charmball",         40,40,     atcommand_charmball },
 	{ "soulball",          40,40,     atcommand_soulball },

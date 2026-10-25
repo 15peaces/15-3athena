@@ -551,6 +551,7 @@ void initChangeTables(void)
 	add_sc( RK_DRAGONBREATH			, SC_BURNING			);
 	add_sc( RK_DRAGONHOWLING		, SC_FEAR				);
 	set_sc( RK_CRUSHSTRIKE			, SC_CRUSHSTRIKE		, SI_CRUSHSTRIKE		, SCB_NONE );
+	set_sc( RK_MILLENNIUMSHIELD		, SC_MILLENNIUMSHIELD	, SI_MILLENNIUMSHIELD	, SCB_NONE);
 	set_sc( RK_REFRESH				, SC_REFRESH			, SI_REFRESH			, SCB_NONE );
 	set_sc( RK_GIANTGROWTH			, SC_GIANTGROWTH		, SI_GIANTGROWTH		, SCB_STR );
 	set_sc( RK_STONEHARDSKIN		, SC_STONEHARDSKIN		, SI_STONEHARDSKIN		, SCB_DEF | SCB_MDEF);
@@ -9224,7 +9225,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_READYCOUNTER:
 		case SC_READYTURN:
 		case SC_DODGE:
-		case SC_MILLENNIUMSHIELD:
+		//case SC_MILLENNIUMSHIELD:
 		case SC_SPRITEMABLE:
 		case SC_SOULATTACK:
 		case SC_ALL_RIDING:
@@ -9786,6 +9787,15 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				status_heal(bl,status_get_max_hp(bl) * 25 / 100,0,1);
 			}
 			break;
+		case SC_MILLENNIUMSHIELD:
+		{
+			int8 chance = rnd() % 100;
+
+			val2 = ((chance < 20) ? 4 : (chance < 50) ? 3 : 2); // Shield count
+			val3 = 1000; // Shield HP
+			clif_millenniumshield(bl, val2);
+		}
+		break;
 		case SC_STONEHARDSKIN:
 			// Final DEF/MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
 			val2 = val2 / 4 / 10;// DEF/MDEF Increase
@@ -11824,6 +11834,9 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid)
 		case SC_ACTIVE_MONSTER_TRANSFORM:
 			if (sce->val2)
 				status_change_end(bl, (sc_type)sce->val2, INVALID_TIMER);
+			break;
+		case SC_MILLENNIUMSHIELD:
+			clif_millenniumshield(bl, 0);
 			break;
 		case SC_HALLUCINATIONWALK:
 			sc_start(bl,SC_HALLUCINATIONWALK_POSTDELAY,100,sce->val1,skill_get_time2(GC_HALLUCINATIONWALK,sce->val1));

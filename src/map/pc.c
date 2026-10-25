@@ -242,7 +242,7 @@ void pc_delspiritball(struct map_session_data *sd,int count,int type)
 		clif_spiritball(sd);
 }
 
-static int pc_shieldball_timer(int tid, int64 tick, int id, intptr data)
+/*static int pc_shieldball_timer(int tid, int64 tick, int id, intptr data)
 {
 	struct map_session_data *sd;
 	int i;
@@ -274,9 +274,9 @@ static int pc_shieldball_timer(int tid, int64 tick, int id, intptr data)
 	clif_millenniumshield(&sd->bl, sd->shieldball);
 
 	return 0;
-}
+}*/
 
-int pc_addshieldball(struct map_session_data *sd,int interval,int max, int shield_health)
+/*int pc_addshieldball(struct map_session_data* sd, int interval, int max, int shield_health)
 {
 	int tid, i;
 
@@ -311,9 +311,9 @@ int pc_addshieldball(struct map_session_data *sd,int interval,int max, int shiel
 	clif_millenniumshield(&sd->bl, sd->shieldball);
 
 	return 0;
-}
+}/*
 
-int pc_delshieldball(struct map_session_data *sd,int count,int type)
+/*int pc_delshieldball(struct map_session_data* sd, int count, int type)
 {
 	int i;
 
@@ -354,7 +354,7 @@ int pc_delshieldball(struct map_session_data *sd,int count,int type)
 		clif_millenniumshield(&sd->bl, sd->shieldball);
 
 	return 0;
-}
+}*/
 
 static int pc_rageball_timer(int tid, int64 tick, int id, intptr data)
 {
@@ -8299,8 +8299,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	if (sd->spiritball != 0)
 		pc_delspiritball(sd,sd->spiritball,0);
 
-	if (sd->shieldball != 0)
-		pc_delshieldball(sd, sd->shieldball, 0);
+	//if (sd->shieldball != 0)
+	//	pc_delshieldball(sd, sd->shieldball, 0);
 
 	if (sd->rageball != 0)
 		pc_delrageball(sd, sd->rageball, 0);
@@ -12511,7 +12511,7 @@ void do_init_pc(void)
 	add_timer_func_list(pc_calc_pvprank_timer, "pc_calc_pvprank_timer");
 	add_timer_func_list(pc_autosave, "pc_autosave");
 	add_timer_func_list(pc_spiritball_timer, "pc_spiritball_timer");
-	add_timer_func_list(pc_shieldball_timer, "pc_shieldball_timer");
+	//add_timer_func_list(pc_shieldball_timer, "pc_shieldball_timer");
 	add_timer_func_list(pc_rageball_timer, "pc_rageball_timer");
 	add_timer_func_list(pc_charmball_timer, "pc_spiritball_attribute_timer");
 	add_timer_func_list(pc_soulball_timer, "pc_soulball_timer");

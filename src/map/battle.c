@@ -1038,6 +1038,22 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			}
 		}
 
+		if ((sce = sc->data[SC_MILLENNIUMSHIELD]) && sce->val2 > 0 && damage > 0) {
+			sce->val3 -= (int)cap_value(damage, INT_MIN, INT_MAX); // absorb damage
+			d->dmg_lv = ATK_BLOCK;
+			if (sce->val3 <= 0) { // Shield Down
+				sce->val2--;
+				if (sce->val2 > 0) {
+					clif_millenniumshield(bl, sce->val2);
+					sce->val3 = 1000; // Next shield
+				}
+				else
+					status_change_end(bl, SC_MILLENNIUMSHIELD, INVALID_TIMER); // All shields down
+				status_change_start(src, bl, SC_STUN, 10000, 0, 0, 0, 0, 1000, SCSTART_NOTICKDEF);
+			}
+			return false;
+		}
+
 		if (damage)
 		{
 			if (sc->data[SC_DEEPSLEEP]) {
@@ -1190,7 +1206,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 		}
 
 		// Millennium Shield
-		if ( sd && sd->shieldball > 0 && damage > 0 )
+		/*if ( sd && sd->shieldball > 0 && damage > 0 )
 		{
 			sd->shieldball_health-=(int)cap_value(damage, INT_MIN, INT_MAX);
 			damage = 0;
@@ -1200,7 +1216,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				pc_delshieldball(sd, 1, 0);
 				status_change_start(src, bl, SC_STUN, 10000, 0, 0, 0, 0, 1000, 2);
 			}
-		}
+		}*/
 
 		if ( (sce = sc->data[SC_LIGHTNINGWALK]) && damage > 0 && (flag&BF_WEAPON && flag&BF_LONG) && rnd()%100 < sce->val2 )
 		{
@@ -2663,10 +2679,6 @@ static struct Damage battle_calc_multi_attack(struct Damage wd, struct block_lis
 		if (sd && sd->weapontype1 == W_DAGGER)
 			wd.div_++;
 		break;
-	case RA_AIMEDBOLT:
-		if (tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]))
-			wd.div_ = tstatus->size + 2 + ((rnd() % 100 < 50 - tstatus->size * 10) ? 1 : 0);
-		break;
 	case SC_KO_JYUMONJIKIRI:
 		if (tsc && tsc->data[SC_KO_JYUMONJIKIRI])
 			wd.div_ = wd.div_ * -1;// needs more info
@@ -3106,12 +3118,18 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		skillratio += 10 * skill_lv;
 		break;
 	case RA_ARROWSTORM:
-		skillratio += 900 + 80 * skill_lv;
+		if (sc && sc->data[SC_FEARBREEZE])
+			skillratio += -100 + 200 + 250 * skill_lv;
+		else
+			skillratio += -100 + 200 + 180 * skill_lv;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case RA_AIMEDBOLT:
-		skillratio += 400 + 50 * skill_lv;
+		if (sc && sc->data[SC_FEARBREEZE])
+			skillratio += -100 + 800 + 35 * skill_lv;
+		else
+			skillratio += -100 + 500 + 20 * skill_lv;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
@@ -3939,6 +3957,9 @@ struct Damage battle_calc_attack_plant(struct Damage wd, struct block_list *src,
 	struct status_data *tstatus = status_get_status_data(target);
 	bool attack_hits = is_attack_hitting(wd, src, target, skill_id, skill_lv, false);
 
+	if (skill_id != SN_SHARPSHOOTING && skill_id != RA_ARROWSTORM)
+		status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
+
 	int right_element = battle_get_weapon_element(wd, src, target, skill_id, skill_lv, EQI_HAND_R, wflag);
 	int left_element = battle_get_weapon_element(wd, src, target, skill_id, skill_lv, EQI_HAND_L, wflag);
 
@@ -4148,7 +4169,8 @@ struct Damage battle_calc_weapon_final_atk_modifiers(struct Damage wd, struct bl
 				ATK_ADD(wd.damage, wd.damage2, (sc->data[SC_ENCHANTBLADE]->val1 * 20 + 100) * status_get_lv(src) / 150 + status_get_int(src));
 			}
 		}
-		status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
+		if (skill_id != SN_SHARPSHOOTING && skill_id != RA_ARROWSTORM)
+			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
 	}
 	switch (skill_id) {
 		case ASC_BREAKER:

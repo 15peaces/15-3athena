@@ -1572,13 +1572,30 @@ static void clif_soulball_single(int fd, struct map_session_data *sd)
  * MILLENNIUMSHIELD_STATE_STAND =  0x0
  * MILLENNIUMSHIELD_STATE_MOVE =  0x1
  *-----------------------------------------*/
-static void clif_millenniumshield_single(int fd, struct block_list *bl, short shield_count)
+static void clif_millenniumshield_single(struct map_session_data *sd, struct map_session_data* tsd)
 {
+	int fd = sd->fd;
+	struct status_change_entry* sce = sd->sc.data[SC_MILLENNIUMSHIELD];
+
+	if (sce == NULL) {
+		return;
+	}
+
 	WFIFOHEAD(fd, packet_len(0x440));
 	WFIFOW(fd,0)=0x440;
-	WFIFOL(fd,2)=bl->id;
-	WFIFOW(fd,6)=shield_count;
+	WFIFOL(fd,2)=sd->bl.id;
+	WFIFOW(fd,6)= sce->val2;
 	WFIFOW(fd,8)=0;
+	WFIFOSET(fd, packet_len(0x440));
+}
+
+static void clif_rageball_single(int fd, struct block_list* bl, short shield_count)
+{
+	WFIFOHEAD(fd, packet_len(0x440));
+	WFIFOW(fd, 0) = 0x440;
+	WFIFOL(fd, 2) = bl->id;
+	WFIFOW(fd, 6) = shield_count;
+	WFIFOW(fd, 8) = 0;
 	WFIFOSET(fd, packet_len(0x440));
 }
 
@@ -1664,8 +1681,8 @@ int clif_spawn(struct block_list *bl)
 			TBL_PC *sd = ((TBL_PC*)bl);
 			if (sd->spiritball > 0)
 				clif_spiritball(sd);
-			if (sd->shieldball > 0)
-				clif_millenniumshield(&sd->bl, sd->shieldball);
+			if (sd->sc.data[SC_MILLENNIUMSHIELD])
+				clif_millenniumshield(&sd->bl, sd->sc.data[SC_MILLENNIUMSHIELD]->val2);
 			if (sd->rageball > 0)
 				clif_millenniumshield(&sd->bl, sd->rageball);
 			if (sd->charmball > 0)
@@ -4958,11 +4975,10 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 	if(dstsd->spiritball > 0)
 		clif_spiritball_single(dstsd);
 
-	if (dstsd->shieldball > 0)
-		clif_millenniumshield_single(sd->fd, &dstsd->bl, dstsd->shieldball);
+	clif_millenniumshield_single(dstsd, sd);
 
 	if (dstsd->rageball > 0)
-		clif_millenniumshield_single(sd->fd, &dstsd->bl, dstsd->rageball);
+		clif_rageball_single(sd->fd, &dstsd->bl, dstsd->rageball);
 
 	if (dstsd->charmball > 0)
 		clif_spiritball_attribute_single(sd->fd, dstsd);
@@ -10265,10 +10281,9 @@ void clif_refresh(struct map_session_data *sd)
 	clif_updatestatus(sd,SP_LUK);
 	if (sd->spiritball)
 		clif_spiritball_single(sd);
-	if (sd->shieldball)
-		clif_millenniumshield_single(sd->fd, &sd->bl, sd->shieldball);
+	clif_millenniumshield_single(sd, sd);
 	if (sd->rageball)
-		clif_millenniumshield_single(sd->fd, &sd->bl, sd->rageball);
+		clif_rageball_single(sd->fd, &sd->bl, sd->rageball);
 	if (sd->charmball)
 		clif_spiritball_attribute_single(sd->fd, sd);
 	if (sd->soulball)

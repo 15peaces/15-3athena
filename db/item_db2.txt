@@ -5728,5 +5728,5 @@
 18791,Shrine_Maiden_Hat,Shrine Maiden Hat,5,20,,200,,30,,1,0xFFFFFFFF,63,2,256,,,,908,{},{},{}
 18792,Idn_Sakkat,Indonesian Independence Sakkat,5,10,,400,,,,0,0xFFFFFFFE,63,2,256,,45,1,901,{ bonus bVit,10; bonus2 bAddClass,Class_All,5; bonus bMatkRate,5; bonus2 bSubRace,RC_DemiHuman,10; },{},{}
 18793,Sorc_Night_Cap,Sorcerer's Night Cap,5,20,,200,,25,,1,0x00010000,56,2,256,,100,1,911,{ .@r = getrefine(); bonus2 bSkillAtk,"MG_LIGHTNINGBOLT",50; bonus2 bSkillAtk,"MG_FIREBOLT",50; bonus2 bSkillAtk,"MG_COLDBOLT",50; bonus bMdef,10; if(.@r>6) bonus2 bSkillAtk,"SC_SPELLFIST",25; if(.@r>8) bonus bAspd,5; },{},{}
-18794,Plain_Black_Mage_Hat,Ordinary Black Magician Hat,5,0,,20,,15,,1,0x00000200,63,2,256,,100,1,912,{/*TODO*/},{},{}
+18794,Plain_Black_Mage_Hat,Ordinary Black Magician Hat,5,0,,20,,15,,1,0x00000200,63,2,256,,100,1,912,{.@r = getrefine(); bonus2 bIgnoreMdefClassRate,Class_Normal, 10 + .@r * 2; .@b = (.@r >= 7) ? 10 : 5; bonus2 bSkillAtk,"WL_JACKFROST",.@b; bonus2 bSkillAtk,"WL_EARTHSTRAIN",.@b; bonus2 bSkillAtk,"WL_CHAINLIGHTNING",.@b; if(.@r >= 9) bonus bMatkRate,5;},{},{}
 18795,Night_Sparrow_Hat,Night Sparrow Hat,5,0,,20,,15,,1,0x00080000,63,2,256,,100,1,913,{/*TODO*/},{},{}

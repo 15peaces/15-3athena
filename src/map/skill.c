@@ -1357,8 +1357,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 			status_change_end(bl, SC_BANDING, INVALID_TIMER);
 			status_change_end(bl, SC_GENTLETOUCH_CHANGE, INVALID_TIMER);
 			status_change_end(bl, SC_GENTLETOUCH_REVITALIZE, INVALID_TIMER);
-			if (dstsd)
-				pc_delshieldball(dstsd, dstsd->shieldball, 0);
+			status_change_end(bl, SC_MILLENNIUMSHIELD, INVALID_TIMER);
+			//if (dstsd)
+			//	pc_delshieldball(dstsd, dstsd->shieldball, 0);
 		}
 		break;
 	case NC_FLAMELAUNCHER:
@@ -5115,6 +5116,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			else
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), splash_target(src), src, skill_id, skill_lv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_damage_id);
 
+			if (skill_id == RA_ARROWSTORM)
+				status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
 			if (skill_id == AS_SPLASHER) {
 				map_freeblock_unlock(); // Don't consume a second gemstone.
 				return 0;
@@ -9906,6 +9909,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if (sd)
 		{
 			unsigned char lv = 1;// RK_GIANTGROWTH
+			
 			if (skill_id == RK_VITALITYACTIVATION)
 				lv = 2;
 			else if (skill_id == RK_STONEHARDSKIN)
@@ -9918,34 +9922,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				lv = 8;
 			else if (skill_id == RK_MILLENNIUMSHIELD)
 				lv = 9;
-			if (pc_checkskill(sd, RK_RUNEMASTERY) >= lv)
-				if ( skill_id == RK_MILLENNIUMSHIELD )
-				{
-					if ( sd )
-					{
-						unsigned char generate = rnd()%100 + 1;//Generates a number between 1 - 100 which is used to determine how many shields it will generate.
-						unsigned char shieldnumber = 1;
-
-						if ( generate >= 1 && generate <= 50 )//50% chance for 2 shields.
-							shieldnumber = 2;
-						else if ( generate >= 51 && generate <= 80 )//30% chance for 3 shields.
-							shieldnumber = 3;
-						else if ( generate >= 81 && generate <= 100 )//20% chance for 4 shields.
-							shieldnumber = 4;
-
-						// Remove old shields if any exist.
-						pc_delshieldball(sd, sd->shieldball, 1);
-
-						clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-						for (i = 0; i < shieldnumber; i++)
-							pc_addshieldball(sd, skill_get_time(skill_id,skill_lv), shieldnumber, battle_config.millennium_shield_health);
-					}
-
-				}
-				else if ( skill_id == RK_STONEHARDSKIN )
-					clif_skill_nodamage(src, bl, skill_id, skill_lv, sc_start2(bl, type, 100, skill_lv, status_get_job_lv_effect(src)*(sd ? pc_checkskill(sd, RK_RUNEMASTERY) : 10), skill_get_time(skill_id, skill_lv)));
-				else
-					clif_skill_nodamage(src,bl,skill_id,skill_lv,sc_start(bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv)));
+			if (pc_checkskill(sd, RK_RUNEMASTERY) >= lv) {
+				if (status_change_start(src, bl, type, 10000, skill_lv, 0, 0, 0, skill_get_time(skill_id, skill_lv), 0))
+					clif_skill_nodamage(src, bl, skill_id, skill_lv, true);
+				else if (skill_id == RK_STONEHARDSKIN)
+					clif_skill_fail(sd, skill_id, USESKILL_FAIL_HP_INSUFFICIENT, 0, 0);
+			}
+			else
+				clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0, 0);
 		}
 		break;
 

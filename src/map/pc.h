@@ -483,7 +483,7 @@ struct map_session_data {
 	short spiritball, spiritball_old;
 	int spirit_timer[MAX_SKILL_LEVEL];
 
-	short shieldball, shieldball_old;
+	//short shieldball, shieldball_old;
 	int shield_timer[MAX_SKILL_LEVEL];
 	int shieldball_health, shieldball_set_health;
 

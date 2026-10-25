@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/25/2026
+	r603 [15peaces]
+		*Updated RA_ARROWSTORM & RA_AIMEDBOLT skills to latest official versions.
+		*Updated RK_MILLENNIUMSHIELD rune to latest official version.
+			-Rewrite & simlified shieldball system.
+			-Now stores the shieldballs in val2 of the status.
+			-However, this removes the @shieldball command (for now)
+
 10/19/2026
 	r602 [15peaces]
 		*Updated LG_REFLECTDAMAGE skill to latest official version.
