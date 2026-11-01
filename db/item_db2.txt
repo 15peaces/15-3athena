@@ -278,10 +278,6 @@
 22886,December_Gift_Box,December Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22869,10; },{},{}
 
 //Eden Group Equipment (renewal versions)
-1192,P_Slayer1,Eden Slayer I,4,0,,0,162,,1,0,0x00004082,63,2,34,2,26,0,3,{},{},{}
-1193,P_Slayer2,Eden Slayer II,4,0,,0,185,,1,0,0x00004082,63,2,34,2,40,0,3,{},{},{}
-1197,P_Slayer3,Eden Slayer III,4,0,,0,200,,1,0,0x00004082,63,2,34,3,60,0,3,{},{},{}
-1289,P_Katar1,Eden Katar I,4,0,,0,155,,1,0,0x00001000,63,2,34,3,60,0,16,{},{},{}
 1391,P_Two_Handed_Axe1,Eden Two-Handed Axe I,4,0,,0,195,,1,0,0x000444A2,63,2,34,3,60,0,7,{},{},{}
 1434,P_Spear1,Eden Spear I,4,0,,0,165,,3,0,0x00004082,63,2,2,3,60,0,4,{},{},{}
 1583,P_Book1,Eden Book I,4,0,,0,135:110,,1,0,0x00410100,63,2,2,3,60,0,15,{},{},{}
@@ -5729,4 +5725,4 @@
 18792,Idn_Sakkat,Indonesian Independence Sakkat,5,10,,400,,,,0,0xFFFFFFFE,63,2,256,,45,1,901,{ bonus bVit,10; bonus2 bAddClass,Class_All,5; bonus bMatkRate,5; bonus2 bSubRace,RC_DemiHuman,10; },{},{}
 18793,Sorc_Night_Cap,Sorcerer's Night Cap,5,20,,200,,25,,1,0x00010000,56,2,256,,100,1,911,{ .@r = getrefine(); bonus2 bSkillAtk,"MG_LIGHTNINGBOLT",50; bonus2 bSkillAtk,"MG_FIREBOLT",50; bonus2 bSkillAtk,"MG_COLDBOLT",50; bonus bMdef,10; if(.@r>6) bonus2 bSkillAtk,"SC_SPELLFIST",25; if(.@r>8) bonus bAspd,5; },{},{}
 18794,Plain_Black_Mage_Hat,Ordinary Black Magician Hat,5,0,,20,,15,,1,0x00000200,63,2,256,,100,1,912,{.@r = getrefine(); bonus2 bIgnoreMdefClassRate,Class_Normal, 10 + .@r * 2; .@b = (.@r >= 7) ? 10 : 5; bonus2 bSkillAtk,"WL_JACKFROST",.@b; bonus2 bSkillAtk,"WL_EARTHSTRAIN",.@b; bonus2 bSkillAtk,"WL_CHAINLIGHTNING",.@b; if(.@r >= 9) bonus bMatkRate,5;},{},{}
-18795,Night_Sparrow_Hat,Night Sparrow Hat,5,0,,20,,15,,1,0x00080000,63,2,256,,100,1,913,{/*TODO*/},{},{}
+18795,Night_Sparrow_Hat,Night Sparrow Hat,5,0,,20,,15,,1,0x00080000,63,2,256,,100,1,913,{bonus bFixedCastrate, -5 * getskilllv("WM_LESSON"); .@r = getrefine(); if(.@r >= 7) bonus2 bSkillAtk,"WM_SEVERE_RAINSTORM",25; if(.@r >= 9) bonus bMaxSP,200;},{},{}

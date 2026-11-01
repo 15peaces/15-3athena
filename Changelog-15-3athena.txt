@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/01/2026
+	r604 [15peaces]
+		*Updated RK_GIANTGROWTH duration.
+		*Fixed a crash in itemdb_package_item function.
+		*Some item updates
+			-Added Night_Sparrow_Hat bonus script.
+				--Thanks to @Reilaen
+			-Some cleaning in item database.
+			-Fixed Battle_Hook item type.
+
 10/25/2026
 	r603 [15peaces]
 		*Updated RA_ARROWSTORM & RA_AIMEDBOLT skills to latest official versions.

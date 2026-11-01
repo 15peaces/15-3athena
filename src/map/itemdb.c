@@ -175,7 +175,11 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 	{
 		int qty = 0;
 		uint16 r = 0;
-		struct item_package_entry *tmp[MAX_RANDITEM];
+		struct item_package_entry** tmp = malloc(MAX_RANDITEM * sizeof(struct item_package_entry*));
+
+		if (tmp == NULL) {
+			return;
+		}
 
 		// First, get the current random group separated
 		for (i = 0; i < package->count; i++)
@@ -184,14 +188,17 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 			{
 				for (j = 0; j < package->entry[i]->prob; j++)
 				{
-					CREATE(tmp[qty], struct item_package_entry, 1);
+					if (package->entry[i]->nameid > 0)
+					{
+						CREATE(tmp[qty], struct item_package_entry, 1);
 
-					tmp[qty]->nameid = package->entry[i]->nameid;
-					tmp[qty]->amount = package->entry[i]->amount;
-					tmp[qty]->duration = package->entry[i]->duration;
-					tmp[qty]->announced = package->entry[i]->announced;
-					//tmp[qty]->prob = package->entry[i]->prob; // Not needed here...
-					qty++;
+						tmp[qty]->nameid = package->entry[i]->nameid;
+						tmp[qty]->amount = package->entry[i]->amount;
+						tmp[qty]->duration = package->entry[i]->duration;
+						tmp[qty]->announced = package->entry[i]->announced;
+						//tmp[qty]->prob = package->entry[i]->prob; // Not needed here...
+						qty++;
+					}
 				}
 			}
 		}
@@ -201,23 +208,30 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 		{
 			r = rnd() % qty-1;
 
-			it.nameid = tmp[r]->nameid;
-			it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
-			get_count = itemdb_isstackable(it.nameid) ? tmp[r]->amount : 1;
-			it.amount = get_count == 1 ? 1 : get_count;
-			it.expire_time = (tmp[r]->duration) ? (unsigned int)(time(NULL) + tmp[r]->duration * 60) : 0;
-			it.unique_id = tmp[r]->guid ? pc_generate_unique_id(sd) : 0; // Generate UID
-
-			for (j = 0; j < tmp[r]->amount; j += get_count)
+			if (!tmp[r]) // should not happen...
+				ShowError("itemdb_package_item: Invalid item in item package %d (rand-group %d, id %d)\n", package->id, package->entry[i]->group, r);
+			else
 			{
-				if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT)))
-					clif_additem(sd, 0, 0, flag);
-				else if (tmp[r]->announced)
-					clif_broadcast_obtain_special_item(sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM);
+				it.nameid = tmp[r]->nameid;
+				it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
+				get_count = itemdb_isstackable(it.nameid) ? tmp[r]->amount : 1;
+				it.amount = get_count == 1 ? 1 : get_count;
+				it.expire_time = (tmp[r]->duration) ? (unsigned int)(time(NULL) + tmp[r]->duration * 60) : 0;
+				it.unique_id = tmp[r]->guid ? pc_generate_unique_id(sd) : 0; // Generate UID
+
+				for (j = 0; j < tmp[r]->amount; j += get_count)
+				{
+					if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT)))
+						clif_additem(sd, 0, 0, flag);
+					else if (tmp[r]->announced)
+						clif_broadcast_obtain_special_item(sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM);
+				}
 			}
 
 			for (i = 0; i < qty; i++)
 				aFree(tmp[i]);
+
+			free(tmp);
 		}
 	}
 }
