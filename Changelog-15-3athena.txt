@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/04/2026
+	r605 [15peaces]
+		*Removed two outdated permanent spawns on splendide field.
+		*Some cleaning in item database.
+		*Fixed an underflow crash in itemdb_package_item function.
+		*Updated & rebalanced RK_STONEHARDSKIN.
+			-The renewal def/mdef bonusses are now divided by 8 instead of 10.
+		*Updated RK_VITALITYACTIVATION to latest official version.
+
 11/01/2026
 	r604 [15peaces]
 		*Updated RK_GIANTGROWTH duration.

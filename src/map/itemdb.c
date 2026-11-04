@@ -206,7 +206,7 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 		// Now we'll get an random item of the current group.
 		if (qty > 0)
 		{
-			r = rnd() % qty-1;
+			r = rnd()%qty;
 
 			if (!tmp[r]) // should not happen...
 				ShowError("itemdb_package_item: Invalid item in item package %d (rand-group %d, id %d)\n", package->id, package->entry[i]->group, r);

@@ -4468,7 +4468,6 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 			bl->type == BL_PC && (((TBL_PC*)bl)->class_&MAPID_UPPERMASK) == MAPID_MONK &&
 			(sc->data[SC_EXTREMITYFIST] || (sc->data[SC_EXPLOSIONSPIRITS] && (!sc->data[SC_SPIRIT] || sc->data[SC_SPIRIT]->val2 != SL_MONK)))
 			)
-		|| sc->data[SC_VITALITYACTIVATION]
 		|| sc->data[SC_OBLIVIONCURSE]
 	)	//No natural SP regen
 		regen->flag &=~RGN_SP;
@@ -6117,7 +6116,7 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	if(sc->data[SC_DEFENCE])	//[orn]
 		def += sc->data[SC_DEFENCE]->val2;
 	if (sc->data[SC_STONEHARDSKIN])
-		def += sc->data[SC_STONEHARDSKIN]->val2;
+		def += sc->data[SC_STONEHARDSKIN]->val1;
 	if (sc->data[SC_PRESTIGE])
 		def += sc->data[SC_PRESTIGE]->val2;
 	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1 )//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
@@ -6281,7 +6280,7 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 	if (sc->data[SC_CONCENTRATION])
 		mdef += 1; //Skill info says it adds a fixed 1 Mdef point.
 	if (sc->data[SC_STONEHARDSKIN])
-		mdef += sc->data[SC_STONEHARDSKIN]->val2;
+		mdef += sc->data[SC_STONEHARDSKIN]->val1;
 	if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 3)
 		mdef += 5;
 	if (sc->data[SC_SOULGOLEM])
@@ -9797,10 +9796,11 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		}
 		break;
 		case SC_STONEHARDSKIN:
-			// Final DEF/MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
-			val2 = val2 / 4 / 10;// DEF/MDEF Increase
-			val3 = 20 * status_get_hp(bl) / 100;// Stone Skin HP
-			status_zap(bl, val3, 0);
+			if (!status_charge(bl, status->hp / 5, 0)) // 20% of HP
+				return false;
+			// Final DEF/MDEF increase divided by 8 (10 is to much...) since were using classic (pre-renewal) mechanics. [15peaces]
+			if (sd)
+				val1 = (sd->status.job_level * pc_checkskill(sd, RK_RUNEMASTERY) / 4)/8; // DEF/MDEF Increase
 			break;
 		case SC_FIGHTINGSPIRIT:
 			val_flag |= 1 | 2;

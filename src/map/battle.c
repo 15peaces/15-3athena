@@ -1166,15 +1166,11 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			damage -= damage * 6 * (1+per) / 100;
 		}
 
-		if ((sce = sc->data[SC_STONEHARDSKIN]) && damage > 0)
-		{
-			if ((flag&(BF_SHORT | BF_WEAPON)) == (BF_SHORT | BF_WEAPON))
-				skill_break_equip(src, EQP_WEAPON, 3000, BCT_SELF);// Need to code something that will lower a monster's attack by 25%. [Rytech]
-
-			sce->val3 -= (int)damage;
-
-			if (sce->val3 <= 0)
-				status_change_end(bl, SC_STONEHARDSKIN, INVALID_TIMER);
+		if (damage > 0 && (sce = tsc->data[SC_STONEHARDSKIN])) {
+			if (src->type == BL_MOB) //using explicit call instead break_equip for duration
+				sc_start(src, SC_STRIPWEAPON, 30, 0, skill_get_time2(RK_STONEHARDSKIN, sce->val1));
+			else if (flag & (BF_WEAPON | BF_SHORT))
+				skill_break_equip(src, EQP_WEAPON, 3000, BCT_SELF);
 		}
 
 		if (src->type == BL_PC && sc->data[SC_GVG_GOLEM]) {
@@ -4322,6 +4318,10 @@ void battle_do_reflect(int attack_type, struct Damage *wd, struct block_list* sr
 		rdamage = battle_calc_return_damage(target, src, &damage, wd->flag, skill_id, true);
 		if (rdamage > 0) {
 			struct block_list *d_bl = battle_check_devotion(src);
+			struct status_change* sc = status_get_sc(src);
+
+			if (sc && sc->data[SC_VITALITYACTIVATION])
+				rdamage /= 2;
 
 			if (tsc->data[SC_MAXPAIN]) {
 				tsc->data[SC_MAXPAIN]->val2 = (int)rdamage;

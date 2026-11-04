@@ -168,7 +168,6 @@
 18103,Mystic_Bow,Mystic Bow,4,0,,1700,75,,5,0,0x00080800,56,2,34,3,105,1,11,{ bonus bMatk,100; bonus bInt,4; bonus2 bSkillUseSP,"WM_SEVERE_RAINSTORM",10; },{},{}
 18104,Adventure_Bow,Adventure Bow,4,0,,0,60,,1,0,0x00080800,63,2,34,1,1,0,11,{ bonus bUnbreakableWeapon,1; },{},{}
 18105,Academy_Bow,Academy Bow,4,0,,1200,90,,5,1,0x00080800,63,2,34,1,1,1,11,{},{},{}
-18106,P_Bow3,Eden Bow III,4,0,,0,140,,5,0,0x000A0848,63,2,34,3,60,0,11,{},{},{}
 18107,Malang_Snow_Crab,Malangdo Crab,4,0,,0,120,,5,0,0x000A0848,63,2,34,1,50,0,11,{ bonus bUnbreakableWeapon,1; bonus bLuk,3; bonus bCritAtkRate,50; if(BaseLevel>99) { bonus bLongAtkRate,10; } },{},{}
 18108,Brindle_Eel,Zebra Eel,4,0,,0,180,,5,0,0x00080800,63,2,34,1,50,0,11,{ bonus bUnbreakableWeapon,1; bonus bAgi,3; autobonus "{ bonus bAspd,2; }",10,7000,BF_WEAPON,"{ specialeffect2 EF_HASTEUP; }"; if(BaseLevel>99) { bonus bLongAtkRate,10; } },{},{}
 18109,Catapult,Thief Crossbow,4,56000,,1100,150,,5,2,0x00020000,63,2,34,4,100,1,11,{ set .@r,getrefine(); bonus2 bSkillAtk,"SC_TRIANGLESHOT",(.@r*2); bonus2 bSkillUseSP,"SC_TRIANGLESHOT",(.@r*2); },{},{}
@@ -278,17 +277,6 @@
 22886,December_Gift_Box,December Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22869,10; },{},{}
 
 //Eden Group Equipment (renewal versions)
-1391,P_Two_Handed_Axe1,Eden Two-Handed Axe I,4,0,,0,195,,1,0,0x000444A2,63,2,34,3,60,0,7,{},{},{}
-1434,P_Spear1,Eden Spear I,4,0,,0,165,,3,0,0x00004082,63,2,2,3,60,0,4,{},{},{}
-1583,P_Book1,Eden Book I,4,0,,0,135:110,,1,0,0x00410100,63,2,2,3,60,0,15,{},{},{}
-1650,P_Staff1,Eden Staff I,4,0,,0,60:125,,1,0,0x04818314,63,2,2,2,26,0,10,{ bonus bInt,2; },{},{}
-1651,P_Staff2,Eden Staff II,4,0,,0,60:150,,1,0,0x04818314,63,2,2,2,40,0,10,{ bonus bInt,3; },{},{}
-1658,P_Staff3,Eden Staff III,4,0,,0,60:170,,1,0,0x04818314,63,2,2,3,60,0,10,{ bonus bInt,4; },{},{}
-1747,P_Bow1,Eden Bow I,4,0,,0,82,,5,0,0x000A0848,63,2,34,2,26,0,11,{},{},{}
-1748,P_Bow2,Eden Bow II,4,0,,0,120,,5,0,0x000A0848,63,2,34,2,40,0,11,{},{},{}
-1831,P_Knuckle1,Eden Knuckle I,4,0,,0,120,,1,0,0x00008100,63,2,2,3,60,0,12,{},{},{}
-1931,P_Guitar1,Eden Guitar I,4,0,,0,125,,1,0,0x00080000,63,1,2,3,60,0,13,{},{},{}
-1986,P_Tail1,Eden Tail I,4,0,,0,125,,2,0,0x00080000,63,0,2,3,60,0,14,{},{},{}
 2456,Para_Team_Boots1,Eden Team Boots I,5,0,,0,,14,,0,0xFFFFFFFF,63,2,64,,12,0,0,{ bonus bHPrecovRate,10; bonus bSPrecovRate,2; },{},{}
 2457,Para_Team_Boots2,Eden Team Boots II,5,0,,0,,16,,0,0xFFFFFFFF,63,2,64,,26,0,0,{ bonus bHPrecovRate,12; bonus bSPrecovRate,4; },{},{}
 2458,Para_Team_Boots3,Eden Team Boots III,5,0,,0,,18,,0,0xFFFFFFFF,63,2,64,,40,0,0,{ bonus bHPrecovRate,14; bonus bSPrecovRate,6; },{},{}

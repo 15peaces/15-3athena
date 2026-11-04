@@ -9086,8 +9086,7 @@ int pc_itemheal(struct map_session_data *sd, t_itemid itemid, int hp,int sp)
 
 	if( sd->sc.data[SC_VITALITYACTIVATION] )
 	{
-		hp += hp * 50 / 100;// 50% Increase on HP recovery
-		sp -= sp * 50 / 100;// 50% Decrease on SP recovery
+		hp += hp / 2; // 1.5 times
 	}
 
 	// Critical Wound and Death Hurt stacks with each other.
