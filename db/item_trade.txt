@@ -2009,7 +2009,7 @@
 18106,499,100	// P_Bow3
 18107,507,100	// Malangdo Crab
 18108,507,100	// Zebra Eel
-18505,507,100 	// Umbala_Spirit
+18505,467,100 	// Umbala_Spirit
 18514,499,100	// Para_Team_Hat2
 18520,475,100	// Jaty Crown
 18760,507,100	//Remodel_Wizardry_Hat

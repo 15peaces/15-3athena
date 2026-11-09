@@ -277,14 +277,6 @@
 22886,December_Gift_Box,December Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22869,10; },{},{}
 
 //Eden Group Equipment (renewal versions)
-2456,Para_Team_Boots1,Eden Team Boots I,5,0,,0,,14,,0,0xFFFFFFFF,63,2,64,,12,0,0,{ bonus bHPrecovRate,10; bonus bSPrecovRate,2; },{},{}
-2457,Para_Team_Boots2,Eden Team Boots II,5,0,,0,,16,,0,0xFFFFFFFF,63,2,64,,26,0,0,{ bonus bHPrecovRate,12; bonus bSPrecovRate,4; },{},{}
-2458,Para_Team_Boots3,Eden Team Boots III,5,0,,0,,18,,0,0xFFFFFFFF,63,2,64,,40,0,0,{ bonus bHPrecovRate,14; bonus bSPrecovRate,6; },{},{}
-2473,Para_Team_Boots4,Eden Team Boots IV,5,0,,0,,20,,0,0xFFFFFFFF,63,2,64,,60,0,0,{ bonus bAgi,1; bonus bVit,1; bonus bHPrecovRate,28; bonus bSPrecovRate,12; },{},{}
-2560,Para_Team_Manteau1,Eden Team Manteau I,5,0,,0,,14,,0,0xFFFFFFFF,63,2,4,,12,0,0,{ bonus2 bSubEle,Ele_Neutral,10; },{},{}
-2571,Para_Team_Manteau2,Eden Team Manteau II,5,0,,0,,18,,0,0xFFFFFFFF,63,2,4,,60,0,0,{ bonus bFlee,12; bonus2 bSubEle,Ele_Neutral,10; },{},{}
-5583,Para_Team_Hat1,Eden Team Hat I,5,0,,0,,1,,0,0xFFFFFFFF,63,2,256,,12,1,465,{},{},{}
-13050,P_Dagger1,Eden Dagger I,4,0,,0,124:60,,1,0,0x3E9F7EEF,63,2,2,2,26,0,1,{},{},{}
 13051,P_Dagger2,Eden Dagger II,4,0,,0,158:70,,1,0,0x3E9F7EEF,63,2,2,2,40,0,1,{},{},{}
 13066,P_Dagger3,Eden Dagger III,4,0,,0,165:80,,1,0,0x3E9F7EEF,63,2,2,3,60,0,1,{},{},{}
 13112,P_Revolver1,Eden Revlover I,4,0,,0,44,,7,0,0x41000000,63,2,34,1,26,0,17,{ bonus bHit,-5; },{},{}

@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/09/2026
+	r606 [15peaces]
+		*Corrected Umbala_Spirit trading restrictions based on pre-renewal.
+		*Changed some Eden Group items to fit pre-renewal calculations.
+
 11/04/2026
 	r605 [15peaces]
 		*Removed two outdated permanent spawns on splendide field.

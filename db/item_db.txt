@@ -1462,9 +1462,9 @@
 //2453,Freyja_SSandal60,Freyja Sprit Sandals,5,20,,400,,5,,0,0xFFFFFFFF,7,2,64,,20,0,0,{},{},{}
 //2454,Freyja_SSandal90,Freyja Sprit Sandals,5,20,,400,,5,,0,0xFFFFFFFF,7,2,64,,20,0,0,{},{},{}
 2455,Time_Keepr_Boots,Time Keeper's Boots,5,30000,,0,,17,,0,0xFFFFFFFF,7,2,64,,1,1,0,{ bonus bMdef,1; },{},{}
-2456,Para_Team_Boots1,Eden Team Boots I,5,0,,0,,14,,0,0xFFFFFFFF,7,2,64,,12,0,0,{ bonus bHPrecovRate,10; bonus bSPrecovRate,2; },{},{}
-2457,Para_Team_Boots2,Eden Team Boots II,5,0,,0,,16,,0,0xFFFFFFFF,7,2,64,,26,0,0,{ bonus bHPrecovRate,12; bonus bSPrecovRate,4; },{},{}
-2458,Para_Team_Boots3,Eden Team Boots III,5,0,,0,,18,,0,0xFFFFFFFF,7,2,64,,40,0,0,{ bonus bHPrecovRate,14; bonus bSPrecovRate,6; },{},{}
+2456,Para_Team_Boots1,Eden Team Boots I,5,0,,0,,3,,0,0xFFFFFFFF,63,2,64,,12,0,0,{ bonus bHPrecovRate,10; bonus bSPrecovRate,2; },{},{}
+2457,Para_Team_Boots2,Eden Team Boots II,5,0,,0,,3,,0,0xFFFFFFFF,63,2,64,,26,0,0,{ bonus bHPrecovRate,12; bonus bSPrecovRate,4; },{},{}
+2458,Para_Team_Boots3,Eden Team Boots III,5,0,,0,,4,,0,0xFFFFFFFF,63,2,64,,40,0,0,{ bonus bHPrecovRate,14; bonus bSPrecovRate,6; },{},{}
 2459,Upg_Shoes,Upg Shoes,5,20,,200,,15,,1,0xFFFFFFFE,7,2,64,,1,1,0,{},{},{}
 2460,Upg_Boots,Upg Boots,5,20,,300,,21,,1,0x016E5CEA,7,2,64,,1,1,0,{},{},{}
 2461,Upg_Greave,Upg Greaves,5,20,,400,,32,,1,0x00004080,7,2,64,,1,1,0,{},{},{}
@@ -1479,7 +1479,7 @@
 2470,Forest_Shoes,Forest Shoes,5,20,,500,,12,,1,0x00000000,7,2,64,,100,1,0,{ bonus bMdef,2; },{},{}
 //2471,Shoes_Of_Affection
 //2472,Shoes_Of_Judgement
-//2473,Para_Team_Boots4
+2473,Para_Team_Boots4,Eden Team Boots IV,5,0,,0,,4,,0,0xFFFFFFFF,63,2,64,,60,0,0,{ bonus bAgi,1; bonus bVit,1; bonus bHPrecovRate,28; bonus bSPrecovRate,12; },{},{}
 //2474,Lehmannza_Shoes
 //2475,Ur_Greave
 //2476,Peuz_Greave
@@ -1565,7 +1565,7 @@
 //2557,Freyja_SScarf60,Freyja Soul Scarf,5,20,,400,,4,,0,0xFFFFFFFF,7,2,4,,20,0,0,{},{},{}
 //2558,Freyja_SScarf90,Freyja Soul Scarf,5,20,,400,,4,,0,0xFFFFFFFF,7,2,4,,20,0,0,{},{},{}
 2559,Time_Keepr_Manteau,Time Keeper's Manteau,5,30000,,0,,9,,0,0xFFFFFFFF,7,2,4,,1,1,0,{ bonus bMdef,1; },{},{}
-2560,Para_Team_Manteau,Eden Team Manteau,5,0,,0,,14,,0,0xFFFFFFFF,7,2,4,,12,0,0,{ bonus2 bSubEle,Ele_Neutral,10; },{},{}
+2560,Para_Team_Manteau1,Eden Team Manteau I,5,0,,0,,3,,0,0xFFFFFFFF,63,2,4,,12,0,0,{ bonus2 bSubEle,Ele_Neutral,10; },{},{}
 2561,Upg_Hood,Upg Hood,5,0,,100,,9,,1,0xFFFFFFFF,7,2,4,,1,1,0,{},{},{}
 2562,Upg_Muffler,Upg Muffler,5,20,,200,,13,,1,0xFFFFFFFE,7,2,4,,1,1,0,{},{},{}
 2563,Upg_Manteau,Upg Manteau,5,20,,300,,18,,1,0x006654E2,7,2,4,,1,1,0,{},{},{}
@@ -1576,7 +1576,7 @@
 2568,Muffler_Of_Roki,Loki's MUffler,5,20,,400,,10,,0,0xFFFFFFFF,7,2,4,,100,0,0,{ bonus bAgi,1; },{},{}
 //2569,Shawl_Of_Affection
 //2570,Shawl_Of_Judgement
-//2571,Para_Team_Manteau2
+2571,Para_Team_Manteau2,Eden Team Manteau II,5,0,,0,,4,,0,0xFFFFFFFF,63,2,4,,60,0,0,{ bonus bFlee,12; bonus2 bSubEle,Ele_Neutral,10; },{},{}
 //2572,Katabart_Sholder
 2573,Archangel_Wing,Archangel Wings,5,20,,100,,0,,1,0xFFFFFFFF,63,2,4,,1,0,1,{},{},{}
 //2574,Ur_Manteau
@@ -3148,7 +3148,7 @@
 5580,Red_Beret,Red Beret,5,20,,100,,1,,0,0xFFFFFFFF,7,2,256,,0,0,559,{ bonus bAllStats,3; bonus bMdef,3; },{},{}
 5581,Cancer_Diadem,Cancer Diadem,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,70,1,560,{ bonus bInt, 2; bonus2 bSubEle, Ele_water, 5; if(getrefine() > 6) { bonus bMdef, 1; bonus bHealPower, 3; bonus bMatkRate, 2; } },{},{}
 5582,Cancer_Crown,Cancer Crown,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,70,1,561,{ bonus bStr, 2; bonus2 bSubEle, Ele_water, 5; if(getrefine() > 6) { bonus bDef, 1; bonus bAtk, 15; bonus bFlee, 10; } },{},{}
-5583,Para_Team_Hat,Eden Team Hat,5,0,,0,,1,,0,0xFFFFFFFF,7,2,256,,12,1,465,{},{},{}
+5583,Para_Team_Hat1,Eden Team Hat I,5,0,,0,,1,,0,0xFFFFFFFF,63,2,256,,12,1,465,{},{},{}
 5584,Majestic_Evil_Horn,Majestic Evil Horns,5,0,,400,,1,,0,0xFFFFFFFF,7,2,256,,1,1,562,{ bonus2 bSubRace,RC_Demon,3; bonus2 bHPDrainRate,3,15; bonus2 bSPDrainRate,1,7; },{},{}
 5585,Rune_Hairband,Rune Cloth Circlet,5,20,,400,,1,,1,0xFFFFFFFF,7,2,768,,1,1,564,{},{},{}
 5586,Mosquito_Coil,Mosquito Coil,5,20,,100,,1,,1,0xFFFFFFFF,7,2,256,,1,1,563,{},{},{}
@@ -5895,7 +5895,7 @@
 13047,Weihna,Weihna,4,20,,500,135,,1,2,0x00021040,2,2,2,3,50,1,1,{ bonus3 bAddEffOnSkill,"RG_RAID",Eff_Poison,1000; autobonus "{ bonus2 bAddClass,Class_All,10; }",5,5000,BF_WEAPON|BF_SHORT,"{ specialeffect2 EF_POTION_BERSERK; }"; },{},{}
 13048,Damascus_C,Damascus,4,0,,0,153,,1,0,0x028F5EEE,7,2,2,3,1,0,1,{bonus2 bAddSize,Size_Small,40; bonus2 bAddSize,Size_Medium,40; bonus2 bAddSize,Size_Large,40;},{},{}
 13049,Lacma,Lacma,4,20,,650,45,,1,1,0xFA9F7EEF,7,2,2,3,1,1,1,{},{},{}
-13050,P_Dagger1,Eden Dagger I,4,0,,0,124,,1,0,0xFA9F7EEF,7,2,2,2,26,0,1,{ /* bonus bMAtk,60; */ },{},{}
+13050,P_Dagger1,Eden Dagger I,4,0,,0,124,,1,0,0x3E9F7EEF,63,2,2,2,26,0,1,{bonus bMatkRate,6;},{},{}
 13051,P_Dagger2,Eden Dagger II,4,0,,0,158,,1,0,0xFA9F7EEF,7,2,2,2,40,0,1,{ /* bonus bMAtk,70; */ },{},{}
 13052,Tourist_Dagger,Tourist Dagger,4,0,,500,51,,1,0,0xFA9F7EEF,7,2,2,1,1,0,1,{ bonus bAgi,2; },{},{}
 13053,F_Moonlight_Sword_C,Moonlight Sword,4,2,,0,85,,1,0,0x028F5EEE,7,2,2,4,0,0,1,{},{},{}
